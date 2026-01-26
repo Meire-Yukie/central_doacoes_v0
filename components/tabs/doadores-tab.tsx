@@ -757,7 +757,7 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
 
       {/* Edit Doador Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Editar Doador</DialogTitle>
             <DialogDescription>
@@ -767,6 +767,22 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
           {selectedDoador && (
             <form onSubmit={handleSaveEdit}>
               <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-id">ID Doador</Label>
+                  <Input id="edit-id" value={selectedDoador.id} disabled className="bg-muted" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-tipo">Tipo *</Label>
+                  <Select defaultValue={selectedDoador.tipo}>
+                    <SelectTrigger id="edit-tipo">
+                      <SelectValue placeholder="Selecione o tipo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PF">Pessoa Física</SelectItem>
+                      <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="edit-nome">Nome completo *</Label>
                   <Input id="edit-nome" defaultValue={selectedDoador.nome} required />
@@ -783,53 +799,6 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
                 <div className="space-y-2">
                   <Label htmlFor="edit-telefone">Telefone</Label>
                   <Input id="edit-telefone" defaultValue={selectedDoador.telefone || ""} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-cep">CEP *</Label>
-                  <Input id="edit-cep" defaultValue={selectedDoador.cep} required />
-                </div>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="col-span-2 space-y-2">
-                    <Label htmlFor="edit-rua">Rua *</Label>
-                    <Input
-                      id="edit-rua"
-                      defaultValue={selectedDoador.endereco.rua}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-numero">Número *</Label>
-                    <Input
-                      id="edit-numero"
-                      defaultValue={selectedDoador.endereco.numero}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-complemento">Complemento</Label>
-                  <Input
-                    id="edit-complemento"
-                    defaultValue={selectedDoador.endereco.complemento || ""}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-bairro">Bairro *</Label>
-                    <Input
-                      id="edit-bairro"
-                      defaultValue={selectedDoador.endereco.bairro}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="edit-cidade">Cidade/UF *</Label>
-                    <Input
-                      id="edit-cidade"
-                      defaultValue={`${selectedDoador.endereco.cidade}/${selectedDoador.endereco.uf}`}
-                      required
-                    />
-                  </div>
                 </div>
               </div>
               <DialogFooter className="gap-2">
