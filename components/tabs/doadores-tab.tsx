@@ -84,6 +84,7 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
   const [selectedDoacao, setSelectedDoacao] = useState<string | null>(null)
   const [tipoContato, setTipoContato] = useState("")
   const [canalContato, setCanalContato] = useState("")
+  const [tipoNovoDoador, setTipoNovoDoador] = useState<"PF" | "PJ">("PF")
   const { toast } = useToast()
 
   // Dados mockados de endereços por doador (um doador pode ter múltiplos endereços)
@@ -100,16 +101,16 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
     principal: boolean
   }>> = {
     "DOA001": [
-      { id: "END001", tipo: "Residencial", rua: "Avenida Paulista", numero: "1000", complemento: "Apto 123", bairro: "Bela Vista", cidade: "São Paulo", uf: "SP", cep: "01310-100", principal: true },
-      { id: "END002", tipo: "Comercial", rua: "Rua Augusta", numero: "500", bairro: "Consolação", cidade: "São Paulo", uf: "SP", cep: "01304-000", principal: false },
+      { id: "END001", tipo: "Apartamento", rua: "Avenida Paulista", numero: "1000", complemento: "Apto 123", bairro: "Bela Vista", cidade: "São Paulo", uf: "SP", cep: "01310-100", principal: true },
+      { id: "END002", tipo: "Estabelecimento comercial", rua: "Rua Augusta", numero: "500", bairro: "Consolação", cidade: "São Paulo", uf: "SP", cep: "01304-000", principal: false },
     ],
     "DOA002": [
-      { id: "END003", tipo: "Residencial", rua: "Rua das Flores", numero: "250", bairro: "Centro", cidade: "Rio de Janeiro", uf: "RJ", cep: "20040-020", principal: true },
+      { id: "END003", tipo: "Casa", rua: "Rua das Flores", numero: "250", bairro: "Centro", cidade: "Rio de Janeiro", uf: "RJ", cep: "20040-020", principal: true },
     ],
     "DOA003": [
-      { id: "END004", tipo: "Residencial", rua: "Avenida Brasil", numero: "1500", complemento: "Casa 2", bairro: "Jardins", cidade: "São Paulo", uf: "SP", cep: "01430-000", principal: true },
-      { id: "END005", tipo: "Casa de Praia", rua: "Rua da Praia", numero: "100", bairro: "Centro", cidade: "Guarujá", uf: "SP", cep: "11410-000", principal: false },
-      { id: "END006", tipo: "Sítio", rua: "Estrada do Campo", numero: "S/N", bairro: "Zona Rural", cidade: "Ibiúna", uf: "SP", cep: "18150-000", principal: false },
+      { id: "END004", tipo: "Casa", rua: "Avenida Brasil", numero: "1500", complemento: "Casa 2", bairro: "Jardins", cidade: "São Paulo", uf: "SP", cep: "01430-000", principal: true },
+      { id: "END005", tipo: "Outro", rua: "Rua da Praia", numero: "100", bairro: "Centro", cidade: "Guarujá", uf: "SP", cep: "11410-000", principal: false },
+      { id: "END006", tipo: "Outro", rua: "Estrada do Campo", numero: "S/N", bairro: "Zona Rural", cidade: "Ibiúna", uf: "SP", cep: "18150-000", principal: false },
     ],
   }
 
@@ -692,7 +693,10 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
       </Sheet>
 
       {/* New Doador Dialog */}
-      <Dialog open={isNewDoadorOpen} onOpenChange={setIsNewDoadorOpen}>
+      <Dialog open={isNewDoadorOpen} onOpenChange={(open) => {
+        setIsNewDoadorOpen(open)
+        if (!open) setTipoNovoDoador("PF")
+      }}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Cadastrar Novo Doador</DialogTitle>
@@ -702,17 +706,87 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
           </DialogHeader>
           <form onSubmit={handleSaveNewDoador}>
             <div className="grid gap-4 py-4">
+              {/* Tipo de Doador */}
               <div className="space-y-2">
-                <Label htmlFor="nome">Nome completo *</Label>
-                <Input id="nome" placeholder="Nome do doador" required />
+                <Label htmlFor="tipo-doador">Tipo de Doador *</Label>
+                <Select value={tipoNovoDoador} onValueChange={(value: "PF" | "PJ") => setTipoNovoDoador(value)}>
+                  <SelectTrigger id="tipo-doador">
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="PF">Pessoa Física</SelectItem>
+                    <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">E-mail *</Label>
-                <Input id="email" type="email" placeholder="email@exemplo.com" required />
+
+              {/* Campos de Doador - Pessoa Física */}
+              {tipoNovoDoador === "PF" && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="nome">Nome Completo *</Label>
+                    <Input id="nome" placeholder="Nome do doador" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="telefone">Telefone</Label>
+                    <Input id="telefone" placeholder="(00) 00000-0000" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-mail *</Label>
+                    <Input id="email" type="email" placeholder="email@exemplo.com" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirma-email">Confirme o e-mail *</Label>
+                    <Input id="confirma-email" type="email" placeholder="Confirme o e-mail" required />
+                  </div>
+                </>
+              )}
+
+              {/* Campos de Doador - Pessoa Jurídica */}
+              {tipoNovoDoador === "PJ" && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="razao-social">Razão Social *</Label>
+                    <Input id="razao-social" placeholder="Razão Social da empresa" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="nome-responsavel">Nome do Responsável *</Label>
+                    <Input id="nome-responsavel" placeholder="Nome do responsável" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="telefone">Telefone</Label>
+                    <Input id="telefone" placeholder="(00) 00000-0000" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">E-mail *</Label>
+                    <Input id="email" type="email" placeholder="email@exemplo.com" required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="confirma-email">Confirme o e-mail *</Label>
+                    <Input id="confirma-email" type="email" placeholder="Confirme o e-mail" required />
+                  </div>
+                </>
+              )}
+
+              {/* Separador de Endereço */}
+              <div className="border-t pt-4 mt-2">
+                <h4 className="font-medium text-sm text-muted-foreground mb-4">Endereço</h4>
               </div>
+
+              {/* Campos de Endereço */}
               <div className="space-y-2">
-                <Label htmlFor="telefone">Telefone</Label>
-                <Input id="telefone" placeholder="(00) 00000-0000" />
+                <Label htmlFor="tipo-endereco">Tipo *</Label>
+                <Select defaultValue="Casa">
+                  <SelectTrigger id="tipo-endereco">
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Casa">Casa</SelectItem>
+                    <SelectItem value="Apartamento">Apartamento</SelectItem>
+                    <SelectItem value="Estabelecimento comercial">Estabelecimento comercial</SelectItem>
+                    <SelectItem value="Outro">Outro</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="cep">CEP *</Label>
@@ -955,15 +1029,14 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="new-tipo">Tipo *</Label>
-                  <Select defaultValue="Residencial">
+                  <Select defaultValue="Casa">
                     <SelectTrigger id="new-tipo">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Residencial">Residencial</SelectItem>
-                      <SelectItem value="Comercial">Comercial</SelectItem>
-                      <SelectItem value="Casa de Praia">Casa de Praia</SelectItem>
-                      <SelectItem value="Sítio">Sítio</SelectItem>
+                      <SelectItem value="Casa">Casa</SelectItem>
+                      <SelectItem value="Apartamento">Apartamento</SelectItem>
+                      <SelectItem value="Estabelecimento comercial">Estabelecimento comercial</SelectItem>
                       <SelectItem value="Outro">Outro</SelectItem>
                     </SelectContent>
                   </Select>
@@ -1045,15 +1118,14 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="edit-tipo">Tipo *</Label>
-                  <Select defaultValue={selectedEndereco?.tipo || "Residencial"}>
+                  <Select defaultValue={selectedEndereco?.tipo || "Casa"}>
                     <SelectTrigger id="edit-tipo">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Residencial">Residencial</SelectItem>
-                      <SelectItem value="Comercial">Comercial</SelectItem>
-                      <SelectItem value="Casa de Praia">Casa de Praia</SelectItem>
-                      <SelectItem value="Sítio">Sítio</SelectItem>
+                      <SelectItem value="Casa">Casa</SelectItem>
+                      <SelectItem value="Apartamento">Apartamento</SelectItem>
+                      <SelectItem value="Estabelecimento comercial">Estabelecimento comercial</SelectItem>
                       <SelectItem value="Outro">Outro</SelectItem>
                     </SelectContent>
                   </Select>
