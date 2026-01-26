@@ -36,7 +36,7 @@ import { KPICards } from "@/components/kpi-cards"
 import { StatusBadge } from "@/components/status-badge"
 import { mockDoadores, mockDoacoes } from "@/lib/mock-data"
 import type { Doador } from "@/lib/types"
-import { Plus, Pencil, Package, MapPin, Mail, Phone, FileText, MoreHorizontal, MessageSquare } from "lucide-react"
+import { Plus, Pencil, Package, MapPin, Mail, Phone, FileText, MoreHorizontal, MessageSquare, Trash2 } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -63,19 +63,216 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
   const [isNewDoadorOpen, setIsNewDoadorOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
   const [isContactOpen, setIsContactOpen] = useState(false)
+  const [isAddressOpen, setIsAddressOpen] = useState(false)
+  const [isNewAddressOpen, setIsNewAddressOpen] = useState(false)
+  const [isEditAddressOpen, setIsEditAddressOpen] = useState(false)
+  const [isDeleteAddressOpen, setIsDeleteAddressOpen] = useState(false)
+  const [selectedEndereco, setSelectedEndereco] = useState<{
+    id: string
+    tipo: string
+    rua: string
+    numero: string
+    complemento?: string
+    bairro: string
+    cidade: string
+    uf: string
+    cep: string
+    principal: boolean
+  } | null>(null)
+  const [isDoacoesOpen, setIsDoacoesOpen] = useState(false)
+  const [isDetalhesDoacaoOpen, setIsDetalhesDoacaoOpen] = useState(false)
+  const [selectedDoacao, setSelectedDoacao] = useState<string | null>(null)
   const [tipoContato, setTipoContato] = useState("")
   const [canalContato, setCanalContato] = useState("")
   const { toast } = useToast()
 
+  // Dados mockados de endereços por doador (um doador pode ter múltiplos endereços)
+  const mockEnderecos: Record<string, Array<{
+    id: string
+    tipo: string
+    rua: string
+    numero: string
+    complemento?: string
+    bairro: string
+    cidade: string
+    uf: string
+    cep: string
+    principal: boolean
+  }>> = {
+    "DOA001": [
+      { id: "END001", tipo: "Residencial", rua: "Avenida Paulista", numero: "1000", complemento: "Apto 123", bairro: "Bela Vista", cidade: "São Paulo", uf: "SP", cep: "01310-100", principal: true },
+      { id: "END002", tipo: "Comercial", rua: "Rua Augusta", numero: "500", bairro: "Consolação", cidade: "São Paulo", uf: "SP", cep: "01304-000", principal: false },
+    ],
+    "DOA002": [
+      { id: "END003", tipo: "Residencial", rua: "Rua das Flores", numero: "250", bairro: "Centro", cidade: "Rio de Janeiro", uf: "RJ", cep: "20040-020", principal: true },
+    ],
+    "DOA003": [
+      { id: "END004", tipo: "Residencial", rua: "Avenida Brasil", numero: "1500", complemento: "Casa 2", bairro: "Jardins", cidade: "São Paulo", uf: "SP", cep: "01430-000", principal: true },
+      { id: "END005", tipo: "Casa de Praia", rua: "Rua da Praia", numero: "100", bairro: "Centro", cidade: "Guarujá", uf: "SP", cep: "11410-000", principal: false },
+      { id: "END006", tipo: "Sítio", rua: "Estrada do Campo", numero: "S/N", bairro: "Zona Rural", cidade: "Ibiúna", uf: "SP", cep: "18150-000", principal: false },
+    ],
+  }
+
+  // Dados mockados de doações por doador
+  const mockDoacoesPorDoador: Record<string, Array<{
+    id: string
+    dataColeta: string
+    dataSolicitacao: string
+    tipoColeta: string
+    porteLitros: number
+    status: string
+    baixaRealizada: boolean
+    endereco: string
+    responsavelColeta: string
+    observacoes: string
+    modificadoPor: string
+    itens: Array<{
+      nome: string
+      quantidade: number
+      totalItens: number
+      tamanho: string
+      descricao: string
+      estado: string
+      fotografia: boolean
+      altoValor: boolean
+    }>
+  }>> = {
+    "DOA001": [
+      { 
+        id: "DON001", 
+        dataColeta: "19/01/2026", 
+        dataSolicitacao: "15/01/2026",
+        tipoColeta: "Retirada", 
+        porteLitros: 200,
+        status: "Concluída", 
+        baixaRealizada: true,
+        endereco: "Avenida Paulista, 1000 - Bela Vista, São Paulo/SP",
+        responsavelColeta: "Carlos Eduardo Santos",
+        observacoes: "Coleta realizada sem intercorrências.",
+        modificadoPor: "Ana Paula Silva",
+        itens: [
+          { nome: "Camisetas", quantidade: 10, totalItens: 10, tamanho: "M", descricao: "Camisetas em bom estado", estado: "Bom", fotografia: true, altoValor: false },
+          { nome: "Calças jeans", quantidade: 5, totalItens: 5, tamanho: "42", descricao: "Calças seminovas", estado: "Ótimo", fotografia: true, altoValor: false },
+        ]
+      },
+      { 
+        id: "DON005", 
+        dataColeta: "10/01/2026", 
+        dataSolicitacao: "05/01/2026",
+        tipoColeta: "Ponto de coleta", 
+        porteLitros: 100,
+        status: "Cadastrada", 
+        baixaRealizada: false,
+        endereco: "Ponto de Coleta Centro - Rua Augusta, 500, São Paulo/SP",
+        responsavelColeta: "Mariana Oliveira",
+        observacoes: "Aguardando confirmação do doador.",
+        modificadoPor: "João Pedro Costa",
+        itens: [
+          { nome: "Livros didáticos", quantidade: 20, totalItens: 20, tamanho: "-", descricao: "Livros de ensino médio", estado: "Bom", fotografia: false, altoValor: false },
+          { nome: "Livros de literatura", quantidade: 10, totalItens: 10, tamanho: "-", descricao: "Romances e ficção", estado: "Regular", fotografia: false, altoValor: false },
+        ]
+      },
+    ],
+    "DOA002": [
+      { 
+        id: "DON002", 
+        dataColeta: "18/01/2026", 
+        dataSolicitacao: "12/01/2026",
+        tipoColeta: "Retirada", 
+        porteLitros: 500,
+        status: "Pendente - Quantidade de Itens Atípica", 
+        baixaRealizada: false,
+        endereco: "Rua das Flores, 250 - Centro, Rio de Janeiro/RJ",
+        responsavelColeta: "Ricardo Mendes",
+        observacoes: "Quantidade de itens acima do padrão. Necessita validação.",
+        modificadoPor: "Fernanda Lima",
+        itens: [
+          { nome: "Geladeira", quantidade: 1, totalItens: 1, tamanho: "Grande", descricao: "Geladeira frost free 400L", estado: "Bom", fotografia: true, altoValor: true },
+          { nome: "Micro-ondas", quantidade: 2, totalItens: 2, tamanho: "Médio", descricao: "Micro-ondas 30L", estado: "Ótimo", fotografia: true, altoValor: false },
+        ]
+      },
+    ],
+    "DOA003": [
+      { 
+        id: "DON003", 
+        dataColeta: "17/01/2026", 
+        dataSolicitacao: "10/01/2026",
+        tipoColeta: "Retirada", 
+        porteLitros: 800,
+        status: "Pré-Cadastrada", 
+        baixaRealizada: false,
+        endereco: "Avenida Brasil, 1500 - Jardins, São Paulo/SP",
+        responsavelColeta: "Ana Paula Silva",
+        observacoes: "Doador solicita coleta no período da tarde.",
+        modificadoPor: "Carlos Eduardo Santos",
+        itens: [
+          { nome: "Sofá", quantidade: 1, totalItens: 1, tamanho: "3 lugares", descricao: "Sofá de couro sintético", estado: "Bom", fotografia: true, altoValor: true },
+          { nome: "Mesa de jantar", quantidade: 1, totalItens: 1, tamanho: "6 lugares", descricao: "Mesa de madeira com cadeiras", estado: "Regular", fotografia: true, altoValor: false },
+          { nome: "Cadeira de escritório", quantidade: 3, totalItens: 3, tamanho: "XG", descricao: "Cadeiras ergonômicas", estado: "Ótimo", fotografia: false, altoValor: false },
+        ]
+      },
+      { 
+        id: "DON006", 
+        dataColeta: "05/01/2026", 
+        dataSolicitacao: "28/12/2025",
+        tipoColeta: "Ponto de coleta", 
+        porteLitros: 150,
+        status: "Concluída", 
+        baixaRealizada: true,
+        endereco: "Ponto de Coleta Shopping - Av. Faria Lima, 1000, São Paulo/SP",
+        responsavelColeta: "João Pedro Costa",
+        observacoes: "Coleta realizada com sucesso.",
+        modificadoPor: "Mariana Oliveira",
+        itens: [
+          { nome: "Brinquedos educativos", quantidade: 15, totalItens: 15, tamanho: "-", descricao: "Jogos e quebra-cabeças", estado: "Ótimo", fotografia: true, altoValor: false },
+          { nome: "Bonecas", quantidade: 5, totalItens: 5, tamanho: "-", descricao: "Bonecas diversas", estado: "Bom", fotografia: false, altoValor: false },
+        ]
+      },
+      { 
+        id: "DON007", 
+        dataColeta: "28/12/2025", 
+        dataSolicitacao: "20/12/2025",
+        tipoColeta: "Retirada", 
+        porteLitros: 300,
+        status: "Concluída", 
+        baixaRealizada: true,
+        endereco: "Rua da Praia, 100 - Centro, Guarujá/SP",
+        responsavelColeta: "Fernanda Lima",
+        observacoes: "Doação de fim de ano.",
+        modificadoPor: "Ricardo Mendes",
+        itens: [
+          { nome: "Roupas de inverno", quantidade: 25, totalItens: 25, tamanho: "Variados", descricao: "Casacos e blusas de frio", estado: "Bom", fotografia: true, altoValor: false },
+          { nome: "Roupas infantis", quantidade: 15, totalItens: 15, tamanho: "2-8 anos", descricao: "Roupas para crianças", estado: "Ótimo", fotografia: false, altoValor: false },
+        ]
+      },
+    ],
+  }
+
+  // Filtros
+  const [filtroId, setFiltroId] = useState("")
+  const [filtroNome, setFiltroNome] = useState("")
+  const [filtroEmail, setFiltroEmail] = useState("")
+  const [filtroTelefone, setFiltroTelefone] = useState("")
+  const [filtroTipo, setFiltroTipo] = useState("")
+  const [filtroPrioridade, setFiltroPrioridade] = useState("")
+
   const filteredDoadores = mockDoadores.filter((doador) => {
     const query = searchQuery.toLowerCase()
-    return (
+    const matchSearch = 
       doador.nome.toLowerCase().includes(query) ||
       doador.email.toLowerCase().includes(query) ||
       doador.telefone?.toLowerCase().includes(query) ||
       doador.cep.includes(query) ||
       doador.id.toLowerCase().includes(query)
-    )
+
+    const matchId = !filtroId || doador.id.toLowerCase().includes(filtroId.toLowerCase())
+    const matchNome = !filtroNome || doador.nome.toLowerCase().includes(filtroNome.toLowerCase())
+    const matchEmail = !filtroEmail || doador.email.toLowerCase().includes(filtroEmail.toLowerCase())
+    const matchTelefone = !filtroTelefone || doador.telefone?.toLowerCase().includes(filtroTelefone.toLowerCase())
+    const matchTipo = !filtroTipo || filtroTipo === "todos" || doador.tipo === filtroTipo
+    const matchPrioridade = !filtroPrioridade || filtroPrioridade === "todos" || doador.prioridade === filtroPrioridade
+
+    return matchSearch && matchId && matchNome && matchEmail && matchTelefone && matchTipo && matchPrioridade
   })
 
   const handleViewDetails = (doador: Doador) => {
@@ -113,6 +310,64 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
     setIsContactOpen(true)
   }
 
+  const handleOpenAddress = (doador: Doador) => {
+    setSelectedDoador(doador)
+    setIsAddressOpen(true)
+  }
+
+  const handleOpenDoacoes = (doador: Doador) => {
+    setSelectedDoador(doador)
+    setIsDoacoesOpen(true)
+  }
+
+  const handleNewAddress = () => {
+    setSelectedEndereco(null)
+    setIsNewAddressOpen(true)
+  }
+
+  const handleEditAddress = (endereco: typeof selectedEndereco) => {
+    setSelectedEndereco(endereco)
+    setIsEditAddressOpen(true)
+  }
+
+  const handleDeleteAddress = (endereco: typeof selectedEndereco) => {
+    setSelectedEndereco(endereco)
+    setIsDeleteAddressOpen(true)
+  }
+
+  const handleSaveNewAddress = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsNewAddressOpen(false)
+    toast({
+      title: "Endereço cadastrado",
+      description: "O novo endereço foi cadastrado com sucesso.",
+    })
+  }
+
+  const handleSaveEditAddress = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsEditAddressOpen(false)
+    toast({
+      title: "Endereço atualizado",
+      description: "O endereço foi atualizado com sucesso.",
+    })
+  }
+
+  const handleConfirmDeleteAddress = () => {
+    setIsDeleteAddressOpen(false)
+    setSelectedEndereco(null)
+    toast({
+      title: "Endereço excluído",
+      description: "O endereço foi excluído com sucesso.",
+      variant: "destructive",
+    })
+  }
+
+  const handleOpenDetalhesDoacao = (doacaoId: string) => {
+    setSelectedDoacao(doacaoId)
+    setIsDetalhesDoacaoOpen(true)
+  }
+
   const handleSaveContact = (e: React.FormEvent) => {
     e.preventDefault()
     setIsContactOpen(false)
@@ -120,6 +375,15 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
       title: "Contato registrado",
       description: "O registro de contato foi salvo com sucesso.",
     })
+  }
+
+  const handleLimparFiltros = () => {
+    setFiltroId("")
+    setFiltroNome("")
+    setFiltroEmail("")
+    setFiltroTelefone("")
+    setFiltroTipo("")
+    setFiltroPrioridade("")
   }
 
   const doadorDoacoes = selectedDoador
@@ -145,6 +409,82 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
 
       <KPICards variant="doadores" />
 
+      {/* Filtros */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-6 gap-4">
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">ID Doador</Label>
+              <Input
+                id="filtro-id"
+                placeholder="Buscar"
+                value={filtroId}
+                onChange={(e) => setFiltroId(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">Nome</Label>
+              <Input
+                id="filtro-nome"
+                placeholder="Buscar"
+                value={filtroNome}
+                onChange={(e) => setFiltroNome(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">E-mail</Label>
+              <Input
+                id="filtro-email"
+                placeholder="Buscar"
+                value={filtroEmail}
+                onChange={(e) => setFiltroEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">Telefone</Label>
+              <Input
+                id="filtro-telefone"
+                placeholder="Buscar"
+                value={filtroTelefone}
+                onChange={(e) => setFiltroTelefone(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">Tipo de doador</Label>
+              <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todos" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todos</SelectItem>
+                  <SelectItem value="PF">Pessoa Física</SelectItem>
+                  <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">Prioridade</Label>
+              <Select value={filtroPrioridade} onValueChange={setFiltroPrioridade}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Todas" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todos">Todas</SelectItem>
+                  <SelectItem value="Alta">Alta</SelectItem>
+                  <SelectItem value="Média">Média</SelectItem>
+                  <SelectItem value="Baixa">Baixa</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-end">
+              <Button variant="outline" onClick={handleLimparFiltros}>
+                Limpar filtros
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg">Lista de Doadores</CardTitle>
@@ -161,7 +501,7 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
                   <TableHead className="hidden md:table-cell">Telefone</TableHead>
                   <TableHead className="hidden lg:table-cell">Prioridade</TableHead>
                   <TableHead className="text-center">Doações</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead className="text-right text-blue-600">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -232,11 +572,11 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewDetails(doador)}>
+                              <DropdownMenuItem onClick={() => handleOpenAddress(doador)}>
                                 <MapPin className="mr-2 h-4 w-4" />
                                 Ver endereços
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleViewDetails(doador)}>
+                              <DropdownMenuItem onClick={() => handleOpenDoacoes(doador)}>
                                 <Package className="mr-2 h-4 w-4" />
                                 Ver doações
                               </DropdownMenuItem>
@@ -509,12 +849,13 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
       <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-center text-2xl font-bold text-[#F5841F]">
-              Registro de Contato
-            </DialogTitle>
+            <DialogTitle>Registro de Contato</DialogTitle>
+            <DialogDescription>
+              Registre um novo contato com o doador
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSaveContact}>
-            <div className="grid grid-cols-2 gap-4 py-6">
+            <div className="grid grid-cols-2 gap-4 py-4">
               <div className="space-y-2">
                 <Label htmlFor="tipo-contato">Tipo de contato *</Label>
                 <Select value={tipoContato} onValueChange={setTipoContato} required>
@@ -543,16 +884,531 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
                 </Select>
               </div>
             </div>
-            <div className="flex justify-center pb-2">
-              <Button
-                type="submit"
-                className="bg-[#F5841F] px-8 text-white hover:bg-[#E07318]"
-                disabled={!tipoContato}
-              >
-                CONTINUAR
+            <DialogFooter className="gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsContactOpen(false)}>
+                Cancelar
               </Button>
-            </div>
+              <Button type="submit" className="gf-gradient text-white" disabled={!tipoContato}>
+                Continuar
+              </Button>
+            </DialogFooter>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Address Dialog */}
+      <Dialog open={isAddressOpen} onOpenChange={setIsAddressOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Endereços do Doador</DialogTitle>
+            <DialogDescription>
+              {selectedDoador?.nome}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[400px] overflow-y-auto">
+            {selectedDoador && mockEnderecos[selectedDoador.id] ? (
+              mockEnderecos[selectedDoador.id].map((endereco) => (
+                <div
+                  key={endereco.id}
+                  className="rounded-lg border p-4 space-y-2"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-sm">{endereco.tipo}</span>
+                      {endereco.principal && (
+                        <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                          Principal
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => handleEditAddress(endereco)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteAddress(endereco)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {endereco.rua}, {endereco.numero}
+                    {endereco.complemento && ` - ${endereco.complemento}`}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {endereco.bairro} - {endereco.cidade}/{endereco.uf}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    CEP: {endereco.cep}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-sm text-muted-foreground">
+                  Nenhum endereço cadastrado para este doador.
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setIsAddressOpen(false)}>
+              Fechar
+            </Button>
+            <Button className="gf-gradient text-white" onClick={handleNewAddress}>
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Endereço
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Address Dialog */}
+      <Dialog open={isNewAddressOpen} onOpenChange={setIsNewAddressOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Novo Endereço</DialogTitle>
+            <DialogDescription>
+              Cadastre um novo endereço para {selectedDoador?.nome}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSaveNewAddress}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-tipo">Tipo *</Label>
+                  <Select defaultValue="Residencial">
+                    <SelectTrigger id="new-tipo">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Residencial">Residencial</SelectItem>
+                      <SelectItem value="Comercial">Comercial</SelectItem>
+                      <SelectItem value="Casa de Praia">Casa de Praia</SelectItem>
+                      <SelectItem value="Sítio">Sítio</SelectItem>
+                      <SelectItem value="Outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-cep">CEP *</Label>
+                  <Input id="new-cep" placeholder="00000-000" />
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="col-span-3 space-y-2">
+                  <Label htmlFor="new-rua">Rua *</Label>
+                  <Input id="new-rua" placeholder="Nome da rua" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-numero">Número *</Label>
+                  <Input id="new-numero" placeholder="Nº" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-complemento">Complemento</Label>
+                <Input id="new-complemento" placeholder="Apto, Bloco, etc." />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-bairro">Bairro *</Label>
+                  <Input id="new-bairro" placeholder="Bairro" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-cidade">Cidade *</Label>
+                  <Input id="new-cidade" placeholder="Cidade" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-uf">UF *</Label>
+                  <Select>
+                    <SelectTrigger id="new-uf">
+                      <SelectValue placeholder="UF" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SP">SP</SelectItem>
+                      <SelectItem value="RJ">RJ</SelectItem>
+                      <SelectItem value="MG">MG</SelectItem>
+                      <SelectItem value="ES">ES</SelectItem>
+                      <SelectItem value="PR">PR</SelectItem>
+                      <SelectItem value="SC">SC</SelectItem>
+                      <SelectItem value="RS">RS</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input type="checkbox" id="new-principal" className="rounded border-gray-300" />
+                <Label htmlFor="new-principal" className="text-sm font-normal">Definir como endereço principal</Label>
+              </div>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsNewAddressOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" className="gf-gradient text-white">
+                Salvar
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Address Dialog */}
+      <Dialog open={isEditAddressOpen} onOpenChange={setIsEditAddressOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Endereço</DialogTitle>
+            <DialogDescription>
+              Atualize os dados do endereço
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSaveEditAddress}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-tipo">Tipo *</Label>
+                  <Select defaultValue={selectedEndereco?.tipo || "Residencial"}>
+                    <SelectTrigger id="edit-tipo">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Residencial">Residencial</SelectItem>
+                      <SelectItem value="Comercial">Comercial</SelectItem>
+                      <SelectItem value="Casa de Praia">Casa de Praia</SelectItem>
+                      <SelectItem value="Sítio">Sítio</SelectItem>
+                      <SelectItem value="Outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-cep">CEP *</Label>
+                  <Input id="edit-cep" defaultValue={selectedEndereco?.cep} placeholder="00000-000" />
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="col-span-3 space-y-2">
+                  <Label htmlFor="edit-rua">Rua *</Label>
+                  <Input id="edit-rua" defaultValue={selectedEndereco?.rua} placeholder="Nome da rua" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-numero">Número *</Label>
+                  <Input id="edit-numero" defaultValue={selectedEndereco?.numero} placeholder="Nº" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-complemento">Complemento</Label>
+                <Input id="edit-complemento" defaultValue={selectedEndereco?.complemento} placeholder="Apto, Bloco, etc." />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-bairro">Bairro *</Label>
+                  <Input id="edit-bairro" defaultValue={selectedEndereco?.bairro} placeholder="Bairro" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-cidade">Cidade *</Label>
+                  <Input id="edit-cidade" defaultValue={selectedEndereco?.cidade} placeholder="Cidade" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-uf">UF *</Label>
+                  <Select defaultValue={selectedEndereco?.uf}>
+                    <SelectTrigger id="edit-uf">
+                      <SelectValue placeholder="UF" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SP">SP</SelectItem>
+                      <SelectItem value="RJ">RJ</SelectItem>
+                      <SelectItem value="MG">MG</SelectItem>
+                      <SelectItem value="ES">ES</SelectItem>
+                      <SelectItem value="PR">PR</SelectItem>
+                      <SelectItem value="SC">SC</SelectItem>
+                      <SelectItem value="RS">RS</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input type="checkbox" id="edit-principal" defaultChecked={selectedEndereco?.principal} className="rounded border-gray-300" />
+                <Label htmlFor="edit-principal" className="text-sm font-normal">Definir como endereço principal</Label>
+              </div>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button type="button" variant="outline" onClick={() => setIsEditAddressOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" className="gf-gradient text-white">
+                Salvar alterações
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Address Dialog */}
+      <Dialog open={isDeleteAddressOpen} onOpenChange={setIsDeleteAddressOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Excluir Endereço</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir este endereço?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {selectedEndereco && (
+              <div className="rounded-lg border p-4 space-y-2 bg-muted/50">
+                <p className="font-medium text-sm">{selectedEndereco.tipo}</p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedEndereco.rua}, {selectedEndereco.numero}
+                  {selectedEndereco.complemento && ` - ${selectedEndereco.complemento}`}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {selectedEndereco.bairro} - {selectedEndereco.cidade}/{selectedEndereco.uf}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  CEP: {selectedEndereco.cep}
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setIsDeleteAddressOpen(false)}>
+              Cancelar
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmDeleteAddress}>
+              Excluir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Donations Dialog */}
+      <Dialog open={isDoacoesOpen} onOpenChange={setIsDoacoesOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Doações do Doador</DialogTitle>
+            <DialogDescription className="space-y-1">
+              <span className="block">{selectedDoador?.nome}</span>
+              <span className="block text-xs">{selectedDoador?.email}</span>
+              <span className="block text-xs">{selectedDoador?.telefone}</span>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4 max-h-[400px] overflow-y-auto">
+            {selectedDoador && mockDoacoesPorDoador[selectedDoador.id] ? (
+              mockDoacoesPorDoador[selectedDoador.id].map((doacao) => (
+                <div
+                  key={doacao.id}
+                  className="rounded-lg border p-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-sm">{doacao.id}</span>
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      doacao.status === "Concluída" 
+                        ? "bg-green-100 text-green-700" 
+                        : doacao.status === "Cadastrada"
+                        ? "bg-blue-100 text-blue-700"
+                        : doacao.status === "Pré-Cadastrada"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : "bg-orange-100 text-orange-700"
+                    }`}>
+                      {doacao.status}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                    <p><span className="font-medium">Data da coleta:</span> {doacao.dataColeta}</p>
+                    <p><span className="font-medium">Tipo de coleta:</span> {doacao.tipoColeta}</p>
+                    <p><span className="font-medium">Porte:</span> {doacao.porteLitros}L</p>
+                    <p><span className="font-medium">Baixa realizada:</span> {doacao.baixaRealizada ? "Sim" : "Não"}</p>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    <span className="font-medium">Endereço:</span> {doacao.endereco}
+                  </p>
+                  <div className="pt-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full bg-transparent"
+                      onClick={() => handleOpenDetalhesDoacao(doacao.id)}
+                    >
+                      Ver detalhes
+                    </Button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-sm text-muted-foreground">
+                  Nenhuma doação cadastrada para este doador.
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDoacoesOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Detalhes da Doação Dialog */}
+      <Dialog open={isDetalhesDoacaoOpen} onOpenChange={setIsDetalhesDoacaoOpen}>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Doação</DialogTitle>
+            <DialogDescription>
+              {selectedDoacao}
+            </DialogDescription>
+          </DialogHeader>
+          {(() => {
+            const doacao = selectedDoador && mockDoacoesPorDoador[selectedDoador.id]?.find(d => d.id === selectedDoacao)
+            if (!doacao) return null
+            
+            const totalItens = doacao.itens.reduce((acc, item) => acc + item.totalItens, 0)
+            
+            return (
+              <div className="space-y-6 py-4">
+                {/* Dados do Doador */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-sm border-b pb-2">Dados do Doador</h3>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Nome do Doador:</span>
+                      <p className="font-medium">{selectedDoador?.nome}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">ID Doador:</span>
+                      <p className="font-medium">{selectedDoador?.id}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Telefone:</span>
+                      <p className="font-medium">{selectedDoador?.telefone}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Email:</span>
+                      <p className="font-medium">{selectedDoador?.email}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dados da Doação */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-sm border-b pb-2">Dados da Doação</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">ID da Doação:</span>
+                      <p className="font-medium">{doacao.id}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Status:</span>
+                      <p className={`font-medium ${
+                        doacao.status === "Concluída" 
+                          ? "text-green-600" 
+                          : doacao.status === "Cadastrada"
+                          ? "text-blue-600"
+                          : doacao.status === "Pré-Cadastrada"
+                          ? "text-yellow-600"
+                          : "text-orange-600"
+                      }`}>{doacao.status}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Tipo de coleta:</span>
+                      <p className="font-medium">{doacao.tipoColeta}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Porte da Doação:</span>
+                      <p className="font-medium">{doacao.porteLitros} Litros</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Data da Coleta:</span>
+                      <p className="font-medium">{doacao.dataColeta}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Baixa realizada?</span>
+                      <p className="font-medium">{doacao.baixaRealizada ? "Sim" : "Não"}</p>
+                    </div>
+                    <div className="col-span-2 md:col-span-3">
+                      <span className="text-muted-foreground">Endereço:</span>
+                      <p className="font-medium">{doacao.endereco}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Data da Solicitação:</span>
+                      <p className="font-medium">{doacao.dataSolicitacao}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Responsável pela coleta:</span>
+                      <p className="font-medium">{doacao.responsavelColeta}</p>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Modificado por:</span>
+                      <p className="font-medium">{doacao.modificadoPor}</p>
+                    </div>
+                    <div className="col-span-2 md:col-span-3">
+                      <span className="text-muted-foreground">Observações:</span>
+                      <p className="font-medium">{doacao.observacoes}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tabela de Itens */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-sm border-b pb-2">Itens da Doação</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="gf-gradient text-white text-sm">
+                          <th className="text-left p-3 font-medium rounded-l-lg">Itens</th>
+                          <th className="text-center p-3 font-medium">#</th>
+                          <th className="text-center p-3 font-medium">Total de Itens</th>
+                          <th className="text-center p-3 font-medium">Tamanho</th>
+                          <th className="text-center p-3 font-medium">Descrição</th>
+                          <th className="text-center p-3 font-medium">Estado</th>
+                          <th className="text-center p-3 font-medium">Fotografia</th>
+                          <th className="text-center p-3 font-medium rounded-r-lg">Alto Valor</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {doacao.itens.map((item, index) => (
+                          <tr key={index} className="border-b text-sm">
+                            <td className="p-3">{item.nome}</td>
+                            <td className="text-center p-3">{item.quantidade}</td>
+                            <td className="text-center p-3">{item.totalItens}</td>
+                            <td className="text-center p-3">{item.tamanho}</td>
+                            <td className="text-center p-3">{item.descricao}</td>
+                            <td className="text-center p-3">{item.estado}</td>
+                            <td className="text-center p-3">{item.fotografia ? "Sim" : "Não"}</td>
+                            <td className="text-center p-3">{item.altoValor ? "Sim" : "Não"}</td>
+                          </tr>
+                        ))}
+                        <tr className="font-semibold text-sm">
+                          <td className="p-3">TOTAL</td>
+                          <td className="text-center p-3"></td>
+                          <td className="text-center p-3">{totalItens}</td>
+                          <td className="text-center p-3"></td>
+                          <td className="text-center p-3"></td>
+                          <td className="text-center p-3"></td>
+                          <td className="text-center p-3"></td>
+                          <td className="text-center p-3"></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDetalhesDoacaoOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

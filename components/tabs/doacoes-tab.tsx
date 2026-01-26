@@ -25,6 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -95,12 +97,20 @@ function getStatusStepIndex(status: string): number {
 export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
   const [selectedDoacao, setSelectedDoacao] = useState<Doacao | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
-  const [statusFilter, setStatusFilter] = useState<string>("todos")
-  const [tipoFilter, setTipoFilter] = useState<string>("todos")
-  const [modalidadeFilter, setModalidadeFilter] = useState<string>("todos")
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
   const [doacaoToCancel, setDoacaoToCancel] = useState<Doacao | null>(null)
   const { toast } = useToast()
+
+  // Filtros
+  const [filtroId, setFiltroId] = useState("")
+  const [filtroNome, setFiltroNome] = useState("")
+  const [filtroTelefone, setFiltroTelefone] = useState("")
+  const [filtroEmail, setFiltroEmail] = useState("")
+  const [statusFilter, setStatusFilter] = useState<string>("todos")
+  const [tipoFilter, setTipoFilter] = useState<string>("todos")
+  const [modalidadeFilter, setModalidadeFilter] = useState<string>("todos")
+  const [filtroStatus, setFiltroStatus] = useState("")
+  const [filtroAtendente, setFiltroAtendente] = useState("")
 
   const filteredDoacoes = mockDoacoes.filter((doacao) => {
     const query = searchQuery.toLowerCase()
@@ -109,12 +119,14 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
       doacao.doador.nome.toLowerCase().includes(query) ||
       doacao.doador.email.toLowerCase().includes(query)
 
-    const matchesStatus = statusFilter === "todos" || doacao.status === statusFilter
-    const matchesTipo = tipoFilter === "todos" || doacao.tipoItem === tipoFilter
-    const matchesModalidade =
-      modalidadeFilter === "todos" || doacao.modalidade === modalidadeFilter
+    const matchId = !filtroId || doacao.id.toLowerCase().includes(filtroId.toLowerCase())
+    const matchNome = !filtroNome || doacao.doador.nome.toLowerCase().includes(filtroNome.toLowerCase())
+    const matchTelefone = !filtroTelefone || doacao.doador.telefone?.toLowerCase().includes(filtroTelefone.toLowerCase())
+    const matchEmail = !filtroEmail || doacao.doador.email.toLowerCase().includes(filtroEmail.toLowerCase())
+    const matchStatus = !filtroStatus || filtroStatus === "todos" || doacao.status === filtroStatus
+    const matchAtendente = !filtroAtendente || (doacao.atendente && doacao.atendente.toLowerCase().includes(filtroAtendente.toLowerCase()))
 
-    return matchesSearch && matchesStatus && matchesTipo && matchesModalidade
+    return matchesSearch && matchId && matchNome && matchTelefone && matchEmail && matchStatus && matchAtendente
   })
 
   const handleViewDetails = (doacao: Doacao) => {
@@ -137,6 +149,15 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
     })
   }
 
+  const handleLimparFiltros = () => {
+    setFiltroId("")
+    setFiltroNome("")
+    setFiltroTelefone("")
+    setFiltroEmail("")
+    setFiltroStatus("")
+    setFiltroAtendente("")
+  }
+
   const currentStepIndex = selectedDoacao ? getStatusStepIndex(selectedDoacao.status) : 0
 
   return (
@@ -154,56 +175,85 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
 
       <KPICards variant="doacoes" />
 
-      {/* Filters */}
+      {/* Filtros */}
       <Card>
-        <CardContent className="p-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Status:</span>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Todos" />
+        <CardContent className="pt-6">
+          <div className="grid grid-cols-6 gap-4">
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">ID Doacao</Label>
+              <Input
+                id="filtro-id"
+                placeholder="Buscar"
+                value={filtroId}
+                onChange={(e) => setFiltroId(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">Nome</Label>
+              <Input
+                id="filtro-nome"
+                placeholder="Buscar"
+                value={filtroNome}
+                onChange={(e) => setFiltroNome(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">Telefone</Label>
+              <Input
+                id="filtro-telefone"
+                placeholder="Buscar"
+                value={filtroTelefone}
+                onChange={(e) => setFiltroTelefone(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">Email</Label>
+              <Input
+                id="filtro-email"
+                placeholder="Buscar"
+                value={filtroEmail}
+                onChange={(e) => setFiltroEmail(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">Status da doacao</Label>
+              <Select value={filtroStatus} onValueChange={setFiltroStatus}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="Pendente">Pendente</SelectItem>
-                  <SelectItem value="Em validação manual">Em validação manual</SelectItem>
-                  <SelectItem value="Confirmada">Confirmada</SelectItem>
-                  <SelectItem value="Coleta agendada">Coleta agendada</SelectItem>
-                  <SelectItem value="Coletada">Coletada</SelectItem>
+                  <SelectItem value="Cadastrada">Cadastrada</SelectItem>
                   <SelectItem value="Cancelada">Cancelada</SelectItem>
+                  <SelectItem value="Concluída">Concluída</SelectItem>
+                  <SelectItem value="Pendente - Quantidade de Itens Atípica">Pendente - Quantidade de Itens Atípica</SelectItem>
+                  <SelectItem value="Pré-Cadastrada">Pré-Cadastrada</SelectItem>
+                  <SelectItem value="Pré-cadastro Cancelado">Pré-cadastro Cancelado</SelectItem>
+                  <SelectItem value="Pré-cadastro Expirado">Pré-cadastro Expirado</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Tipo:</span>
-              <Select value={tipoFilter} onValueChange={setTipoFilter}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Todos" />
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">Atendente</Label>
+              <Select value={filtroAtendente} onValueChange={setFiltroAtendente}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o atendente" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="Roupas">Roupas</SelectItem>
-                  <SelectItem value="Livros">Livros</SelectItem>
-                  <SelectItem value="Eletrodomésticos">Eletrodomésticos</SelectItem>
-                  <SelectItem value="Móveis">Móveis</SelectItem>
-                  <SelectItem value="Brinquedos">Brinquedos</SelectItem>
-                  <SelectItem value="Outros">Outros</SelectItem>
+                  <SelectItem value="Ana Paula Silva">Ana Paula Silva</SelectItem>
+                  <SelectItem value="Carlos Eduardo Santos">Carlos Eduardo Santos</SelectItem>
+                  <SelectItem value="Mariana Oliveira">Mariana Oliveira</SelectItem>
+                  <SelectItem value="João Pedro Costa">João Pedro Costa</SelectItem>
+                  <SelectItem value="Fernanda Lima">Fernanda Lima</SelectItem>
+                  <SelectItem value="Ricardo Mendes">Ricardo Mendes</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Modalidade:</span>
-              <Select value={modalidadeFilter} onValueChange={setModalidadeFilter}>
-                <SelectTrigger className="w-[160px]">
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="Retirada">Retirada</SelectItem>
-                  <SelectItem value="Ponto de coleta">Ponto de coleta</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex items-end">
+              <Button variant="outline" onClick={handleLimparFiltros}>
+                Limpar filtros
+              </Button>
             </div>
           </div>
         </CardContent>
