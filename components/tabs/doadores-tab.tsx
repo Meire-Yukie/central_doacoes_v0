@@ -36,7 +36,7 @@ import { KPICards } from "@/components/kpi-cards"
 import { StatusBadge } from "@/components/status-badge"
 import { mockDoadores, mockDoacoes } from "@/lib/mock-data"
 import type { Doador } from "@/lib/types"
-import { Plus, Pencil, Package, MapPin, Mail, Phone, FileText, MoreHorizontal, MessageSquare, Trash2 } from "lucide-react"
+import { Plus, Pencil, Package, MapPin, Mail, Phone, FileText, MoreHorizontal, MessageSquare, Trash2, Download } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -1461,6 +1461,10 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                 </Button>
                 <Button variant="outline" onClick={() => setIsDoacoesOpen(false)}>
                   Fechar
+                </Button>
+                <Button className="gf-gradient text-white">
+                  <Download className="mr-2 h-4 w-4" />
+                  Baixar PDF
                 </Button>
               </DialogFooter>
             </>
