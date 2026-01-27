@@ -86,9 +86,17 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
   const [canalContato, setCanalContato] = useState("")
   const [tipoNovoDoador, setTipoNovoDoador] = useState<"PF" | "PJ">("PF")
   const [isFazerDoacaoOpen, setIsFazerDoacaoOpen] = useState(false)
+  const [fazerDoacaoStep, setFazerDoacaoStep] = useState<1 | 2>(1)
   const [tipoContatoDoacao, setTipoContatoDoacao] = useState("")
   const [canalDoacao, setCanalDoacao] = useState("")
   const [fonteContatoDoacao, setFonteContatoDoacao] = useState("")
+  const [comoConheceu, setComoConheceu] = useState("")
+  const [motivoDoacao, setMotivoDoacao] = useState("")
+  const [campanhaDoacao, setCampanhaDoacao] = useState("")
+  const [itemDoacao, setItemDoacao] = useState("")
+  const [quantidadeItem, setQuantidadeItem] = useState("")
+  const [descricaoItem, setDescricaoItem] = useState("")
+  const [itensDoacao, setItensDoacao] = useState<Array<{ item: string; quantidade: string; descricao: string }>>([])
   const { toast } = useToast()
 
   // Dados mockados de endereços por doador (um doador pode ter múltiplos endereços)
@@ -287,10 +295,39 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
 
   const handleOpenFazerDoacao = (doador: Doador) => {
     setSelectedDoador(doador)
+    setFazerDoacaoStep(1)
     setTipoContatoDoacao("")
     setCanalDoacao("")
     setFonteContatoDoacao("")
+    setComoConheceu("")
+    setMotivoDoacao("")
+    setCampanhaDoacao("")
+    setItemDoacao("")
+    setQuantidadeItem("")
+    setDescricaoItem("")
+    setItensDoacao([])
     setIsFazerDoacaoOpen(true)
+  }
+
+  const handleSalvarItem = () => {
+    if (itemDoacao && quantidadeItem) {
+      setItensDoacao([...itensDoacao, { item: itemDoacao, quantidade: quantidadeItem, descricao: descricaoItem }])
+      setItemDoacao("")
+      setQuantidadeItem("")
+      setDescricaoItem("")
+    }
+  }
+
+  const handleRemoverItem = (index: number) => {
+    setItensDoacao(itensDoacao.filter((_, i) => i !== index))
+  }
+
+  const handleAgendarDoacao = () => {
+    setIsFazerDoacaoOpen(false)
+    toast({
+      title: "Doacao agendada",
+      description: "A doacao foi agendada com sucesso.",
+    })
   }
 
   const handleEdit = (doador: Doador) => {
@@ -1485,79 +1522,252 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
       </Dialog>
 
       {/* Fazer Doacao Dialog */}
-      <Dialog open={isFazerDoacaoOpen} onOpenChange={setIsFazerDoacaoOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Registro de Contato para Doacao/Reagendamento</DialogTitle>
-            <DialogDescription>
-              {selectedDoador?.nome}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="tipo-contato-doacao">Tipo de contato *</Label>
-              <Select value={tipoContatoDoacao} onValueChange={(value) => {
-                setTipoContatoDoacao(value)
-                if (value !== "Ativo") {
-                  setFonteContatoDoacao("")
-                }
-              }}>
-                <SelectTrigger id="tipo-contato-doacao">
-                  <SelectValue placeholder="Selecione o tipo de contato" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Ativo">Ativo</SelectItem>
-                  <SelectItem value="Receptivo">Receptivo</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      <Dialog open={isFazerDoacaoOpen} onOpenChange={(open) => {
+        setIsFazerDoacaoOpen(open)
+        if (!open) setFazerDoacaoStep(1)
+      }}>
+        <DialogContent className={fazerDoacaoStep === 1 ? "sm:max-w-lg" : "sm:max-w-2xl max-h-[90vh] overflow-y-auto"}>
+          {fazerDoacaoStep === 1 ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Registro de Contato para Doacao/Reagendamento</DialogTitle>
+                <DialogDescription>
+                  {selectedDoador?.nome}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tipo-contato-doacao">Tipo de contato *</Label>
+                    <Select value={tipoContatoDoacao} onValueChange={(value) => {
+                      setTipoContatoDoacao(value)
+                      if (value !== "Ativo") {
+                        setFonteContatoDoacao("")
+                      }
+                    }}>
+                      <SelectTrigger id="tipo-contato-doacao" className="w-full">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Ativo">Ativo</SelectItem>
+                        <SelectItem value="Receptivo">Receptivo</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="canal-doacao">Canal *</Label>
-              <Select value={canalDoacao} onValueChange={setCanalDoacao}>
-                <SelectTrigger id="canal-doacao">
-                  <SelectValue placeholder="Selecione o canal" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Whatsapp">Whatsapp</SelectItem>
-                  <SelectItem value="Ligacao Telefonica">Ligacao Telefonica</SelectItem>
-                  <SelectItem value="Email">Email</SelectItem>
-                  <SelectItem value="Site">Site</SelectItem>
-                  <SelectItem value="Outros">Outros</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="canal-doacao">Canal *</Label>
+                    <Select value={canalDoacao} onValueChange={setCanalDoacao}>
+                      <SelectTrigger id="canal-doacao" className="w-full">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Whatsapp">Whatsapp</SelectItem>
+                        <SelectItem value="Ligacao Telefonica">Ligacao Telefonica</SelectItem>
+                        <SelectItem value="Email">Email</SelectItem>
+                        <SelectItem value="Site">Site</SelectItem>
+                        <SelectItem value="Outros">Outros</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-            {tipoContatoDoacao === "Ativo" && (
-              <div className="space-y-2">
-                <Label htmlFor="fonte-contato-doacao">Fonte do contato *</Label>
-                <Select value={fonteContatoDoacao} onValueChange={setFonteContatoDoacao}>
-                  <SelectTrigger id="fonte-contato-doacao">
-                    <SelectValue placeholder="Selecione a fonte do contato" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Leads Planilha">Leads Planilha</SelectItem>
-                    <SelectItem value="Leads Rede de Mobilizacao">Leads Rede de Mobilizacao</SelectItem>
-                    <SelectItem value="Leads Rede Mobilizacao - Influenciadores">Leads Rede Mobilizacao - Influenciadores</SelectItem>
-                    <SelectItem value="Leads Salesforce">Leads Salesforce</SelectItem>
-                    <SelectItem value="Leads Doare">Leads Doare</SelectItem>
-                    <SelectItem value="Retorno de ligacao abandonada">Retorno de ligacao abandonada</SelectItem>
-                    <SelectItem value="Cliente loja">Cliente loja</SelectItem>
-                    <SelectItem value="Doador recorrente">Doador recorrente</SelectItem>
-                    <SelectItem value="Outros">Outros</SelectItem>
-                  </SelectContent>
-                </Select>
+                {tipoContatoDoacao === "Ativo" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="fonte-contato-doacao">Fonte do contato *</Label>
+                    <Select value={fonteContatoDoacao} onValueChange={setFonteContatoDoacao}>
+                      <SelectTrigger id="fonte-contato-doacao">
+                        <SelectValue placeholder="Selecione a fonte do contato" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Leads Planilha">Leads Planilha</SelectItem>
+                        <SelectItem value="Leads Rede de Mobilizacao">Leads Rede de Mobilizacao</SelectItem>
+                        <SelectItem value="Leads Rede Mobilizacao - Influenciadores">Leads Rede Mobilizacao - Influenciadores</SelectItem>
+                        <SelectItem value="Leads Salesforce">Leads Salesforce</SelectItem>
+                        <SelectItem value="Leads Doare">Leads Doare</SelectItem>
+                        <SelectItem value="Retorno de ligacao abandonada">Retorno de ligacao abandonada</SelectItem>
+                        <SelectItem value="Cliente loja">Cliente loja</SelectItem>
+                        <SelectItem value="Doador recorrente">Doador recorrente</SelectItem>
+                        <SelectItem value="Outros">Outros</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button 
-              className="gf-gradient text-white w-full"
-              disabled={!tipoContatoDoacao || !canalDoacao || (tipoContatoDoacao === "Ativo" && !fonteContatoDoacao)}
-            >
-              Continuar
-            </Button>
-          </DialogFooter>
+              <DialogFooter>
+                <Button 
+                  className="gf-gradient text-white w-full"
+                  disabled={!tipoContatoDoacao || !canalDoacao || (tipoContatoDoacao === "Ativo" && !fonteContatoDoacao)}
+                  onClick={() => setFazerDoacaoStep(2)}
+                >
+                  Continuar
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Registro de doacao</DialogTitle>
+                <DialogDescription>
+                  {selectedDoador?.nome}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                {/* Secao de Registro */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="como-conheceu">Como o doador conheceu o bazar? *</Label>
+                    <Select value={comoConheceu} onValueChange={setComoConheceu}>
+                      <SelectTrigger id="como-conheceu" className="w-full">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Campanha Corona no Paredao">Campanha Corona no Paredao</SelectItem>
+                        <SelectItem value="Email">Email</SelectItem>
+                        <SelectItem value="Facebook">Facebook</SelectItem>
+                        <SelectItem value="Google">Google</SelectItem>
+                        <SelectItem value="Indicacao">Indicacao</SelectItem>
+                        <SelectItem value="Instagram">Instagram</SelectItem>
+                        <SelectItem value="Parceria com empresas">Parceria com empresas</SelectItem>
+                        <SelectItem value="Site">Site</SelectItem>
+                        <SelectItem value="TV">TV</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="motivo-doacao">Motivo da doacao *</Label>
+                    <Select value={motivoDoacao} onValueChange={setMotivoDoacao}>
+                      <SelectTrigger id="motivo-doacao" className="w-full">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Mudanca de casa">Mudanca de casa</SelectItem>
+                        <SelectItem value="Produto quebrado">Produto quebrado</SelectItem>
+                        <SelectItem value="Limpeza na casa">Limpeza na casa</SelectItem>
+                        <SelectItem value="Trocando tudo">Trocando tudo</SelectItem>
+                        <SelectItem value="Falecimento na familia">Falecimento na familia</SelectItem>
+                        <SelectItem value="Outro">Outro</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="campanha-doacao">Campanha da Doacao (opcional)</Label>
+                  <Input 
+                    id="campanha-doacao" 
+                    placeholder="Nome da campanha" 
+                    value={campanhaDoacao}
+                    onChange={(e) => setCampanhaDoacao(e.target.value)}
+                  />
+                </div>
+
+                {/* Secao de Cadastro de Itens */}
+                <div className="border-t pt-4 mt-2">
+                  <h4 className="font-medium text-sm mb-4">Cadastro de novos itens</h4>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="item-doacao">Item *</Label>
+                      <Select value={itemDoacao} onValueChange={setItemDoacao}>
+                        <SelectTrigger id="item-doacao" className="w-full">
+                          <SelectValue placeholder="Selecione o item" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Roupas, calcados e acessorios">Roupas, calcados e acessorios</SelectItem>
+                          <SelectItem value="Utensilios domesticos">Utensilios domesticos</SelectItem>
+                          <SelectItem value="Brinquedos">Brinquedos</SelectItem>
+                          <SelectItem value="Objetos de decoracao">Objetos de decoracao</SelectItem>
+                          <SelectItem value="Papelaria e material escolar">Papelaria e material escolar</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="quantidade-item">Quantidade *</Label>
+                      <Input 
+                        id="quantidade-item" 
+                        type="number" 
+                        placeholder="0" 
+                        value={quantidadeItem}
+                        onChange={(e) => setQuantidadeItem(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mt-4">
+                    <Label htmlFor="descricao-item">Descricao do item doado</Label>
+                    <Textarea 
+                      id="descricao-item" 
+                      placeholder="Descreva o item..." 
+                      value={descricaoItem}
+                      onChange={(e) => setDescricaoItem(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="flex gap-2 mt-4">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={handleSalvarItem}
+                      disabled={!itemDoacao || !quantidadeItem}
+                    >
+                      Salvar item
+                    </Button>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => {
+                        handleSalvarItem()
+                      }}
+                      disabled={!itemDoacao || !quantidadeItem}
+                    >
+                      Adicionar novo item
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Lista de Itens Cadastrados */}
+                {itensDoacao.length > 0 && (
+                  <div className="border-t pt-4 mt-2">
+                    <h4 className="font-medium text-sm mb-4">Itens cadastrados ({itensDoacao.length})</h4>
+                    <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                      {itensDoacao.map((item, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                          <div className="flex-1">
+                            <p className="font-medium text-sm">{item.item}</p>
+                            <p className="text-xs text-muted-foreground">Qtd: {item.quantidade} {item.descricao && `- ${item.descricao}`}</p>
+                          </div>
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => handleRemoverItem(index)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={() => setFazerDoacaoStep(1)}>
+                  Voltar
+                </Button>
+                <Button 
+                  className="gf-gradient text-white"
+                  disabled={!comoConheceu || !motivoDoacao || itensDoacao.length === 0}
+                  onClick={handleAgendarDoacao}
+                >
+                  Agendar doacao
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
