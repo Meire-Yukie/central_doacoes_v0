@@ -85,6 +85,10 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
   const [tipoContato, setTipoContato] = useState("")
   const [canalContato, setCanalContato] = useState("")
   const [tipoNovoDoador, setTipoNovoDoador] = useState<"PF" | "PJ">("PF")
+  const [isFazerDoacaoOpen, setIsFazerDoacaoOpen] = useState(false)
+  const [tipoContatoDoacao, setTipoContatoDoacao] = useState("")
+  const [canalDoacao, setCanalDoacao] = useState("")
+  const [fonteContatoDoacao, setFonteContatoDoacao] = useState("")
   const { toast } = useToast()
 
   // Dados mockados de endereços por doador (um doador pode ter múltiplos endereços)
@@ -279,6 +283,14 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
   const handleViewDetails = (doador: Doador) => {
     setSelectedDoador(doador)
     setIsDetailsOpen(true)
+  }
+
+  const handleOpenFazerDoacao = (doador: Doador) => {
+    setSelectedDoador(doador)
+    setTipoContatoDoacao("")
+    setCanalDoacao("")
+    setFonteContatoDoacao("")
+    setIsFazerDoacaoOpen(true)
   }
 
   const handleEdit = (doador: Doador) => {
@@ -586,7 +598,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                                 <Package className="mr-2 h-4 w-4" />
                                 Ver doações
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleViewDetails(doador)}>
+                              <DropdownMenuItem onClick={() => handleOpenFazerDoacao(doador)}>
                                 <Plus className="mr-2 h-4 w-4" />
                                 Fazer doação
                               </DropdownMenuItem>
@@ -1469,6 +1481,83 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
               </DialogFooter>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Fazer Doacao Dialog */}
+      <Dialog open={isFazerDoacaoOpen} onOpenChange={setIsFazerDoacaoOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Registro de Contato para Doacao/Reagendamento</DialogTitle>
+            <DialogDescription>
+              {selectedDoador?.nome}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="tipo-contato-doacao">Tipo de contato *</Label>
+              <Select value={tipoContatoDoacao} onValueChange={(value) => {
+                setTipoContatoDoacao(value)
+                if (value !== "Ativo") {
+                  setFonteContatoDoacao("")
+                }
+              }}>
+                <SelectTrigger id="tipo-contato-doacao">
+                  <SelectValue placeholder="Selecione o tipo de contato" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Ativo">Ativo</SelectItem>
+                  <SelectItem value="Receptivo">Receptivo</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="canal-doacao">Canal *</Label>
+              <Select value={canalDoacao} onValueChange={setCanalDoacao}>
+                <SelectTrigger id="canal-doacao">
+                  <SelectValue placeholder="Selecione o canal" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Whatsapp">Whatsapp</SelectItem>
+                  <SelectItem value="Ligacao Telefonica">Ligacao Telefonica</SelectItem>
+                  <SelectItem value="Email">Email</SelectItem>
+                  <SelectItem value="Site">Site</SelectItem>
+                  <SelectItem value="Outros">Outros</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {tipoContatoDoacao === "Ativo" && (
+              <div className="space-y-2">
+                <Label htmlFor="fonte-contato-doacao">Fonte do contato *</Label>
+                <Select value={fonteContatoDoacao} onValueChange={setFonteContatoDoacao}>
+                  <SelectTrigger id="fonte-contato-doacao">
+                    <SelectValue placeholder="Selecione a fonte do contato" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Leads Planilha">Leads Planilha</SelectItem>
+                    <SelectItem value="Leads Rede de Mobilizacao">Leads Rede de Mobilizacao</SelectItem>
+                    <SelectItem value="Leads Rede Mobilizacao - Influenciadores">Leads Rede Mobilizacao - Influenciadores</SelectItem>
+                    <SelectItem value="Leads Salesforce">Leads Salesforce</SelectItem>
+                    <SelectItem value="Leads Doare">Leads Doare</SelectItem>
+                    <SelectItem value="Retorno de ligacao abandonada">Retorno de ligacao abandonada</SelectItem>
+                    <SelectItem value="Cliente loja">Cliente loja</SelectItem>
+                    <SelectItem value="Doador recorrente">Doador recorrente</SelectItem>
+                    <SelectItem value="Outros">Outros</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button 
+              className="gf-gradient text-white w-full"
+              disabled={!tipoContatoDoacao || !canalDoacao || (tipoContatoDoacao === "Ativo" && !fonteContatoDoacao)}
+            >
+              Continuar
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
