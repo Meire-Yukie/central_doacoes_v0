@@ -80,7 +80,7 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
     principal: boolean
   } | null>(null)
   const [isDoacoesOpen, setIsDoacoesOpen] = useState(false)
-  const [isDetalhesDoacaoOpen, setIsDetalhesDoacaoOpen] = useState(false)
+  const [doacoesView, setDoacoesView] = useState<"lista" | "detalhes">("lista")
   const [selectedDoacao, setSelectedDoacao] = useState<string | null>(null)
   const [tipoContato, setTipoContato] = useState("")
   const [canalContato, setCanalContato] = useState("")
@@ -364,9 +364,14 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
     })
   }
 
-  const handleOpenDetalhesDoacao = (doacaoId: string) => {
-    setSelectedDoacao(doacaoId)
-    setIsDetalhesDoacaoOpen(true)
+const handleOpenDetalhesDoacao = (doacaoId: string) => {
+  setSelectedDoacao(doacaoId)
+  setDoacoesView("detalhes")
+  }
+  
+  const handleVoltarListaDoacoes = () => {
+  setSelectedDoacao(null)
+  setDoacoesView("lista")
   }
 
   const handleSaveContact = (e: React.FormEvent) => {
@@ -1230,226 +1235,236 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
         </DialogContent>
       </Dialog>
 
-      {/* Donations Dialog */}
-      <Dialog open={isDoacoesOpen} onOpenChange={setIsDoacoesOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Doações do Doador</DialogTitle>
-            <DialogDescription className="space-y-1">
-              <span className="block">{selectedDoador?.nome}</span>
-              <span className="block text-xs">{selectedDoador?.email}</span>
-              <span className="block text-xs">{selectedDoador?.telefone}</span>
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4 max-h-[400px] overflow-y-auto">
-            {selectedDoador && mockDoacoesPorDoador[selectedDoador.id] ? (
-              mockDoacoesPorDoador[selectedDoador.id].map((doacao) => (
-                <div
-                  key={doacao.id}
-                  className="rounded-lg border p-4 space-y-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium text-sm">{doacao.id}</span>
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      doacao.status === "Concluída" 
-                        ? "bg-green-100 text-green-700" 
-                        : doacao.status === "Cadastrada"
-                        ? "bg-blue-100 text-blue-700"
-                        : doacao.status === "Pré-Cadastrada"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : "bg-orange-100 text-orange-700"
-                    }`}>
-                      {doacao.status}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
-                    <p><span className="font-medium">Data da coleta:</span> {doacao.dataColeta}</p>
-                    <p><span className="font-medium">Tipo de coleta:</span> {doacao.tipoColeta}</p>
-                    <p><span className="font-medium">Porte:</span> {doacao.porteLitros}L</p>
-                    <p><span className="font-medium">Baixa realizada:</span> {doacao.baixaRealizada ? "Sim" : "Não"}</p>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    <span className="font-medium">Endereço:</span> {doacao.endereco}
-                  </p>
-                  <div className="pt-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full bg-transparent"
-                      onClick={() => handleOpenDetalhesDoacao(doacao.id)}
+      {/* Donations Dialog - Single modal with navigation */}
+      <Dialog open={isDoacoesOpen} onOpenChange={(open) => {
+        setIsDoacoesOpen(open)
+        if (!open) {
+          setDoacoesView("lista")
+          setSelectedDoacao(null)
+        }
+      }}>
+        <DialogContent className={doacoesView === "lista" ? "sm:max-w-lg" : "sm:max-w-3xl max-h-[90vh] overflow-y-auto"}>
+          {doacoesView === "lista" ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Doacoes do Doador</DialogTitle>
+                <DialogDescription className="space-y-1">
+                  <span className="block">{selectedDoador?.nome}</span>
+                  <span className="block text-xs">{selectedDoador?.email}</span>
+                  <span className="block text-xs">{selectedDoador?.telefone}</span>
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4 max-h-[400px] overflow-y-auto">
+                {selectedDoador && mockDoacoesPorDoador[selectedDoador.id] ? (
+                  mockDoacoesPorDoador[selectedDoador.id].map((doacao) => (
+                    <div
+                      key={doacao.id}
+                      className="rounded-lg border p-4 space-y-3"
                     >
-                      Ver detalhes
-                    </Button>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm">{doacao.id}</span>
+                        <span className={`text-xs px-2 py-1 rounded-full ${
+                          doacao.status === "Concluida" 
+                            ? "bg-green-100 text-green-700" 
+                            : doacao.status === "Cadastrada"
+                            ? "bg-blue-100 text-blue-700"
+                            : doacao.status === "Pre-Cadastrada"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-orange-100 text-orange-700"
+                        }`}>
+                          {doacao.status}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-muted-foreground">
+                        <p><span className="font-medium">Data da coleta:</span> {doacao.dataColeta}</p>
+                        <p><span className="font-medium">Tipo de coleta:</span> {doacao.tipoColeta}</p>
+                        <p><span className="font-medium">Porte:</span> {doacao.porteLitros}L</p>
+                        <p><span className="font-medium">Baixa realizada:</span> {doacao.baixaRealizada ? "Sim" : "Nao"}</p>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        <span className="font-medium">Endereco:</span> {doacao.endereco}
+                      </p>
+                      <div className="pt-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full bg-transparent"
+                          onClick={() => handleOpenDetalhesDoacao(doacao.id)}
+                        >
+                          Ver detalhes
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-muted-foreground">
+                      Nenhuma doacao cadastrada para este doador.
+                    </p>
                   </div>
-                </div>
-              ))
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-sm text-muted-foreground">
-                  Nenhuma doação cadastrada para este doador.
-                </p>
+                )}
               </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDoacoesOpen(false)}>
-              Fechar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsDoacoesOpen(false)}>
+                  Fechar
+                </Button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Detalhes da Doacao</DialogTitle>
+                <DialogDescription>
+                  {selectedDoacao}
+                </DialogDescription>
+              </DialogHeader>
+              {(() => {
+                const doacao = selectedDoador && mockDoacoesPorDoador[selectedDoador.id]?.find(d => d.id === selectedDoacao)
+                if (!doacao) return null
+                
+                const totalItens = doacao.itens.reduce((acc, item) => acc + item.totalItens, 0)
+                
+                return (
+                  <div className="space-y-6 py-4">
+                    {/* Dados do Doador */}
+                    <div className="space-y-3">
+                      <h3 className="font-semibold text-sm border-b pb-2">Dados do Doador</h3>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">Nome do Doador:</span>
+                          <p className="font-medium">{selectedDoador?.nome}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">ID Doador:</span>
+                          <p className="font-medium">{selectedDoador?.id}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Telefone:</span>
+                          <p className="font-medium">{selectedDoador?.telefone}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Email:</span>
+                          <p className="font-medium">{selectedDoador?.email}</p>
+                        </div>
+                      </div>
+                    </div>
 
-      {/* Detalhes da Doação Dialog */}
-      <Dialog open={isDetalhesDoacaoOpen} onOpenChange={setIsDetalhesDoacaoOpen}>
-        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Detalhes da Doação</DialogTitle>
-            <DialogDescription>
-              {selectedDoacao}
-            </DialogDescription>
-          </DialogHeader>
-          {(() => {
-            const doacao = selectedDoador && mockDoacoesPorDoador[selectedDoador.id]?.find(d => d.id === selectedDoacao)
-            if (!doacao) return null
-            
-            const totalItens = doacao.itens.reduce((acc, item) => acc + item.totalItens, 0)
-            
-            return (
-              <div className="space-y-6 py-4">
-                {/* Dados do Doador */}
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-sm border-b pb-2">Dados do Doador</h3>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Nome do Doador:</span>
-                      <p className="font-medium">{selectedDoador?.nome}</p>
+                    {/* Dados da Doacao */}
+                    <div className="space-y-3">
+                      <h3 className="font-semibold text-sm border-b pb-2">Dados da Doacao</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">ID da Doacao:</span>
+                          <p className="font-medium">{doacao.id}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Status:</span>
+                          <p className={`font-medium ${
+                            doacao.status === "Concluida" 
+                              ? "text-green-600" 
+                              : doacao.status === "Cadastrada"
+                              ? "text-blue-600"
+                              : doacao.status === "Pre-Cadastrada"
+                              ? "text-yellow-600"
+                              : "text-orange-600"
+                          }`}>{doacao.status}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Tipo de coleta:</span>
+                          <p className="font-medium">{doacao.tipoColeta}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Porte da Doacao:</span>
+                          <p className="font-medium">{doacao.porteLitros} Litros</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Data da Coleta:</span>
+                          <p className="font-medium">{doacao.dataColeta}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Baixa realizada?</span>
+                          <p className="font-medium">{doacao.baixaRealizada ? "Sim" : "Nao"}</p>
+                        </div>
+                        <div className="col-span-2 md:col-span-3">
+                          <span className="text-muted-foreground">Endereco:</span>
+                          <p className="font-medium">{doacao.endereco}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Data da Solicitacao:</span>
+                          <p className="font-medium">{doacao.dataSolicitacao}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Responsavel pela coleta:</span>
+                          <p className="font-medium">{doacao.responsavelColeta}</p>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Modificado por:</span>
+                          <p className="font-medium">{doacao.modificadoPor}</p>
+                        </div>
+                        <div className="col-span-2 md:col-span-3">
+                          <span className="text-muted-foreground">Observacoes:</span>
+                          <p className="font-medium">{doacao.observacoes}</p>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-muted-foreground">ID Doador:</span>
-                      <p className="font-medium">{selectedDoador?.id}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Telefone:</span>
-                      <p className="font-medium">{selectedDoador?.telefone}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Email:</span>
-                      <p className="font-medium">{selectedDoador?.email}</p>
+
+                    {/* Tabela de Itens */}
+                    <div className="space-y-3">
+                      <h3 className="font-semibold text-sm border-b pb-2">Itens da Doacao</h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="gf-gradient text-white text-sm">
+                              <th className="text-left p-3 font-medium rounded-l-lg">Itens</th>
+                              <th className="text-center p-3 font-medium">#</th>
+                              <th className="text-center p-3 font-medium">Total de Itens</th>
+                              <th className="text-center p-3 font-medium">Tamanho</th>
+                              <th className="text-center p-3 font-medium">Descricao</th>
+                              <th className="text-center p-3 font-medium">Estado</th>
+                              <th className="text-center p-3 font-medium">Fotografia</th>
+                              <th className="text-center p-3 font-medium rounded-r-lg">Alto Valor</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {doacao.itens.map((item, index) => (
+                              <tr key={index} className="border-b text-sm">
+                                <td className="p-3">{item.nome}</td>
+                                <td className="text-center p-3">{item.quantidade}</td>
+                                <td className="text-center p-3">{item.totalItens}</td>
+                                <td className="text-center p-3">{item.tamanho}</td>
+                                <td className="text-center p-3">{item.descricao}</td>
+                                <td className="text-center p-3">{item.estado}</td>
+                                <td className="text-center p-3">{item.fotografia ? "Sim" : "Nao"}</td>
+                                <td className="text-center p-3">{item.altoValor ? "Sim" : "Nao"}</td>
+                              </tr>
+                            ))}
+                            <tr className="font-semibold text-sm">
+                              <td className="p-3">TOTAL</td>
+                              <td className="text-center p-3"></td>
+                              <td className="text-center p-3">{totalItens}</td>
+                              <td className="text-center p-3"></td>
+                              <td className="text-center p-3"></td>
+                              <td className="text-center p-3"></td>
+                              <td className="text-center p-3"></td>
+                              <td className="text-center p-3"></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Dados da Doação */}
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-sm border-b pb-2">Dados da Doação</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">ID da Doação:</span>
-                      <p className="font-medium">{doacao.id}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Status:</span>
-                      <p className={`font-medium ${
-                        doacao.status === "Concluída" 
-                          ? "text-green-600" 
-                          : doacao.status === "Cadastrada"
-                          ? "text-blue-600"
-                          : doacao.status === "Pré-Cadastrada"
-                          ? "text-yellow-600"
-                          : "text-orange-600"
-                      }`}>{doacao.status}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Tipo de coleta:</span>
-                      <p className="font-medium">{doacao.tipoColeta}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Porte da Doação:</span>
-                      <p className="font-medium">{doacao.porteLitros} Litros</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Data da Coleta:</span>
-                      <p className="font-medium">{doacao.dataColeta}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Baixa realizada?</span>
-                      <p className="font-medium">{doacao.baixaRealizada ? "Sim" : "Não"}</p>
-                    </div>
-                    <div className="col-span-2 md:col-span-3">
-                      <span className="text-muted-foreground">Endereço:</span>
-                      <p className="font-medium">{doacao.endereco}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Data da Solicitação:</span>
-                      <p className="font-medium">{doacao.dataSolicitacao}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Responsável pela coleta:</span>
-                      <p className="font-medium">{doacao.responsavelColeta}</p>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Modificado por:</span>
-                      <p className="font-medium">{doacao.modificadoPor}</p>
-                    </div>
-                    <div className="col-span-2 md:col-span-3">
-                      <span className="text-muted-foreground">Observações:</span>
-                      <p className="font-medium">{doacao.observacoes}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tabela de Itens */}
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-sm border-b pb-2">Itens da Doação</h3>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="gf-gradient text-white text-sm">
-                          <th className="text-left p-3 font-medium rounded-l-lg">Itens</th>
-                          <th className="text-center p-3 font-medium">#</th>
-                          <th className="text-center p-3 font-medium">Total de Itens</th>
-                          <th className="text-center p-3 font-medium">Tamanho</th>
-                          <th className="text-center p-3 font-medium">Descrição</th>
-                          <th className="text-center p-3 font-medium">Estado</th>
-                          <th className="text-center p-3 font-medium">Fotografia</th>
-                          <th className="text-center p-3 font-medium rounded-r-lg">Alto Valor</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {doacao.itens.map((item, index) => (
-                          <tr key={index} className="border-b text-sm">
-                            <td className="p-3">{item.nome}</td>
-                            <td className="text-center p-3">{item.quantidade}</td>
-                            <td className="text-center p-3">{item.totalItens}</td>
-                            <td className="text-center p-3">{item.tamanho}</td>
-                            <td className="text-center p-3">{item.descricao}</td>
-                            <td className="text-center p-3">{item.estado}</td>
-                            <td className="text-center p-3">{item.fotografia ? "Sim" : "Não"}</td>
-                            <td className="text-center p-3">{item.altoValor ? "Sim" : "Não"}</td>
-                          </tr>
-                        ))}
-                        <tr className="font-semibold text-sm">
-                          <td className="p-3">TOTAL</td>
-                          <td className="text-center p-3"></td>
-                          <td className="text-center p-3">{totalItens}</td>
-                          <td className="text-center p-3"></td>
-                          <td className="text-center p-3"></td>
-                          <td className="text-center p-3"></td>
-                          <td className="text-center p-3"></td>
-                          <td className="text-center p-3"></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            )
-          })()}
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDetalhesDoacaoOpen(false)}>
-              Fechar
-            </Button>
-          </DialogFooter>
+                )
+              })()}
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={handleVoltarListaDoacoes}>
+                  Voltar
+                </Button>
+                <Button variant="outline" onClick={() => setIsDoacoesOpen(false)}>
+                  Fechar
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>
