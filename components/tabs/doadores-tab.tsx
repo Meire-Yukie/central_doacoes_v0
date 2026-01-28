@@ -556,7 +556,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                   <TableHead className="hidden md:table-cell">Telefone</TableHead>
                   <TableHead className="hidden lg:table-cell">Prioridade</TableHead>
                   <TableHead className="text-center">Doações</TableHead>
-                  <TableHead className="text-right text-blue-600">Ações</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -1706,7 +1706,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                     />
                   </div>
 
-                  <div className="flex gap-2 mt-4">
+                  <div className="mt-4">
                     <Button 
                       type="button" 
                       variant="outline" 
@@ -1714,16 +1714,6 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                       disabled={!itemDoacao || !quantidadeItem}
                     >
                       Salvar item
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="outline" 
-                      onClick={() => {
-                        handleSalvarItem()
-                      }}
-                      disabled={!itemDoacao || !quantidadeItem}
-                    >
-                      Adicionar novo item
                     </Button>
                   </div>
                 </div>
