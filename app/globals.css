@@ -154,14 +154,54 @@
   }
 }
 
-/* Gradient utilities */
+/* Brand color utilities - Primary Purple */
 .gf-gradient {
-  background: linear-gradient(135deg, var(--gf-purple) 0%, var(--gf-orange) 100%);
+  background-color: #724FE5;
+  transition: background-color 0.2s ease;
 }
 
+.gf-gradient:hover {
+  background-color: #5E3DC7;
+}
+
+.gf-gradient:active {
+  background-color: #4A2FA9;
+}
+
+.gf-gradient:focus-visible {
+  outline: 2px solid #724FE5;
+  outline-offset: 2px;
+}
+
+/* Secondary Orange button variant */
+.gf-secondary {
+  background-color: #EA5A0C;
+  transition: background-color 0.2s ease;
+}
+
+.gf-secondary:hover {
+  background-color: #D14E08;
+}
+
+.gf-secondary:active {
+  background-color: #B84307;
+}
+
+.gf-secondary:focus-visible {
+  outline: 2px solid #EA5A0C;
+  outline-offset: 2px;
+}
+
+/* Text colors */
 .gf-gradient-text {
-  background: linear-gradient(135deg, var(--gf-purple) 0%, var(--gf-orange) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: #724FE5;
+}
+
+.gf-text-secondary {
+  color: #EA5A0C;
+}
+
+/* Table header with primary color */
+.gf-table-header {
+  background-color: #724FE5;
 }
