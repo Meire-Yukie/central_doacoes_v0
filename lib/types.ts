@@ -51,6 +51,7 @@ export interface Doacao {
     periodo: "Manhã" | "Tarde"
   }
   observacoes?: string
+  atendente?: string
 }
 
 export interface Coleta {

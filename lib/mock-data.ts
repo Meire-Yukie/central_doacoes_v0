@@ -137,6 +137,7 @@ export const mockDoacoes: Doacao[] = [
       periodo: "Manhã",
     },
     observacoes: "Interfone 201",
+    atendente: "Ana Paula Silva",
   },
   {
     id: "DON002",
@@ -154,6 +155,7 @@ export const mockDoacoes: Doacao[] = [
     status: "Confirmada",
     itensDeclarados: "30 livros infantis e didáticos",
     quantidade: 30,
+    atendente: "Carlos Eduardo Santos",
   },
   {
     id: "DON003",
@@ -179,7 +181,8 @@ export const mockDoacoes: Doacao[] = [
       cep: "01310-100",
     },
     itensDeclarados: "Sofá 3 lugares, mesa de jantar com 4 cadeiras",
-    observacoes: "Móveis pesados, necessário equipe de 2 pessoas",
+    observacoes: "Moveis pesados, necessario equipe de 2 pessoas",
+    atendente: "Mariana Oliveira",
   },
   {
     id: "DON004",
@@ -208,6 +211,7 @@ export const mockDoacoes: Doacao[] = [
       data: "2026-01-23",
       periodo: "Tarde",
     },
+    atendente: "Joao Pedro Costa",
   },
   {
     id: "DON005",
@@ -236,8 +240,9 @@ export const mockDoacoes: Doacao[] = [
     quantidade: 20,
     agendamento: {
       data: "2026-01-16",
-      periodo: "Manhã",
+      periodo: "Manha",
     },
+    atendente: "Fernanda Lima",
   },
   {
     id: "DON006",
@@ -255,6 +260,7 @@ export const mockDoacoes: Doacao[] = [
     status: "Cancelada",
     itensDeclarados: "Artigos de cozinha variados",
     observacoes: "Doador cancelou por motivos pessoais",
+    atendente: "Ricardo Mendes",
   },
   {
     id: "DON007",
@@ -280,6 +286,7 @@ export const mockDoacoes: Doacao[] = [
     },
     itensDeclarados: "50 peças de roupa masculina e feminina",
     quantidade: 50,
+    atendente: "Ana Paula Silva",
   },
 ]
 

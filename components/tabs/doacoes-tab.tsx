@@ -56,7 +56,14 @@ import {
   Check,
   Clock,
   CircleDot,
+  MoreHorizontal,
 } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
 
@@ -268,15 +275,16 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>Data</TableHead>
+                  <TableHead>ID da Doacao</TableHead>
+                  <TableHead>Tipo</TableHead>
                   <TableHead>Doador</TableHead>
-                  <TableHead className="hidden md:table-cell">Tipo</TableHead>
-                  <TableHead className="hidden lg:table-cell">Condição</TableHead>
-                  <TableHead className="hidden md:table-cell">Modalidade</TableHead>
-                  <TableHead className="hidden lg:table-cell">Volume</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
+                  <TableHead className="hidden md:table-cell">Endereco</TableHead>
+                  <TableHead className="hidden lg:table-cell">Data da Coleta</TableHead>
+                  <TableHead>Status da Doacao</TableHead>
+                  <TableHead className="hidden md:table-cell">Qtd. Itens</TableHead>
+                  <TableHead className="hidden lg:table-cell">Self-Service</TableHead>
+                  <TableHead className="hidden lg:table-cell">Atendente</TableHead>
+                  <TableHead className="text-right">Acoes</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -290,69 +298,103 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredDoacoes.map((doacao) => (
-                    <TableRow key={doacao.id}>
-                      <TableCell className="font-mono text-sm">{doacao.id}</TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {new Date(doacao.dataCreated).toLocaleDateString("pt-BR")}
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">{doacao.doador.nome}</p>
-                          <p className="text-xs text-muted-foreground">{doacao.doador.email}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden md:table-cell">
-                        <div className="flex items-center gap-1">
-                          {doacao.tipoItem === "Móveis" && (
-                            <span className="rounded bg-warning/20 px-1.5 py-0.5 text-xs text-warning-foreground">
-                              Validação manual
-                            </span>
-                          )}
-                          <span>{doacao.tipoItem}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden lg:table-cell">
-                        <StatusBadge status={doacao.condicaoItem} />
-                      </TableCell>
-                      <TableCell className="hidden text-muted-foreground md:table-cell">
-                        {doacao.modalidade}
-                      </TableCell>
-                      <TableCell className="hidden text-muted-foreground lg:table-cell">
-                        {doacao.volume}
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge status={doacao.status} />
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleViewDetails(doacao)}
-                          >
-                            <Eye className="h-4 w-4" />
-                            <span className="sr-only">Ver detalhes</span>
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Pencil className="h-4 w-4" />
-                            <span className="sr-only">Editar</span>
-                          </Button>
-                          {doacao.status !== "Cancelada" && doacao.status !== "Coletada" && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-destructive hover:text-destructive"
-                              onClick={() => handleCancelClick(doacao)}
-                            >
-                              <X className="h-4 w-4" />
-                              <span className="sr-only">Cancelar</span>
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                  filteredDoacoes.map((doacao) => {
+                    // Determina o tipo do doador (PF ou PJ) baseado no doadorId
+                    const tipoDoador = doacao.doadorId?.startsWith("DOA003") || doacao.doadorId?.startsWith("DOA005") ? "PJ" : "PF"
+                    
+                    // Formata o endereco
+                    const enderecoFormatado = doacao.endereco 
+                      ? `${doacao.endereco.rua}, ${doacao.endereco.numero} - ${doacao.endereco.bairro}, ${doacao.endereco.cidade}/${doacao.endereco.uf}`
+                      : "-"
+                    
+                    // Data da coleta
+                    const dataColeta = doacao.agendamento?.data 
+                      ? new Date(doacao.agendamento.data).toLocaleDateString("pt-BR")
+                      : "-"
+                    
+                    // Self-service (baseado na modalidade)
+                    const selfService = doacao.modalidade === "Ponto de coleta" ? "Sim" : "Nao"
+                    
+                    return (
+                      <TableRow key={doacao.id}>
+                        <TableCell className="font-mono text-sm">{doacao.id}</TableCell>
+                        <TableCell>
+                          <span className={`rounded px-2 py-1 text-xs font-medium ${
+                            tipoDoador === "PF" 
+                              ? "bg-blue-100 text-blue-700" 
+                              : "bg-purple-100 text-purple-700"
+                          }`}>
+                            {tipoDoador === "PF" ? "Pessoa Fisica" : "Pessoa Juridica"}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">{doacao.doador.nome}</p>
+                            <p className="text-xs text-muted-foreground">{doacao.doador.email}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-sm text-muted-foreground max-w-[200px] truncate" title={enderecoFormatado}>
+                          {enderecoFormatado}
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell text-muted-foreground">
+                          {dataColeta}
+                        </TableCell>
+                        <TableCell>
+                          <StatusBadge status={doacao.status} />
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell text-center">
+                          {doacao.quantidade || "-"}
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell text-center">
+                          {selfService}
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell text-muted-foreground">
+                          {doacao.atendente || "-"}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="sm">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Mais opcoes</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleViewDetails(doacao)}>
+                                <Eye className="mr-2 h-4 w-4" />
+                                Ver detalhes
+                              </DropdownMenuItem>
+                              {doacao.status !== "Cancelada" && doacao.status !== "Coletada" && doacao.status !== "Concluida" && (
+                                <>
+                                  <DropdownMenuItem>
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Editar
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Calendar className="mr-2 h-4 w-4" />
+                                    Reagendar
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    className="text-destructive"
+                                    onClick={() => handleCancelClick(doacao)}
+                                  >
+                                    <X className="mr-2 h-4 w-4" />
+                                    Cancelar
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+                              {doacao.status === "Coletada" && (
+                                <DropdownMenuItem>
+                                  <Check className="mr-2 h-4 w-4" />
+                                  Finalizar
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
                 )}
               </TableBody>
             </Table>
