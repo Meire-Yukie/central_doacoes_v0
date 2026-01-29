@@ -556,6 +556,31 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                   </div>
                 </div>
               </div>
+
+              {/* Tabela de Itens */}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-sm border-b pb-2">Itens da Doacao</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="gf-gradient text-white text-sm">
+                        <th className="text-left p-3 font-medium rounded-l-lg">Itens</th>
+                        <th className="text-center p-3 font-medium">Total de Itens</th>
+                        <th className="text-center p-3 font-medium">Tamanho</th>
+                        <th className="text-left p-3 font-medium rounded-r-lg">Descricao</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b text-sm">
+                        <td className="p-3">{selectedDoacao.tipoItem || "-"}</td>
+                        <td className="text-center p-3">{selectedDoacao.quantidade || "-"}</td>
+                        <td className="text-center p-3">{selectedDoacao.volume || "-"}</td>
+                        <td className="p-3">{selectedDoacao.itensDeclarados || "-"}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
           <DialogFooter>
