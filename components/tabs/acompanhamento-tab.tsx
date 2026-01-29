@@ -4,7 +4,7 @@ import React from "react"
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Sheet,
   SheetContent,
@@ -20,9 +20,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { KPICards } from "@/components/kpi-cards"
 import { StatusBadge } from "@/components/status-badge"
 import { mockColetas } from "@/lib/mock-data"
 import type { Coleta } from "@/lib/types"
@@ -34,9 +54,12 @@ import {
   Truck,
   Package,
   AlertTriangle,
-  Clock,
   User,
   Phone,
+  Download,
+  MoreHorizontal,
+  Pencil,
+  X,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -52,22 +75,140 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
   const [coletaToReschedule, setColetaToReschedule] = useState<Coleta | null>(null)
   const { toast } = useToast()
 
-  // Filter coletas for today (mock - using the dates from mock data)
-  const today = "2026-01-22" // Mock today
-  const romaneioColetas = mockColetas.filter(
-    (c) => c.dataAgendada === today && c.status !== "Coletada"
-  )
-  const pendentesColetas = mockColetas.filter((c) => c.status === "Pendente")
-  const atrasadasColetas = mockColetas.filter((c) => c.status === "Atrasada")
+  // Sub-tab state
+  const [activeSubTab, setActiveSubTab] = useState<"romaneio" | "atrasadas" | "pendentes">("romaneio")
 
-  const filteredRomaneio = romaneioColetas.filter((coleta) => {
-    const query = searchQuery.toLowerCase()
-    return (
-      coleta.doadorNome.toLowerCase().includes(query) ||
-      coleta.endereco.toLowerCase().includes(query) ||
-      coleta.id.toLowerCase().includes(query)
-    )
+  // Filtros Romaneio
+  const [filtroRomaneioTipoColeta, setFiltroRomaneioTipoColeta] = useState("")
+  const [filtroRomaneioStatusDoacao, setFiltroRomaneioStatusDoacao] = useState("")
+  const [filtroRomaneioDataInicio, setFiltroRomaneioDataInicio] = useState("")
+  const [filtroRomaneioDataFinal, setFiltroRomaneioDataFinal] = useState("")
+  const [filtroRomaneioIdDoador, setFiltroRomaneioIdDoador] = useState("")
+  const [filtroRomaneioIdDoacao, setFiltroRomaneioIdDoacao] = useState("")
+
+  // Filtros Atrasadas
+  const [filtroAtrasadasTipoColeta, setFiltroAtrasadasTipoColeta] = useState("")
+  const [filtroAtrasadasDataInicio, setFiltroAtrasadasDataInicio] = useState("")
+  const [filtroAtrasadasDataFinal, setFiltroAtrasadasDataFinal] = useState("")
+  const [filtroAtrasadasNome, setFiltroAtrasadasNome] = useState("")
+  const [filtroAtrasadasEmail, setFiltroAtrasadasEmail] = useState("")
+  const [filtroAtrasadasTelefone, setFiltroAtrasadasTelefone] = useState("")
+  const [filtroAtrasadasIdDoacao, setFiltroAtrasadasIdDoacao] = useState("")
+  const [filtroAtrasadasPrioridade, setFiltroAtrasadasPrioridade] = useState("")
+
+  // Filtros Pendentes
+  const [filtroPendentesTipoColeta, setFiltroPendentesTipoColeta] = useState("")
+  const [filtroPendentesDataInicio, setFiltroPendentesDataInicio] = useState("")
+  const [filtroPendentesDataFinal, setFiltroPendentesDataFinal] = useState("")
+  const [filtroPendentesNome, setFiltroPendentesNome] = useState("")
+  const [filtroPendentesEmail, setFiltroPendentesEmail] = useState("")
+  const [filtroPendentesIdDoacao, setFiltroPendentesIdDoacao] = useState("")
+  const [filtroPendentesStatusColeta, setFiltroPendentesStatusColeta] = useState("")
+  const [filtroPendentesPrioridade, setFiltroPendentesPrioridade] = useState("")
+
+  const handleLimparFiltrosRomaneio = () => {
+    setFiltroRomaneioTipoColeta("")
+    setFiltroRomaneioStatusDoacao("")
+    setFiltroRomaneioDataInicio("")
+    setFiltroRomaneioDataFinal("")
+    setFiltroRomaneioIdDoador("")
+    setFiltroRomaneioIdDoacao("")
+  }
+
+  const handleLimparFiltrosAtrasadas = () => {
+    setFiltroAtrasadasTipoColeta("")
+    setFiltroAtrasadasDataInicio("")
+    setFiltroAtrasadasDataFinal("")
+    setFiltroAtrasadasNome("")
+    setFiltroAtrasadasEmail("")
+    setFiltroAtrasadasTelefone("")
+    setFiltroAtrasadasIdDoacao("")
+    setFiltroAtrasadasPrioridade("")
+  }
+
+  const handleLimparFiltrosPendentes = () => {
+    setFiltroPendentesTipoColeta("")
+    setFiltroPendentesDataInicio("")
+    setFiltroPendentesDataFinal("")
+    setFiltroPendentesNome("")
+    setFiltroPendentesEmail("")
+    setFiltroPendentesIdDoacao("")
+    setFiltroPendentesStatusColeta("")
+    setFiltroPendentesPrioridade("")
+  }
+
+  const handleBaixarDados = (tipo: string) => {
+    toast({
+      title: "Download iniciado",
+      description: `O relatorio de ${tipo} esta sendo gerado.`,
+    })
+  }
+
+  // Mock data para as tabelas
+  const mockRomaneioData = mockColetas.map((coleta, index) => ({
+    ...coleta,
+    tipoColeta: coleta.veiculo === "Van" || coleta.veiculo === "Utilitario" 
+      ? "Caminhao - Retirada no endereco" 
+      : coleta.veiculo === "Carro" 
+        ? "Carro - Retirada no endereco" 
+        : "Ponto de Coleta",
+    statusDoacao: index % 4 === 0 ? "Cadastrada" : index % 4 === 1 ? "Concluida" : index % 4 === 2 ? "Cancelada" : "Pre-Cadastro Cancelado",
+    selfService: index % 2 === 0 ? "Sim" : "Nao",
+    prioridade: String((index % 4) + 1),
+    email: `doador${index}@email.com`,
+  }))
+
+  const filteredRomaneio = mockRomaneioData.filter((item) => {
+    const matchTipoColeta = !filtroRomaneioTipoColeta || filtroRomaneioTipoColeta === "todos" || item.tipoColeta === filtroRomaneioTipoColeta
+    const matchStatusDoacao = !filtroRomaneioStatusDoacao || filtroRomaneioStatusDoacao === "todos" || item.statusDoacao === filtroRomaneioStatusDoacao
+    const matchIdDoador = !filtroRomaneioIdDoador || item.doacaoId.toLowerCase().includes(filtroRomaneioIdDoador.toLowerCase())
+    const matchIdDoacao = !filtroRomaneioIdDoacao || item.id.toLowerCase().includes(filtroRomaneioIdDoacao.toLowerCase())
+    
+    const dataColeta = new Date(item.dataAgendada)
+    const dataInicio = filtroRomaneioDataInicio ? new Date(filtroRomaneioDataInicio) : null
+    const dataFinal = filtroRomaneioDataFinal ? new Date(filtroRomaneioDataFinal) : null
+    
+    const matchDataInicio = !dataInicio || dataColeta >= dataInicio
+    const matchDataFinal = !dataFinal || dataColeta <= dataFinal
+    
+    return matchTipoColeta && matchStatusDoacao && matchIdDoador && matchIdDoacao && matchDataInicio && matchDataFinal
   })
+
+  const filteredAtrasadas = mockRomaneioData.filter((item) => {
+    const matchTipoColeta = !filtroAtrasadasTipoColeta || filtroAtrasadasTipoColeta === "todos" || item.tipoColeta === filtroAtrasadasTipoColeta
+    const matchNome = !filtroAtrasadasNome || item.doadorNome.toLowerCase().includes(filtroAtrasadasNome.toLowerCase())
+    const matchEmail = !filtroAtrasadasEmail || item.email.toLowerCase().includes(filtroAtrasadasEmail.toLowerCase())
+    const matchTelefone = !filtroAtrasadasTelefone || (item.doadorTelefone && item.doadorTelefone.includes(filtroAtrasadasTelefone))
+    const matchIdDoacao = !filtroAtrasadasIdDoacao || item.id.toLowerCase().includes(filtroAtrasadasIdDoacao.toLowerCase())
+    const matchPrioridade = !filtroAtrasadasPrioridade || filtroAtrasadasPrioridade === "todos" || item.prioridade === filtroAtrasadasPrioridade
+    
+    const dataColeta = new Date(item.dataAgendada)
+    const dataInicio = filtroAtrasadasDataInicio ? new Date(filtroAtrasadasDataInicio) : null
+    const dataFinal = filtroAtrasadasDataFinal ? new Date(filtroAtrasadasDataFinal) : null
+    
+    const matchDataInicio = !dataInicio || dataColeta >= dataInicio
+    const matchDataFinal = !dataFinal || dataColeta <= dataFinal
+    
+    return matchTipoColeta && matchNome && matchEmail && matchTelefone && matchIdDoacao && matchPrioridade && matchDataInicio && matchDataFinal
+  }).slice(0, 10)
+
+  const filteredPendentes = mockRomaneioData.filter((item) => {
+    const matchTipoColeta = !filtroPendentesTipoColeta || filtroPendentesTipoColeta === "todos" || item.tipoColeta === filtroPendentesTipoColeta
+    const matchNome = !filtroPendentesNome || item.doadorNome.toLowerCase().includes(filtroPendentesNome.toLowerCase())
+    const matchEmail = !filtroPendentesEmail || item.email.toLowerCase().includes(filtroPendentesEmail.toLowerCase())
+    const matchIdDoacao = !filtroPendentesIdDoacao || item.id.toLowerCase().includes(filtroPendentesIdDoacao.toLowerCase())
+    const matchStatusColeta = !filtroPendentesStatusColeta || filtroPendentesStatusColeta === "todos" || item.status === filtroPendentesStatusColeta
+    const matchPrioridade = !filtroPendentesPrioridade || filtroPendentesPrioridade === "todos" || item.prioridade === filtroPendentesPrioridade
+    
+    const dataColeta = new Date(item.dataAgendada)
+    const dataInicio = filtroPendentesDataInicio ? new Date(filtroPendentesDataInicio) : null
+    const dataFinal = filtroPendentesDataFinal ? new Date(filtroPendentesDataFinal) : null
+    
+    const matchDataInicio = !dataInicio || dataColeta >= dataInicio
+    const matchDataFinal = !dataFinal || dataColeta <= dataFinal
+    
+    return matchTipoColeta && matchNome && matchEmail && matchIdDoacao && matchStatusColeta && matchPrioridade && matchDataInicio && matchDataFinal
+  }).slice(0, 15)
 
   const handleViewDetails = (coleta: Coleta) => {
     setSelectedColeta(coleta)
@@ -104,228 +245,626 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
         <div>
           <h1 className="text-2xl font-bold text-foreground">Acompanhamento de Coletas</h1>
           <p className="text-sm text-muted-foreground">
-            Operação do dia: acompanhe o status das coletas
+            Operacao do dia: acompanhe o status das coletas
           </p>
         </div>
       </div>
 
-      <KPICards variant="acompanhamento" />
-
-      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-3">
-        {/* Romaneio do Dia */}
-        <Card className="xl:col-span-1">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-lg">Romaneio do Dia</CardTitle>
-                <CardDescription>Coletas agendadas para hoje</CardDescription>
-              </div>
-              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
-                {filteredRomaneio.length} coletas
-              </span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {filteredRomaneio.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 py-8 text-center text-muted-foreground">
-                <Package className="h-8 w-8" />
-                <span>Nenhuma coleta pendente hoje</span>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredRomaneio.map((coleta) => (
-                  <div
-                    key={coleta.id}
-                    className="rounded-lg border border-border bg-card p-3"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          {coleta.ordemRota && (
-                            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                              {coleta.ordemRota}
-                            </span>
-                          )}
-                          <span className="truncate font-medium">{coleta.doadorNome}</span>
-                        </div>
-                        <p className="mt-1 truncate text-sm text-muted-foreground">
-                          {coleta.enderecoCompleto.bairro}, {coleta.enderecoCompleto.cidade}
-                        </p>
-                        <div className="mt-2 flex flex-wrap items-center gap-2">
-                          <span className="text-xs text-muted-foreground">
-                            {coleta.volume} / {coleta.veiculo}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {coleta.periodo}
-                          </span>
-                        </div>
-                      </div>
-                      <StatusBadge status={coleta.status} />
-                    </div>
-                    <div className="mt-3 flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 bg-transparent"
-                        onClick={() => handleViewDetails(coleta)}
-                      >
-                        <Eye className="mr-1 h-3 w-3" />
-                        Detalhes
-                      </Button>
-                      <Button
-                        size="sm"
-                        className="flex-1 gf-gradient text-white"
-                        onClick={() => handleDarBaixa(coleta)}
-                      >
-                        <CheckCircle className="mr-1 h-3 w-3" />
-                        Dar baixa
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Coletas Pendentes */}
-        <Card className="xl:col-span-1">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-lg">Coletas Pendentes</CardTitle>
-                <CardDescription>Todas as coletas aguardando</CardDescription>
-              </div>
-              <span className="rounded-full bg-warning/20 px-2.5 py-1 text-xs font-medium text-warning-foreground">
-                {pendentesColetas.length} pendentes
-              </span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {pendentesColetas.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 py-8 text-center text-muted-foreground">
-                <Clock className="h-8 w-8" />
-                <span>Nenhuma coleta pendente</span>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {pendentesColetas.map((coleta) => (
-                  <div
-                    key={coleta.id}
-                    className="rounded-lg border border-border bg-card p-3"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-medium">{coleta.doadorNome}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(coleta.dataAgendada).toLocaleDateString("pt-BR")} -{" "}
-                          {coleta.periodo}
-                        </p>
-                        <p className="mt-1 truncate text-xs text-muted-foreground">
-                          {coleta.enderecoCompleto.bairro}, {coleta.enderecoCompleto.cidade}
-                        </p>
-                        <span className="mt-1 inline-block text-xs text-muted-foreground">
-                          {coleta.volume}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 bg-transparent"
-                        onClick={() => handleViewDetails(coleta)}
-                      >
-                        <Eye className="mr-1 h-3 w-3" />
-                        Detalhes
-                      </Button>
-                      <Button
-                        size="sm"
-                        className="flex-1 gf-gradient text-white"
-                        onClick={() => handleDarBaixa(coleta)}
-                      >
-                        <CheckCircle className="mr-1 h-3 w-3" />
-                        Dar baixa
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Coletas Atrasadas */}
-        <Card className="xl:col-span-1">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-lg">Coletas Atrasadas</CardTitle>
-                <CardDescription>Coletas que precisam de atenção</CardDescription>
-              </div>
-              <span className="rounded-full bg-destructive/20 px-2.5 py-1 text-xs font-medium text-destructive">
-                {atrasadasColetas.length} atrasadas
-              </span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {atrasadasColetas.length === 0 ? (
-              <div className="flex flex-col items-center gap-2 py-8 text-center text-muted-foreground">
-                <CheckCircle className="h-8 w-8 text-success" />
-                <span>Nenhuma coleta atrasada</span>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {atrasadasColetas.map((coleta) => (
-                  <div
-                    key={coleta.id}
-                    className="rounded-lg border border-destructive/30 bg-destructive/5 p-3"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <AlertTriangle className="h-4 w-4 text-destructive" />
-                          <span className="truncate font-medium">{coleta.doadorNome}</span>
-                        </div>
-                        <p className="mt-1 text-sm text-destructive">
-                          {coleta.diasAtrasado} dia(s) de atraso
-                        </p>
-                        {coleta.motivoAtraso && (
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            Motivo: {coleta.motivoAtraso}
-                          </p>
-                        )}
-                        <p className="mt-1 truncate text-xs text-muted-foreground">
-                          {coleta.enderecoCompleto.bairro}, {coleta.enderecoCompleto.cidade}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="mt-3 flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1 bg-transparent"
-                        onClick={() => handleReschedule(coleta)}
-                      >
-                        <Calendar className="mr-1 h-3 w-3" />
-                        Reagendar
-                      </Button>
-                      <Button
-                        size="sm"
-                        className="flex-1 gf-gradient text-white"
-                        onClick={() => handleDarBaixa(coleta)}
-                      >
-                        <CheckCircle className="mr-1 h-3 w-3" />
-                        Dar baixa
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      {/* Sub-navigation */}
+      <div className="flex gap-2 border-b">
+        <button
+          onClick={() => setActiveSubTab("romaneio")}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeSubTab === "romaneio"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Romaneio de Transporte
+        </button>
+        <button
+          onClick={() => setActiveSubTab("atrasadas")}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeSubTab === "atrasadas"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Coletas Atrasadas
+        </button>
+        <button
+          onClick={() => setActiveSubTab("pendentes")}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeSubTab === "pendentes"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Coletas Pendentes
+        </button>
       </div>
+
+      {/* Romaneio de Transporte */}
+      {activeSubTab === "romaneio" && (
+        <>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Tipo de Coleta</Label>
+                  <Select value={filtroRomaneioTipoColeta} onValueChange={setFiltroRomaneioTipoColeta}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="Caminhao - Retirada no endereco">Caminhao - Retirada no endereco</SelectItem>
+                      <SelectItem value="Carro - Retirada no endereco">Carro - Retirada no endereco</SelectItem>
+                      <SelectItem value="Ponto de Coleta">Ponto de Coleta</SelectItem>
+                      <SelectItem value="Correios">Correios</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Status Doacao</Label>
+                  <Select value={filtroRomaneioStatusDoacao} onValueChange={setFiltroRomaneioStatusDoacao}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="Cadastrada">Cadastrada</SelectItem>
+                      <SelectItem value="Cancelada">Cancelada</SelectItem>
+                      <SelectItem value="Concluida">Concluida</SelectItem>
+                      <SelectItem value="Pre-Cadastro Cancelado">Pre-Cadastro Cancelado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Data Coleta - Inicial</Label>
+                  <Input
+                    type="date"
+                    value={filtroRomaneioDataInicio}
+                    onChange={(e) => setFiltroRomaneioDataInicio(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Data Coleta - Final</Label>
+                  <Input
+                    type="date"
+                    value={filtroRomaneioDataFinal}
+                    onChange={(e) => setFiltroRomaneioDataFinal(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">ID do Doador</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroRomaneioIdDoador}
+                    onChange={(e) => setFiltroRomaneioIdDoador(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">ID da Doacao</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroRomaneioIdDoacao}
+                    onChange={(e) => setFiltroRomaneioIdDoacao(e.target.value)}
+                  />
+                </div>
+                <div className="col-span-2 flex items-end">
+                  <Button variant="outline" onClick={handleLimparFiltrosRomaneio}>
+                    Limpar filtros
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Romaneio de Transporte</CardTitle>
+                <Button variant="outline" onClick={() => handleBaixarDados("Romaneio de Transporte")}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Baixar Dados
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID Doacao</TableHead>
+                      <TableHead>Tipo de Coleta</TableHead>
+                      <TableHead>Data da Coleta</TableHead>
+                      <TableHead>Itens</TableHead>
+                      <TableHead>Nome Doador</TableHead>
+                      <TableHead className="hidden md:table-cell">Telefone</TableHead>
+                      <TableHead className="hidden lg:table-cell">Endereco</TableHead>
+                      <TableHead className="hidden lg:table-cell">Observacoes</TableHead>
+                      <TableHead>Status Doacao</TableHead>
+                      <TableHead>Self-Service</TableHead>
+                      <TableHead className="text-right">Acoes</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredRomaneio.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={11} className="h-32 text-center">
+                          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                            <Package className="h-8 w-8" />
+                            <span>Nenhum registro encontrado</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredRomaneio.slice(0, 20).map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-mono text-sm">{item.id}</TableCell>
+                          <TableCell className="text-sm">{item.tipoColeta}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {new Date(item.dataAgendada).toLocaleDateString("pt-BR")}
+                          </TableCell>
+                          <TableCell className="max-w-[150px] truncate text-sm" title={item.itens}>
+                            {item.itens}
+                          </TableCell>
+                          <TableCell className="font-medium">{item.doadorNome}</TableCell>
+                          <TableCell className="hidden md:table-cell text-muted-foreground">
+                            {item.doadorTelefone || "-"}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell text-sm text-muted-foreground max-w-[200px] truncate" title={item.endereco}>
+                            {item.endereco}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell text-sm text-muted-foreground max-w-[150px] truncate" title={item.observacoes || "-"}>
+                            {item.observacoes || "-"}
+                          </TableCell>
+                          <TableCell>
+                            <StatusBadge status={item.statusDoacao} />
+                          </TableCell>
+                          <TableCell className="text-center">{item.selfService}</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleViewDetails(item)}>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  Ver detalhes
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <Pencil className="mr-2 h-4 w-4" />
+                                  Editar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDarBaixa(item)}>
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  Dar baixa
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
+
+      {/* Coletas Atrasadas */}
+      {activeSubTab === "atrasadas" && (
+        <>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Tipo de Coleta</Label>
+                  <Select value={filtroAtrasadasTipoColeta} onValueChange={setFiltroAtrasadasTipoColeta}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="Caminhao - Retirada no endereco">Caminhao - Retirada no endereco</SelectItem>
+                      <SelectItem value="Carro - Retirada no endereco">Carro - Retirada no endereco</SelectItem>
+                      <SelectItem value="Ponto de Coleta">Ponto de Coleta</SelectItem>
+                      <SelectItem value="Correios">Correios</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Data Coleta - Inicial</Label>
+                  <Input
+                    type="date"
+                    value={filtroAtrasadasDataInicio}
+                    onChange={(e) => setFiltroAtrasadasDataInicio(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Data Coleta - Final</Label>
+                  <Input
+                    type="date"
+                    value={filtroAtrasadasDataFinal}
+                    onChange={(e) => setFiltroAtrasadasDataFinal(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Nome do Doador</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroAtrasadasNome}
+                    onChange={(e) => setFiltroAtrasadasNome(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Email</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroAtrasadasEmail}
+                    onChange={(e) => setFiltroAtrasadasEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Telefone</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroAtrasadasTelefone}
+                    onChange={(e) => setFiltroAtrasadasTelefone(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">ID da Doacao</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroAtrasadasIdDoacao}
+                    onChange={(e) => setFiltroAtrasadasIdDoacao(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Prioridade</Label>
+                  <Select value={filtroAtrasadasPrioridade} onValueChange={setFiltroAtrasadasPrioridade}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2">2</SelectItem>
+                      <SelectItem value="3">3</SelectItem>
+                      <SelectItem value="4">4</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-end">
+                  <Button variant="outline" onClick={handleLimparFiltrosAtrasadas}>
+                    Limpar filtros
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Coletas Atrasadas</CardTitle>
+                <Button variant="outline" onClick={() => handleBaixarDados("Coletas Atrasadas")}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Baixar Dados
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID Doacao</TableHead>
+                      <TableHead>Tipo de Coleta</TableHead>
+                      <TableHead>Data da Coleta</TableHead>
+                      <TableHead>Itens</TableHead>
+                      <TableHead>Prioridade</TableHead>
+                      <TableHead>Nome Doador</TableHead>
+                      <TableHead className="hidden md:table-cell">Telefone</TableHead>
+                      <TableHead className="hidden lg:table-cell">Endereco</TableHead>
+                      <TableHead className="hidden lg:table-cell">Observacoes</TableHead>
+                      <TableHead>Self-Service</TableHead>
+                      <TableHead className="text-right">Acoes</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredAtrasadas.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={11} className="h-32 text-center">
+                          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                            <AlertTriangle className="h-8 w-8" />
+                            <span>Nenhuma coleta atrasada encontrada</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredAtrasadas.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-mono text-sm">{item.id}</TableCell>
+                          <TableCell className="text-sm">{item.tipoColeta}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {new Date(item.dataAgendada).toLocaleDateString("pt-BR")}
+                          </TableCell>
+                          <TableCell className="max-w-[150px] truncate text-sm" title={item.itens}>
+                            {item.itens}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+                              item.prioridade === "1" ? "bg-red-100 text-red-700" :
+                              item.prioridade === "2" ? "bg-orange-100 text-orange-700" :
+                              item.prioridade === "3" ? "bg-yellow-100 text-yellow-700" :
+                              "bg-gray-100 text-gray-700"
+                            }`}>
+                              {item.prioridade}
+                            </span>
+                          </TableCell>
+                          <TableCell className="font-medium">{item.doadorNome}</TableCell>
+                          <TableCell className="hidden md:table-cell text-muted-foreground">
+                            {item.doadorTelefone || "-"}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell text-sm text-muted-foreground max-w-[200px] truncate" title={item.endereco}>
+                            {item.endereco}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell text-sm text-muted-foreground max-w-[150px] truncate" title={item.observacoes || "-"}>
+                            {item.observacoes || "-"}
+                          </TableCell>
+                          <TableCell className="text-center">{item.selfService}</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleViewDetails(item)}>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  Ver detalhes
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleReschedule(item)}>
+                                  <Calendar className="mr-2 h-4 w-4" />
+                                  Reagendar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDarBaixa(item)}>
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  Dar baixa
+                                </DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive">
+                                  <X className="mr-2 h-4 w-4" />
+                                  Cancelar
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
+
+      {/* Coletas Pendentes */}
+      {activeSubTab === "pendentes" && (
+        <>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Tipo de Coleta</Label>
+                  <Select value={filtroPendentesTipoColeta} onValueChange={setFiltroPendentesTipoColeta}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="Caminhao - Retirada no endereco">Caminhao - Retirada no endereco</SelectItem>
+                      <SelectItem value="Carro - Retirada no endereco">Carro - Retirada no endereco</SelectItem>
+                      <SelectItem value="Ponto de Coleta">Ponto de Coleta</SelectItem>
+                      <SelectItem value="Correios">Correios</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Data Coleta - Inicial</Label>
+                  <Input
+                    type="date"
+                    value={filtroPendentesDataInicio}
+                    onChange={(e) => setFiltroPendentesDataInicio(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Data Coleta - Final</Label>
+                  <Input
+                    type="date"
+                    value={filtroPendentesDataFinal}
+                    onChange={(e) => setFiltroPendentesDataFinal(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Nome do Doador</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroPendentesNome}
+                    onChange={(e) => setFiltroPendentesNome(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Email</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroPendentesEmail}
+                    onChange={(e) => setFiltroPendentesEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">ID da Doacao</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroPendentesIdDoacao}
+                    onChange={(e) => setFiltroPendentesIdDoacao(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Status da Coleta</Label>
+                  <Select value={filtroPendentesStatusColeta} onValueChange={setFiltroPendentesStatusColeta}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="Pendente">Pendente</SelectItem>
+                      <SelectItem value="Em rota">Em rota</SelectItem>
+                      <SelectItem value="Atrasada">Atrasada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Prioridade</Label>
+                  <Select value={filtroPendentesPrioridade} onValueChange={setFiltroPendentesPrioridade}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2">2</SelectItem>
+                      <SelectItem value="3">3</SelectItem>
+                      <SelectItem value="4">4</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-end">
+                  <Button variant="outline" onClick={handleLimparFiltrosPendentes}>
+                    Limpar filtros
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Coletas Pendentes</CardTitle>
+                <Button variant="outline" onClick={() => handleBaixarDados("Coletas Pendentes")}>
+                  <Download className="mr-2 h-4 w-4" />
+                  Baixar Dados
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID Doacao</TableHead>
+                      <TableHead>Tipo de Coleta</TableHead>
+                      <TableHead>Data da Coleta</TableHead>
+                      <TableHead>Status da Coleta</TableHead>
+                      <TableHead>Itens</TableHead>
+                      <TableHead>Prioridade</TableHead>
+                      <TableHead>Nome Doador</TableHead>
+                      <TableHead className="hidden md:table-cell">Telefone</TableHead>
+                      <TableHead className="hidden lg:table-cell">Endereco</TableHead>
+                      <TableHead>Self-Service</TableHead>
+                      <TableHead className="text-right">Acoes</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredPendentes.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={11} className="h-32 text-center">
+                          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                            <Package className="h-8 w-8" />
+                            <span>Nenhuma coleta pendente encontrada</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredPendentes.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-mono text-sm">{item.id}</TableCell>
+                          <TableCell className="text-sm">{item.tipoColeta}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {new Date(item.dataAgendada).toLocaleDateString("pt-BR")}
+                          </TableCell>
+                          <TableCell>
+                            <StatusBadge status={item.status} />
+                          </TableCell>
+                          <TableCell className="max-w-[150px] truncate text-sm" title={item.itens}>
+                            {item.itens}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+                              item.prioridade === "1" ? "bg-red-100 text-red-700" :
+                              item.prioridade === "2" ? "bg-orange-100 text-orange-700" :
+                              item.prioridade === "3" ? "bg-yellow-100 text-yellow-700" :
+                              "bg-gray-100 text-gray-700"
+                            }`}>
+                              {item.prioridade}
+                            </span>
+                          </TableCell>
+                          <TableCell className="font-medium">{item.doadorNome}</TableCell>
+                          <TableCell className="hidden md:table-cell text-muted-foreground">
+                            {item.doadorTelefone || "-"}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell text-sm text-muted-foreground max-w-[200px] truncate" title={item.endereco}>
+                            {item.endereco}
+                          </TableCell>
+                          <TableCell className="text-center">{item.selfService}</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => handleViewDetails(item)}>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  Ver detalhes
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                  <Pencil className="mr-2 h-4 w-4" />
+                                  Editar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleReschedule(item)}>
+                                  <Calendar className="mr-2 h-4 w-4" />
+                                  Reagendar
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDarBaixa(item)}>
+                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  Dar baixa
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       {/* Details Drawer */}
       <Sheet open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
@@ -363,7 +902,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
               </div>
 
               <div className="space-y-3">
-                <h3 className="font-semibold text-foreground">Endereço</h3>
+                <h3 className="font-semibold text-foreground">Endereco</h3>
                 <div className="flex items-start gap-2 rounded-lg border border-border bg-muted/30 p-3">
                   <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
                   <div className="text-sm">
@@ -401,7 +940,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
 
               {selectedColeta.observacoes && (
                 <div className="space-y-3">
-                  <h3 className="font-semibold text-foreground">Observações</h3>
+                  <h3 className="font-semibold text-foreground">Observacoes</h3>
                   <p className="text-sm text-muted-foreground">{selectedColeta.observacoes}</p>
                 </div>
               )}
@@ -437,19 +976,19 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                 <Input id="new-date" type="date" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="new-period">Período</Label>
+                <Label htmlFor="new-period">Periodo</Label>
                 <select
                   id="new-period"
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                   required
                 >
-                  <option value="Manhã">Manhã</option>
+                  <option value="Manha">Manha</option>
                   <option value="Tarde">Tarde</option>
                 </select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="reason">Motivo do reagendamento</Label>
-                <Input id="reason" placeholder="Ex: Doador não estava em casa" />
+                <Input id="reason" placeholder="Ex: Doador nao estava em casa" />
               </div>
             </div>
             <DialogFooter className="gap-2">
