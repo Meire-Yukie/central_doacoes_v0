@@ -117,7 +117,10 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
   const [doacaoToCancel, setDoacaoToCancel] = useState<Doacao | null>(null)
   const { toast } = useToast()
 
-  // Filtros
+  // Sub-tab state
+  const [activeSubTab, setActiveSubTab] = useState<"doacoes" | "pre-cadastradas">("doacoes")
+
+  // Filtros Lista de Doacoes
   const [filtroId, setFiltroId] = useState("")
   const [filtroNome, setFiltroNome] = useState("")
   const [filtroTelefone, setFiltroTelefone] = useState("")
@@ -129,6 +132,15 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
   const [filtroAtendente, setFiltroAtendente] = useState("")
   const [filtroDataInicio, setFiltroDataInicio] = useState("")
   const [filtroDataFinal, setFiltroDataFinal] = useState("")
+
+  // Filtros Pre-Cadastradas
+  const [filtroPreDataInicio, setFiltroPreDataInicio] = useState("")
+  const [filtroPreDataFinal, setFiltroPreDataFinal] = useState("")
+  const [filtroPreNome, setFiltroPreNome] = useState("")
+  const [filtroPreEmail, setFiltroPreEmail] = useState("")
+  const [filtroPreTelefone, setFiltroPreTelefone] = useState("")
+  const [filtroPreId, setFiltroPreId] = useState("")
+  const [filtroPrePrioridade, setFiltroPrePrioridade] = useState("")
 
   const filteredDoacoes = mockDoacoes.filter((doacao) => {
     const query = searchQuery.toLowerCase()
@@ -186,6 +198,42 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
     setFiltroDataFinal("")
   }
 
+  const handleLimparFiltrosPre = () => {
+    setFiltroPreDataInicio("")
+    setFiltroPreDataFinal("")
+    setFiltroPreNome("")
+    setFiltroPreEmail("")
+    setFiltroPreTelefone("")
+    setFiltroPreId("")
+    setFiltroPrePrioridade("")
+  }
+
+  // Mock data para pre-cadastradas
+  const mockPreCadastradas = [
+    { id: "PRE001", nomeDoador: "Maria Santos", endereco: "Rua das Flores, 123 - Jardins, SP", emailDoador: "maria@email.com", telefone: "(11) 99999-1111", optIn: true, data: "2026-01-25", status: "Pre-Cadastrada", prioridade: "1", selfService: "Sim" },
+    { id: "PRE002", nomeDoador: "Joao Silva", endereco: "Av. Paulista, 1000 - Bela Vista, SP", emailDoador: "joao@email.com", telefone: "(11) 99999-2222", optIn: false, data: "2026-01-26", status: "Pre-Cadastrada", prioridade: "2", selfService: "Nao" },
+    { id: "PRE003", nomeDoador: "Ana Oliveira", endereco: "Rua Augusta, 500 - Consolacao, SP", emailDoador: "ana@email.com", telefone: "(11) 99999-3333", optIn: true, data: "2026-01-27", status: "Pre-Cadastrada", prioridade: "3", selfService: "Sim" },
+    { id: "PRE004", nomeDoador: "Carlos Mendes", endereco: "Alameda Santos, 200 - Jardim Paulista, SP", emailDoador: "carlos@email.com", telefone: "(11) 99999-4444", optIn: true, data: "2026-01-28", status: "Pre-Cadastrada", prioridade: "1", selfService: "Nao" },
+    { id: "PRE005", nomeDoador: "Fernanda Lima", endereco: "Rua Oscar Freire, 800 - Pinheiros, SP", emailDoador: "fernanda@email.com", telefone: "(11) 99999-5555", optIn: false, data: "2026-01-29", status: "Pre-Cadastrada", prioridade: "4", selfService: "Sim" },
+  ]
+
+  const filteredPreCadastradas = mockPreCadastradas.filter((item) => {
+    const matchId = !filtroPreId || item.id.toLowerCase().includes(filtroPreId.toLowerCase())
+    const matchNome = !filtroPreNome || item.nomeDoador.toLowerCase().includes(filtroPreNome.toLowerCase())
+    const matchEmail = !filtroPreEmail || item.emailDoador.toLowerCase().includes(filtroPreEmail.toLowerCase())
+    const matchTelefone = !filtroPreTelefone || item.telefone.includes(filtroPreTelefone)
+    const matchPrioridade = !filtroPrePrioridade || filtroPrePrioridade === "todos" || item.prioridade === filtroPrePrioridade
+    
+    const dataItem = new Date(item.data)
+    const dataInicio = filtroPreDataInicio ? new Date(filtroPreDataInicio) : null
+    const dataFinal = filtroPreDataFinal ? new Date(filtroPreDataFinal) : null
+    
+    const matchDataInicio = !dataInicio || dataItem >= dataInicio
+    const matchDataFinal = !dataFinal || dataItem <= dataFinal
+    
+    return matchId && matchNome && matchEmail && matchTelefone && matchPrioridade && matchDataInicio && matchDataFinal
+  })
+
   const handleBaixarDados = () => {
     toast({
       title: "Download iniciado",
@@ -201,14 +249,40 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
       
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Doações</h1>
+          <h1 className="text-2xl font-bold text-foreground">Doacoes</h1>
           <p className="text-sm text-muted-foreground">
-            Histórico e gerenciamento de todas as doações recebidas
+            Historico e gerenciamento de todas as doacoes recebidas
           </p>
         </div>
       </div>
 
-      <KPICards variant="doacoes" />
+      {/* Sub-navigation */}
+      <div className="flex gap-2 border-b">
+        <button
+          onClick={() => setActiveSubTab("doacoes")}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeSubTab === "doacoes"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Doacoes
+        </button>
+        <button
+          onClick={() => setActiveSubTab("pre-cadastradas")}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeSubTab === "pre-cadastradas"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Doacoes Pre-Cadastradas
+        </button>
+      </div>
+
+      {activeSubTab === "doacoes" && (
+        <>
+          <KPICards variant="doacoes" />
 
       {/* Filtros */}
       <Card>
@@ -453,6 +527,171 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
           </div>
         </CardContent>
       </Card>
+        </>
+      )}
+
+      {activeSubTab === "pre-cadastradas" && (
+        <>
+          {/* Filtros Pre-Cadastradas */}
+          <Card>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Data Solicitacao Inicial</Label>
+                  <Input
+                    type="date"
+                    value={filtroPreDataInicio}
+                    onChange={(e) => setFiltroPreDataInicio(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Data Solicitacao Final</Label>
+                  <Input
+                    type="date"
+                    value={filtroPreDataFinal}
+                    onChange={(e) => setFiltroPreDataFinal(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Nome do Doador</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroPreNome}
+                    onChange={(e) => setFiltroPreNome(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Email</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroPreEmail}
+                    onChange={(e) => setFiltroPreEmail(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Telefone</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroPreTelefone}
+                    onChange={(e) => setFiltroPreTelefone(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">ID da Doacao</Label>
+                  <Input
+                    placeholder="Buscar"
+                    value={filtroPreId}
+                    onChange={(e) => setFiltroPreId(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-sm text-muted-foreground">Prioridade</Label>
+                  <Select value={filtroPrePrioridade} onValueChange={setFiltroPrePrioridade}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="todos">Todos</SelectItem>
+                      <SelectItem value="1">1</SelectItem>
+                      <SelectItem value="2">2</SelectItem>
+                      <SelectItem value="3">3</SelectItem>
+                      <SelectItem value="4">4</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-end">
+                  <Button variant="outline" onClick={handleLimparFiltrosPre}>
+                    Limpar filtros
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tabela Pre-Cadastradas */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg">Doacoes Pre-Cadastradas</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>ID Doacao</TableHead>
+                      <TableHead>Nome Doador</TableHead>
+                      <TableHead className="hidden md:table-cell">Endereco</TableHead>
+                      <TableHead className="hidden lg:table-cell">Email Doador</TableHead>
+                      <TableHead className="hidden md:table-cell">Telefone</TableHead>
+                      <TableHead>Opt-in</TableHead>
+                      <TableHead>Data</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Prioridade</TableHead>
+                      <TableHead>Self-Service</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredPreCadastradas.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={10} className="h-32 text-center">
+                          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                            <FileText className="h-8 w-8" />
+                            <span>Nenhuma doacao pre-cadastrada encontrada</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredPreCadastradas.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-mono text-sm">{item.id}</TableCell>
+                          <TableCell className="font-medium">{item.nomeDoador}</TableCell>
+                          <TableCell className="hidden md:table-cell text-sm text-muted-foreground max-w-[200px] truncate" title={item.endereco}>
+                            {item.endereco}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell text-muted-foreground">
+                            {item.emailDoador}
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell text-muted-foreground">
+                            {item.telefone}
+                          </TableCell>
+                          <TableCell>
+                            <span className={`rounded px-2 py-1 text-xs font-medium ${
+                              item.optIn 
+                                ? "bg-green-100 text-green-700" 
+                                : "bg-red-100 text-red-700"
+                            }`}>
+                              {item.optIn ? "Sim" : "Nao"}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {new Date(item.data).toLocaleDateString("pt-BR")}
+                          </TableCell>
+                          <TableCell>
+                            <StatusBadge status={item.status} />
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+                              item.prioridade === "1" ? "bg-red-100 text-red-700" :
+                              item.prioridade === "2" ? "bg-orange-100 text-orange-700" :
+                              item.prioridade === "3" ? "bg-yellow-100 text-yellow-700" :
+                              "bg-gray-100 text-gray-700"
+                            }`}>
+                              {item.prioridade}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {item.selfService}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
 
       {/* Details Modal */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
