@@ -1062,8 +1062,8 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
               Fechar
             </Button>
             <Button className="gf-gradient text-white" onClick={handleNewAddress}>
-              <Plus className="h-4 w-4 mr-2" />
-              Novo Endereço
+              <Plus className="h-4 w-4" />
+              Novo Endereco
             </Button>
           </DialogFooter>
         </DialogContent>
