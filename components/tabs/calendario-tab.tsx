@@ -144,7 +144,7 @@ export function CalendarioTab({ searchQuery }: CalendarioTabProps) {
       
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Calendário de Entregas/Coletas</h1>
+          <h1 className="text-2xl font-bold text-foreground">Calendario Semanal de Coletas</h1>
           <p className="text-sm text-muted-foreground">
             Visualize todas as coletas agendadas por semana
           </p>
@@ -170,7 +170,7 @@ export function CalendarioTab({ searchQuery }: CalendarioTabProps) {
             <div className="space-y-2">
               <Label htmlFor="consulta-tipo-coleta">Tipo de Coleta</Label>
               <Select value={consultaTipoColeta} onValueChange={setConsultaTipoColeta}>
-                <SelectTrigger id="consulta-tipo-coleta">
+                <SelectTrigger id="consulta-tipo-coleta" className="w-full">
                   <SelectValue placeholder="Selecione o tipo" />
                 </SelectTrigger>
                 <SelectContent>

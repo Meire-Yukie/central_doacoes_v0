@@ -290,120 +290,84 @@ export const mockDoacoes: Doacao[] = [
   },
 ]
 
-export const mockColetas: Coleta[] = [
-  {
-    id: "COL001",
-    doacaoId: "DON001",
-    doadorNome: "Fernanda Lima Costa",
-    doadorTelefone: "(11) 95555-1234",
-    endereco: "Rua Oscar Freire, 200 - Jardins, São Paulo/SP",
-    enderecoCompleto: {
-      rua: "Rua Oscar Freire",
-      numero: "200",
-      bairro: "Jardins",
-      cidade: "São Paulo",
-      uf: "SP",
-      cep: "01414-001",
-    },
-    volume: "Médio",
-    veiculo: "Carro",
-    dataAgendada: "2026-01-22",
-    periodo: "Manhã",
-    status: "Pendente",
-    ordemRota: 1,
-    itens: "15 peças de roupa feminina, 10 peças infantis",
-    observacoes: "Interfone 201",
-  },
-  {
-    id: "COL002",
-    doacaoId: "DON004",
-    doadorNome: "João Pedro Oliveira",
-    doadorTelefone: "(11) 91234-5678",
-    endereco: "Rua Funchal, 500 - Vila Olímpia, São Paulo/SP",
-    enderecoCompleto: {
-      rua: "Rua Funchal",
-      numero: "500",
-      bairro: "Vila Olímpia",
-      cidade: "São Paulo",
-      uf: "SP",
-      cep: "04538-132",
-    },
-    volume: "Grande",
-    veiculo: "Utilitário",
-    dataAgendada: "2026-01-23",
-    periodo: "Tarde",
-    status: "Pendente",
-    ordemRota: 2,
-    itens: "Geladeira, micro-ondas, liquidificador",
-  },
-  {
-    id: "COL003",
-    doacaoId: "DON005",
-    doadorNome: "Maria Silva Santos",
-    doadorTelefone: "(11) 98765-4321",
-    endereco: "Avenida Paulista, 1000, Apto 123 - Bela Vista, São Paulo/SP",
-    enderecoCompleto: {
-      rua: "Avenida Paulista",
-      numero: "1000",
-      complemento: "Apto 123",
-      bairro: "Bela Vista",
-      cidade: "São Paulo",
-      uf: "SP",
-      cep: "01310-100",
-    },
-    volume: "Pequeno",
-    veiculo: "Carro",
-    dataAgendada: "2026-01-16",
-    periodo: "Manhã",
-    status: "Coletada",
-    itens: "20 brinquedos variados, jogos de tabuleiro",
-  },
-  {
-    id: "COL004",
-    doacaoId: "DON008",
-    doadorNome: "Roberto Almeida",
-    doadorTelefone: "(11) 97777-8888",
-    endereco: "Rua Augusta, 800 - Consolação, São Paulo/SP",
-    enderecoCompleto: {
-      rua: "Rua Augusta",
-      numero: "800",
-      bairro: "Consolação",
-      cidade: "São Paulo",
-      uf: "SP",
-      cep: "01305-000",
-    },
-    volume: "Pequeno",
-    veiculo: "Carro",
-    dataAgendada: "2026-01-19",
-    periodo: "Manhã",
-    status: "Atrasada",
-    itens: "10 livros, 5 jogos de tabuleiro",
-    diasAtrasado: 2,
-    motivoAtraso: "Doador não estava em casa",
-  },
-  {
-    id: "COL005",
-    doacaoId: "DON009",
-    doadorNome: "Patricia Souza",
-    doadorTelefone: "(11) 96666-5555",
-    endereco: "Alameda Santos, 1200 - Jardim Paulista, São Paulo/SP",
-    enderecoCompleto: {
-      rua: "Alameda Santos",
-      numero: "1200",
-      bairro: "Jardim Paulista",
-      cidade: "São Paulo",
-      uf: "SP",
-      cep: "01418-100",
-    },
-    volume: "Grande",
-    veiculo: "Van",
-    dataAgendada: "2026-01-22",
-    periodo: "Tarde",
-    status: "Pendente",
-    ordemRota: 3,
-    itens: "2 bicicletas, 1 mesa de escritório",
-  },
-]
+// Funcao auxiliar para gerar coletas em massa
+function generateColetas(): Coleta[] {
+  const coletas: Coleta[] = []
+  const bairros = ["Jardins", "Vila Olimpia", "Bela Vista", "Consolacao", "Pinheiros", "Moema", "Itaim Bibi", "Morumbi", "Perdizes", "Lapa"]
+  const nomes = ["Ana Silva", "Bruno Costa", "Carla Mendes", "Diego Oliveira", "Elena Santos", "Felipe Almeida", "Gabriela Lima", "Henrique Souza", "Isabela Ferreira", "Joao Pereira", "Karen Ribeiro", "Lucas Martins", "Marina Rocha", "Nicolas Dias", "Olivia Nascimento", "Pedro Gomes", "Quiteria Carvalho", "Rafael Andrade", "Sofia Barbosa", "Thiago Vieira"]
+  const periodos: ("Manha" | "Tarde")[] = ["Manha", "Tarde"]
+  const statusList: ("Pendente" | "Em rota" | "Coletada" | "Atrasada")[] = ["Pendente", "Pendente", "Pendente", "Em rota"]
+  
+  // Datas da semana atual (26 a 01 de fevereiro de 2026)
+  const datas = ["2026-01-26", "2026-01-27", "2026-01-28", "2026-01-29", "2026-01-30", "2026-01-31", "2026-02-01"]
+  
+  let coletaId = 1
+  
+  datas.forEach((data) => {
+    // 20 coletas de Carro por dia
+    for (let i = 0; i < 20; i++) {
+      const bairro = bairros[Math.floor(Math.random() * bairros.length)]
+      const nome = nomes[Math.floor(Math.random() * nomes.length)]
+      coletas.push({
+        id: `COL${String(coletaId).padStart(3, "0")}`,
+        doacaoId: `DON${String(coletaId).padStart(3, "0")}`,
+        doadorNome: nome,
+        doadorTelefone: `(11) 9${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+        endereco: `Rua ${bairro}, ${Math.floor(Math.random() * 1000 + 100)} - ${bairro}, Sao Paulo/SP`,
+        enderecoCompleto: {
+          rua: `Rua ${bairro}`,
+          numero: String(Math.floor(Math.random() * 1000 + 100)),
+          bairro: bairro,
+          cidade: "Sao Paulo",
+          uf: "SP",
+          cep: `0${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 900 + 100)}`,
+        },
+        volume: "Pequeno",
+        veiculo: "Carro",
+        dataAgendada: data,
+        periodo: periodos[Math.floor(Math.random() * periodos.length)],
+        status: statusList[Math.floor(Math.random() * statusList.length)],
+        ordemRota: i + 1,
+        itens: "Roupas e acessorios diversos",
+      })
+      coletaId++
+    }
+    
+    // 26 coletas de Caminhao (Van/Utilitario) por dia
+    for (let i = 0; i < 26; i++) {
+      const bairro = bairros[Math.floor(Math.random() * bairros.length)]
+      const nome = nomes[Math.floor(Math.random() * nomes.length)]
+      const veiculo = Math.random() > 0.5 ? "Van" : "Utilitario"
+      coletas.push({
+        id: `COL${String(coletaId).padStart(3, "0")}`,
+        doacaoId: `DON${String(coletaId).padStart(3, "0")}`,
+        doadorNome: nome,
+        doadorTelefone: `(11) 9${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+        endereco: `Avenida ${bairro}, ${Math.floor(Math.random() * 1000 + 100)} - ${bairro}, Sao Paulo/SP`,
+        enderecoCompleto: {
+          rua: `Avenida ${bairro}`,
+          numero: String(Math.floor(Math.random() * 1000 + 100)),
+          bairro: bairro,
+          cidade: "Sao Paulo",
+          uf: "SP",
+          cep: `0${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 900 + 100)}`,
+        },
+        volume: "Grande",
+        veiculo: veiculo,
+        dataAgendada: data,
+        periodo: periodos[Math.floor(Math.random() * periodos.length)],
+        status: statusList[Math.floor(Math.random() * statusList.length)],
+        ordemRota: i + 21,
+        itens: "Moveis e eletrodomesticos",
+      })
+      coletaId++
+    }
+  })
+  
+  return coletas
+}
+
+export const mockColetas: Coleta[] = generateColetas()
 
 export const mockBaixas: BaixaColeta[] = [
   {
