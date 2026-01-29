@@ -17,7 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { KPICards } from "@/components/kpi-cards"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { StatusBadge } from "@/components/status-badge"
 import { mockColetas } from "@/lib/mock-data"
 import type { Coleta } from "@/lib/types"
@@ -64,8 +65,10 @@ export function CalendarioTab({ searchQuery }: CalendarioTabProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedColeta, setSelectedColeta] = useState<Coleta | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
-  const [statusFilter, setStatusFilter] = useState<string>("todos")
-  const [veiculoFilter, setVeiculoFilter] = useState<string>("todos")
+  const [tipoColetaFilter, setTipoColetaFilter] = useState<string>("todos")
+  const [consultaCep, setConsultaCep] = useState("")
+  const [consultaTipoColeta, setConsultaTipoColeta] = useState("")
+  const [consultaDataColeta, setConsultaDataColeta] = useState("")
   const { toast } = useToast()
 
   const weekDates = useMemo(() => getWeekDates(currentDate), [currentDate])
@@ -77,10 +80,16 @@ export function CalendarioTab({ searchQuery }: CalendarioTabProps) {
       coleta.endereco.toLowerCase().includes(query) ||
       coleta.id.toLowerCase().includes(query)
 
-    const matchesStatus = statusFilter === "todos" || coleta.status === statusFilter
-    const matchesVeiculo = veiculoFilter === "todos" || coleta.veiculo === veiculoFilter
+    // Mapeia o veiculo para o tipo de coleta
+    const tipoColeta = coleta.veiculo === "Van" || coleta.veiculo === "Utilitario" 
+      ? "Caminhao - Retirada no endereco" 
+      : coleta.veiculo === "Carro" 
+        ? "Carro - Retirada no endereco" 
+        : "Ponto de Coleta"
+    
+    const matchesTipoColeta = tipoColetaFilter === "todos" || tipoColeta === tipoColetaFilter
 
-    return matchesSearch && matchesStatus && matchesVeiculo
+    return matchesSearch && matchesTipoColeta
   })
 
   const coletasByDate = useMemo(() => {
@@ -142,44 +151,77 @@ export function CalendarioTab({ searchQuery }: CalendarioTabProps) {
         </div>
       </div>
 
-      <KPICards variant="calendario" />
+      {/* Consulta Calendarizacao */}
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="text-lg">Consulta Calendarizacao</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="consulta-cep">CEP</Label>
+              <Input 
+                id="consulta-cep" 
+                placeholder="00000-000" 
+                value={consultaCep}
+                onChange={(e) => setConsultaCep(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="consulta-tipo-coleta">Tipo de Coleta</Label>
+              <Select value={consultaTipoColeta} onValueChange={setConsultaTipoColeta}>
+                <SelectTrigger id="consulta-tipo-coleta">
+                  <SelectValue placeholder="Selecione o tipo" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Caminhao - Retirada no endereco">Caminhao - Retirada no endereco</SelectItem>
+                  <SelectItem value="Carro - Retirada no endereco">Carro - Retirada no endereco</SelectItem>
+                  <SelectItem value="Ponto de Coleta">Ponto de Coleta</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="consulta-data-coleta">Data de Coleta</Label>
+              <Input 
+                id="consulta-data-coleta" 
+                type="date" 
+                value={consultaDataColeta}
+                onChange={(e) => setConsultaDataColeta(e.target.value)}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Filters & Navigation */}
+      {/* Filters */}
       <Card>
         <CardContent className="p-4">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Status:</span>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[150px]">
-                    <SelectValue placeholder="Todos" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    <SelectItem value="Pendente">Pendente</SelectItem>
-                    <SelectItem value="Em rota">Em rota</SelectItem>
-                    <SelectItem value="Coletada">Coletada</SelectItem>
-                    <SelectItem value="Atrasada">Atrasada</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Veículo:</span>
-                <Select value={veiculoFilter} onValueChange={setVeiculoFilter}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Todos" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="todos">Todos</SelectItem>
-                    <SelectItem value="Carro">Carro</SelectItem>
-                    <SelectItem value="Utilitário">Utilitário</SelectItem>
-                    <SelectItem value="Van">Van</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">Tipo de coleta:</span>
+            <Select value={tipoColetaFilter} onValueChange={setTipoColetaFilter}>
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="Caminhao - Retirada no endereco">Caminhao - Retirada no endereco</SelectItem>
+                <SelectItem value="Carro - Retirada no endereco">Carro - Retirada no endereco</SelectItem>
+                <SelectItem value="Ponto de Coleta">Ponto de Coleta</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
+      {/* Week Calendar */}
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">
+              Semana de{" "}
+              {weekDates[0].toLocaleDateString("pt-BR", { day: "numeric", month: "short" })} a{" "}
+              {weekDates[6].toLocaleDateString("pt-BR", { day: "numeric", month: "short", year: "numeric" })}
+            </CardTitle>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={goToPreviousWeek}>
                 <ChevronLeft className="h-4 w-4" />
@@ -192,17 +234,6 @@ export function CalendarioTab({ searchQuery }: CalendarioTabProps) {
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Week Calendar */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">
-            Semana de{" "}
-            {weekDates[0].toLocaleDateString("pt-BR", { day: "numeric", month: "short" })} a{" "}
-            {weekDates[6].toLocaleDateString("pt-BR", { day: "numeric", month: "short", year: "numeric" })}
-          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-7 gap-2">
@@ -232,32 +263,33 @@ export function CalendarioTab({ searchQuery }: CalendarioTabProps) {
                   </div>
 
                   <div className="space-y-1.5">
-                    {dayColetas.map((coleta) => (
-                      <button
-                        key={coleta.id}
-                        onClick={() => handleColetaClick(coleta)}
-                        className={`w-full rounded-md border p-2 text-left text-xs transition-colors hover:bg-muted/50 ${
-                          coleta.status === "Atrasada"
-                            ? "border-destructive/30 bg-destructive/5"
-                            : coleta.status === "Coletada"
-                              ? "border-success/30 bg-success/5"
-                              : "border-border bg-card"
-                        }`}
-                      >
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3 text-muted-foreground" />
-                          <span className="font-medium">{coleta.periodo}</span>
-                        </div>
-                        <p className="mt-1 truncate font-medium">{coleta.doadorNome}</p>
-                        <p className="truncate text-muted-foreground">
-                          {coleta.enderecoCompleto.bairro}
-                        </p>
-                        <div className="mt-1.5 flex items-center justify-between">
-                          <span className="text-muted-foreground">{coleta.volume}</span>
-                          <StatusBadge status={coleta.status} className="text-[10px] px-1.5 py-0" />
-                        </div>
-                      </button>
-                    ))}
+                    {dayColetas.map((coleta) => {
+                      // Determina o tipo de coleta baseado no veiculo
+                      const tipoColeta = coleta.veiculo === "Van" || coleta.veiculo === "Utilitario" 
+                        ? "Caminhao" 
+                        : coleta.veiculo === "Carro" 
+                          ? "Carro" 
+                          : "Ponto de Coleta"
+                      
+                      return (
+                        <button
+                          key={coleta.id}
+                          onClick={() => handleColetaClick(coleta)}
+                          className={`w-full rounded-md border p-2 text-left text-xs transition-colors hover:bg-muted/50 ${
+                            coleta.status === "Atrasada"
+                              ? "border-destructive/30 bg-destructive/5"
+                              : coleta.status === "Coletada"
+                                ? "border-success/30 bg-success/5"
+                                : "border-border bg-card"
+                          }`}
+                        >
+                          <p className="font-medium text-primary">{coleta.id}</p>
+                          <p className="mt-1 truncate text-muted-foreground">
+                            {tipoColeta}
+                          </p>
+                        </button>
+                      )
+                    })}
 
                     {dayColetas.length === 0 && (
                       <p className="py-4 text-center text-xs text-muted-foreground">
