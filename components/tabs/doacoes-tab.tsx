@@ -57,6 +57,7 @@ import {
   Clock,
   CircleDot,
   MoreHorizontal,
+  Download,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -118,6 +119,8 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
   const [modalidadeFilter, setModalidadeFilter] = useState<string>("todos")
   const [filtroStatus, setFiltroStatus] = useState("")
   const [filtroAtendente, setFiltroAtendente] = useState("")
+  const [filtroDataInicio, setFiltroDataInicio] = useState("")
+  const [filtroDataFinal, setFiltroDataFinal] = useState("")
 
   const filteredDoacoes = mockDoacoes.filter((doacao) => {
     const query = searchQuery.toLowerCase()
@@ -131,9 +134,17 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
     const matchTelefone = !filtroTelefone || doacao.doador.telefone?.toLowerCase().includes(filtroTelefone.toLowerCase())
     const matchEmail = !filtroEmail || doacao.doador.email.toLowerCase().includes(filtroEmail.toLowerCase())
     const matchStatus = !filtroStatus || filtroStatus === "todos" || doacao.status === filtroStatus
-    const matchAtendente = !filtroAtendente || (doacao.atendente && doacao.atendente.toLowerCase().includes(filtroAtendente.toLowerCase()))
+    const matchAtendente = !filtroAtendente || filtroAtendente === "todos" || (doacao.atendente && doacao.atendente.toLowerCase().includes(filtroAtendente.toLowerCase()))
+    
+    // Filtro por data
+    const dataColeta = doacao.agendamento?.data ? new Date(doacao.agendamento.data) : null
+    const dataInicio = filtroDataInicio ? new Date(filtroDataInicio) : null
+    const dataFinal = filtroDataFinal ? new Date(filtroDataFinal) : null
+    
+    const matchDataInicio = !dataInicio || (dataColeta && dataColeta >= dataInicio)
+    const matchDataFinal = !dataFinal || (dataColeta && dataColeta <= dataFinal)
 
-    return matchesSearch && matchId && matchNome && matchTelefone && matchEmail && matchStatus && matchAtendente
+    return matchesSearch && matchId && matchNome && matchTelefone && matchEmail && matchStatus && matchAtendente && matchDataInicio && matchDataFinal
   })
 
   const handleViewDetails = (doacao: Doacao) => {
@@ -163,6 +174,15 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
     setFiltroEmail("")
     setFiltroStatus("")
     setFiltroAtendente("")
+    setFiltroDataInicio("")
+    setFiltroDataFinal("")
+  }
+
+  const handleBaixarDados = () => {
+    toast({
+      title: "Download iniciado",
+      description: "O relatorio da Lista de Doacoes esta sendo gerado.",
+    })
   }
 
   const currentStepIndex = selectedDoacao ? getStatusStepIndex(selectedDoacao.status) : 0
@@ -251,11 +271,29 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                   <SelectItem value="Ana Paula Silva">Ana Paula Silva</SelectItem>
                   <SelectItem value="Carlos Eduardo Santos">Carlos Eduardo Santos</SelectItem>
                   <SelectItem value="Mariana Oliveira">Mariana Oliveira</SelectItem>
-                  <SelectItem value="João Pedro Costa">João Pedro Costa</SelectItem>
+                  <SelectItem value="Joao Pedro Costa">Joao Pedro Costa</SelectItem>
                   <SelectItem value="Fernanda Lima">Fernanda Lima</SelectItem>
                   <SelectItem value="Ricardo Mendes">Ricardo Mendes</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">Data Inicio</Label>
+              <Input
+                id="filtro-data-inicio"
+                type="date"
+                value={filtroDataInicio}
+                onChange={(e) => setFiltroDataInicio(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-sm text-muted-foreground">Data Final</Label>
+              <Input
+                id="filtro-data-final"
+                type="date"
+                value={filtroDataFinal}
+                onChange={(e) => setFiltroDataFinal(e.target.value)}
+              />
             </div>
             <div className="flex items-end">
               <Button variant="outline" onClick={handleLimparFiltros}>
@@ -268,7 +306,13 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Lista de Doações</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Lista de Doacoes</CardTitle>
+            <Button variant="outline" onClick={handleBaixarDados}>
+              <Download className="mr-2 h-4 w-4" />
+              Baixar Dados
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -324,7 +368,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                               ? "bg-blue-100 text-blue-700" 
                               : "bg-purple-100 text-purple-700"
                           }`}>
-                            {tipoDoador === "PF" ? "Pessoa Fisica" : "Pessoa Juridica"}
+                            {tipoDoador}
                           </span>
                         </TableCell>
                         <TableCell>
