@@ -271,6 +271,12 @@ export function CalendarioTab({ searchQuery }: CalendarioTabProps) {
                           ? "Carro" 
                           : "Ponto de Coleta"
                       
+                      // Filtra sabado para mostrar apenas Ponto de Coleta
+                      const dataDia = new Date(coleta.dataAgendada)
+                      if (dataDia.getDay() === 6 && tipoColeta !== "Ponto de Coleta") {
+                        return null
+                      }
+                      
                       return (
                         <button
                           key={coleta.id}
@@ -283,9 +289,13 @@ export function CalendarioTab({ searchQuery }: CalendarioTabProps) {
                                 : "border-border bg-card"
                           }`}
                         >
-                          <p className="font-medium text-primary">{coleta.id}</p>
-                          <p className="mt-1 truncate text-muted-foreground">
-                            {tipoColeta}
+                          <p className="truncate">
+                            <span className="text-muted-foreground">ID: </span>
+                            <span className="font-medium text-primary">{coleta.id}</span>
+                          </p>
+                          <p className="mt-1 truncate">
+                            <span className="text-muted-foreground">Tipo: </span>
+                            <span className="font-medium">{tipoColeta}</span>
                           </p>
                         </button>
                       )

@@ -304,63 +304,97 @@ function generateColetas(): Coleta[] {
   let coletaId = 1
   
   datas.forEach((data) => {
-    // 20 coletas de Carro por dia
-    for (let i = 0; i < 20; i++) {
-      const bairro = bairros[Math.floor(Math.random() * bairros.length)]
-      const nome = nomes[Math.floor(Math.random() * nomes.length)]
-      coletas.push({
-        id: `COL${String(coletaId).padStart(3, "0")}`,
-        doacaoId: `DON${String(coletaId).padStart(3, "0")}`,
-        doadorNome: nome,
-        doadorTelefone: `(11) 9${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 9000 + 1000)}`,
-        endereco: `Rua ${bairro}, ${Math.floor(Math.random() * 1000 + 100)} - ${bairro}, Sao Paulo/SP`,
-        enderecoCompleto: {
-          rua: `Rua ${bairro}`,
-          numero: String(Math.floor(Math.random() * 1000 + 100)),
-          bairro: bairro,
-          cidade: "Sao Paulo",
-          uf: "SP",
-          cep: `0${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 900 + 100)}`,
-        },
-        volume: "Pequeno",
-        veiculo: "Carro",
-        dataAgendada: data,
-        periodo: periodos[Math.floor(Math.random() * periodos.length)],
-        status: statusList[Math.floor(Math.random() * statusList.length)],
-        ordemRota: i + 1,
-        itens: "Roupas e acessorios diversos",
-      })
-      coletaId++
-    }
+    // Verifica se e sabado (2026-01-31 e sabado)
+    const dataObj = new Date(data)
+    const isSabado = dataObj.getDay() === 6
     
-    // 26 coletas de Caminhao (Van/Utilitario) por dia
-    for (let i = 0; i < 26; i++) {
-      const bairro = bairros[Math.floor(Math.random() * bairros.length)]
-      const nome = nomes[Math.floor(Math.random() * nomes.length)]
-      const veiculo = Math.random() > 0.5 ? "Van" : "Utilitario"
-      coletas.push({
-        id: `COL${String(coletaId).padStart(3, "0")}`,
-        doacaoId: `DON${String(coletaId).padStart(3, "0")}`,
-        doadorNome: nome,
-        doadorTelefone: `(11) 9${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 9000 + 1000)}`,
-        endereco: `Avenida ${bairro}, ${Math.floor(Math.random() * 1000 + 100)} - ${bairro}, Sao Paulo/SP`,
-        enderecoCompleto: {
-          rua: `Avenida ${bairro}`,
-          numero: String(Math.floor(Math.random() * 1000 + 100)),
-          bairro: bairro,
-          cidade: "Sao Paulo",
-          uf: "SP",
-          cep: `0${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 900 + 100)}`,
-        },
-        volume: "Grande",
-        veiculo: veiculo,
-        dataAgendada: data,
-        periodo: periodos[Math.floor(Math.random() * periodos.length)],
-        status: statusList[Math.floor(Math.random() * statusList.length)],
-        ordemRota: i + 21,
-        itens: "Moveis e eletrodomesticos",
-      })
-      coletaId++
+    if (isSabado) {
+      // Sabado: apenas Ponto de Coleta (30 coletas)
+      for (let i = 0; i < 30; i++) {
+        const bairro = bairros[Math.floor(Math.random() * bairros.length)]
+        const nome = nomes[Math.floor(Math.random() * nomes.length)]
+        coletas.push({
+          id: `COL${String(coletaId).padStart(3, "0")}`,
+          doacaoId: `DON${String(coletaId).padStart(3, "0")}`,
+          doadorNome: nome,
+          doadorTelefone: `(11) 9${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+          endereco: `Ponto de Coleta ${bairro} - ${bairro}, Sao Paulo/SP`,
+          enderecoCompleto: {
+            rua: `Ponto de Coleta ${bairro}`,
+            numero: "S/N",
+            bairro: bairro,
+            cidade: "Sao Paulo",
+            uf: "SP",
+            cep: `0${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 900 + 100)}`,
+          },
+          volume: "Pequeno",
+          veiculo: "Ponto" as any,
+          dataAgendada: data,
+          periodo: periodos[Math.floor(Math.random() * periodos.length)],
+          status: statusList[Math.floor(Math.random() * statusList.length)],
+          ordemRota: i + 1,
+          itens: "Itens diversos - Ponto de Coleta",
+        })
+        coletaId++
+      }
+    } else {
+      // Dias de semana: 20 coletas de Carro + 26 de Caminhao
+      for (let i = 0; i < 20; i++) {
+        const bairro = bairros[Math.floor(Math.random() * bairros.length)]
+        const nome = nomes[Math.floor(Math.random() * nomes.length)]
+        coletas.push({
+          id: `COL${String(coletaId).padStart(3, "0")}`,
+          doacaoId: `DON${String(coletaId).padStart(3, "0")}`,
+          doadorNome: nome,
+          doadorTelefone: `(11) 9${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+          endereco: `Rua ${bairro}, ${Math.floor(Math.random() * 1000 + 100)} - ${bairro}, Sao Paulo/SP`,
+          enderecoCompleto: {
+            rua: `Rua ${bairro}`,
+            numero: String(Math.floor(Math.random() * 1000 + 100)),
+            bairro: bairro,
+            cidade: "Sao Paulo",
+            uf: "SP",
+            cep: `0${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 900 + 100)}`,
+          },
+          volume: "Pequeno",
+          veiculo: "Carro",
+          dataAgendada: data,
+          periodo: periodos[Math.floor(Math.random() * periodos.length)],
+          status: statusList[Math.floor(Math.random() * statusList.length)],
+          ordemRota: i + 1,
+          itens: "Roupas e acessorios diversos",
+        })
+        coletaId++
+      }
+      
+      for (let i = 0; i < 26; i++) {
+        const bairro = bairros[Math.floor(Math.random() * bairros.length)]
+        const nome = nomes[Math.floor(Math.random() * nomes.length)]
+        const veiculo = Math.random() > 0.5 ? "Van" : "Utilitario"
+        coletas.push({
+          id: `COL${String(coletaId).padStart(3, "0")}`,
+          doacaoId: `DON${String(coletaId).padStart(3, "0")}`,
+          doadorNome: nome,
+          doadorTelefone: `(11) 9${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 9000 + 1000)}`,
+          endereco: `Avenida ${bairro}, ${Math.floor(Math.random() * 1000 + 100)} - ${bairro}, Sao Paulo/SP`,
+          enderecoCompleto: {
+            rua: `Avenida ${bairro}`,
+            numero: String(Math.floor(Math.random() * 1000 + 100)),
+            bairro: bairro,
+            cidade: "Sao Paulo",
+            uf: "SP",
+            cep: `0${Math.floor(Math.random() * 9000 + 1000)}-${Math.floor(Math.random() * 900 + 100)}`,
+          },
+          volume: "Grande",
+          veiculo: veiculo,
+          dataAgendada: data,
+          periodo: periodos[Math.floor(Math.random() * periodos.length)],
+          status: statusList[Math.floor(Math.random() * statusList.length)],
+          ordemRota: i + 21,
+          itens: "Moveis e eletrodomesticos",
+        })
+        coletaId++
+      }
     }
   })
   
