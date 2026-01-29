@@ -457,7 +457,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
           </p>
         </div>
         <Button onClick={() => setIsNewDoadorOpen(true)} className="gf-gradient text-white">
-          <Plus className="mr-2 h-4 w-4" />
+          <Plus className="h-4 w-4" />
           Cadastrar novo doador
         </Button>
       </div>
@@ -628,19 +628,19 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => handleOpenAddress(doador)}>
-                                <MapPin className="mr-2 h-4 w-4" />
+                                <MapPin className="h-4 w-4" />
                                 Ver endereços
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleOpenDoacoes(doador)}>
-                                <Package className="mr-2 h-4 w-4" />
+                                <Package className="h-4 w-4" />
                                 Ver doações
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleOpenFazerDoacao(doador)}>
-                                <Plus className="mr-2 h-4 w-4" />
+                                <Plus className="h-4 w-4" />
                                 Fazer doação
                               </DropdownMenuItem>
                               <DropdownMenuItem onClick={() => handleOpenContact(doador)}>
-                                <MessageSquare className="mr-2 h-4 w-4" />
+                                <MessageSquare className="h-4 w-4" />
                                 Registrar contato
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -738,7 +738,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
               </div>
 
               <Button className="w-full gf-gradient text-white">
-                <Package className="mr-2 h-4 w-4" />
+                <Package className="h-4 w-4" />
                 Criar nova doação para este doador
               </Button>
             </div>
@@ -1512,7 +1512,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                   Fechar
                 </Button>
                 <Button className="gf-gradient text-white">
-                  <Download className="mr-2 h-4 w-4" />
+                  <Download className="h-4 w-4" />
                   Baixar PDF
                 </Button>
               </DialogFooter>

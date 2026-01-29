@@ -367,7 +367,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">Romaneio de Transporte</CardTitle>
                 <Button variant="outline" onClick={() => handleBaixarDados("Romaneio de Transporte")}>
-                  <Download className="mr-2 h-4 w-4" />
+                  <Download className="h-4 w-4" />
                   Baixar Dados
                 </Button>
               </div>
@@ -434,15 +434,15 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => handleViewDetails(item)}>
-                                  <Eye className="mr-2 h-4 w-4" />
+                                  <Eye className="h-4 w-4" />
                                   Ver detalhes
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
-                                  <Pencil className="mr-2 h-4 w-4" />
+                                  <Pencil className="h-4 w-4" />
                                   Editar
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleDarBaixa(item)}>
-                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  <CheckCircle className="h-4 w-4" />
                                   Dar baixa
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
@@ -557,7 +557,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">Coletas Atrasadas</CardTitle>
                 <Button variant="outline" onClick={() => handleBaixarDados("Coletas Atrasadas")}>
-                  <Download className="mr-2 h-4 w-4" />
+                  <Download className="h-4 w-4" />
                   Baixar Dados
                 </Button>
               </div>
@@ -631,19 +631,19 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => handleViewDetails(item)}>
-                                  <Eye className="mr-2 h-4 w-4" />
+                                  <Eye className="h-4 w-4" />
                                   Ver detalhes
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleReschedule(item)}>
-                                  <Calendar className="mr-2 h-4 w-4" />
+                                  <Calendar className="h-4 w-4" />
                                   Reagendar
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleDarBaixa(item)}>
-                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  <CheckCircle className="h-4 w-4" />
                                   Dar baixa
                                 </DropdownMenuItem>
                                 <DropdownMenuItem className="text-destructive">
-                                  <X className="mr-2 h-4 w-4" />
+                                  <X className="h-4 w-4" />
                                   Cancelar
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
@@ -764,7 +764,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">Coletas Pendentes</CardTitle>
                 <Button variant="outline" onClick={() => handleBaixarDados("Coletas Pendentes")}>
-                  <Download className="mr-2 h-4 w-4" />
+                  <Download className="h-4 w-4" />
                   Baixar Dados
                 </Button>
               </div>
@@ -838,19 +838,19 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => handleViewDetails(item)}>
-                                  <Eye className="mr-2 h-4 w-4" />
+                                  <Eye className="h-4 w-4" />
                                   Ver detalhes
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
-                                  <Pencil className="mr-2 h-4 w-4" />
+                                  <Pencil className="h-4 w-4" />
                                   Editar
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleReschedule(item)}>
-                                  <Calendar className="mr-2 h-4 w-4" />
+                                  <Calendar className="h-4 w-4" />
                                   Reagendar
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleDarBaixa(item)}>
-                                  <CheckCircle className="mr-2 h-4 w-4" />
+                                  <CheckCircle className="h-4 w-4" />
                                   Dar baixa
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
@@ -953,7 +953,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                 }}
                 className="w-full gf-gradient text-white"
               >
-                <CheckCircle className="mr-2 h-4 w-4" />
+                <CheckCircle className="h-4 w-4" />
                 Dar baixa
               </Button>
             </div>

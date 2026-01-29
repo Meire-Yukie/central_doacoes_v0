@@ -425,7 +425,7 @@ export function CalendarioTab({ searchQuery }: CalendarioTabProps) {
                   onClick={handleMarkAsCollected}
                   className="w-full gf-gradient text-white"
                 >
-                  <CheckCircle className="mr-2 h-4 w-4" />
+                  <CheckCircle className="h-4 w-4" />
                   Marcar como coletada (dar baixa)
                 </Button>
               )}

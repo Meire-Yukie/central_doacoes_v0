@@ -290,7 +290,7 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">Relatorio de Baixas</CardTitle>
                 <Button variant="outline" onClick={handleBaixarDados}>
-                  <Download className="mr-2 h-4 w-4" />
+                  <Download className="h-4 w-4" />
                   Baixar Dados
                 </Button>
               </div>
@@ -364,15 +364,15 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem>
-                                  <Eye className="mr-2 h-4 w-4" />
+                                  <Eye className="h-4 w-4" />
                                   Ver detalhes
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
-                                  <Pencil className="mr-2 h-4 w-4" />
+                                  <Pencil className="h-4 w-4" />
                                   Editar
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
-                                  <Check className="mr-2 h-4 w-4" />
+                                  <Check className="h-4 w-4" />
                                   Dar baixa
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
