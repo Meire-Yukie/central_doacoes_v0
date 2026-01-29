@@ -304,13 +304,12 @@ function generateColetas(): Coleta[] {
   let coletaId = 1
   
   datas.forEach((data) => {
-    // Verifica se e sabado (2026-01-31 e sabado)
-    const dataObj = new Date(data)
-    const isSabado = dataObj.getDay() === 6
+    // Verifica se e sabado (2026-01-31 e sabado) - usando string direta para evitar timezone issues
+    const isSabado = data === "2026-01-31"
     
     if (isSabado) {
-      // Sabado: apenas Ponto de Coleta (30 coletas)
-      for (let i = 0; i < 30; i++) {
+      // Sabado: apenas Ponto de Coleta (5 coletas)
+      for (let i = 0; i < 5; i++) {
         const bairro = bairros[Math.floor(Math.random() * bairros.length)]
         const nome = nomes[Math.floor(Math.random() * nomes.length)]
         coletas.push({
