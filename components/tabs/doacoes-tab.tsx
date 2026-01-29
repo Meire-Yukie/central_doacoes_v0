@@ -19,6 +19,14 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -446,139 +454,117 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
         </CardContent>
       </Card>
 
-      {/* Details Drawer */}
-      <Sheet open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          <SheetHeader>
-            <SheetTitle className="text-xl">Doação {selectedDoacao?.id}</SheetTitle>
-            <SheetDescription>Detalhes completos da doação</SheetDescription>
-          </SheetHeader>
-
+      {/* Details Modal */}
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Doacao</DialogTitle>
+            <DialogDescription>
+              {selectedDoacao?.id}
+            </DialogDescription>
+          </DialogHeader>
           {selectedDoacao && (
-            <div className="mt-6 space-y-6">
-              {/* Status Timeline */}
+            <div className="space-y-6 py-4">
+              {/* Dados do Doador */}
               <div className="space-y-3">
-                <h3 className="font-semibold text-foreground">Status da Doação</h3>
-                {selectedDoacao.status === "Cancelada" ? (
-                  <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3">
-                    <AlertTriangle className="h-5 w-5 text-destructive" />
-                    <span className="font-medium text-destructive">Doação Cancelada</span>
+                <h3 className="font-semibold text-sm border-b pb-2">Dados do Doador</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Nome do Doador:</span>
+                    <p className="font-medium">{selectedDoacao.doador.nome}</p>
                   </div>
-                ) : (
-                  <div className="flex items-center justify-between">
-                    {statusSteps.map((step, index) => (
-                      <div key={step.status} className="flex flex-col items-center">
-                        <div
-                          className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
-                            index <= currentStepIndex
-                              ? "border-primary bg-primary text-primary-foreground"
-                              : "border-border bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          <step.icon className="h-4 w-4" />
-                        </div>
-                        <span className="mt-1 text-[10px] text-muted-foreground">
-                          {step.status}
-                        </span>
-                      </div>
-                    ))}
+                  <div>
+                    <span className="text-muted-foreground">ID Doador:</span>
+                    <p className="font-medium">{selectedDoacao.doadorId || "-"}</p>
                   </div>
-                )}
-              </div>
-
-              {/* Donor Info */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-foreground">Dados do Doador</h3>
-                <div className="rounded-lg border border-border bg-muted/30 p-3">
-                  <p className="font-medium">{selectedDoacao.doador.nome}</p>
-                  <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                    <Mail className="h-4 w-4" />
-                    <span>{selectedDoacao.doador.email}</span>
+                  <div>
+                    <span className="text-muted-foreground">Telefone:</span>
+                    <p className="font-medium">{selectedDoacao.doador.telefone || "-"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Email:</span>
+                    <p className="font-medium">{selectedDoacao.doador.email}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Address */}
-              {selectedDoacao.endereco && (
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-foreground">Endereço para Retirada</h3>
-                  <div className="flex items-start gap-2 rounded-lg border border-border bg-muted/30 p-3">
-                    <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                    <div className="text-sm">
-                      <p>
-                        {selectedDoacao.endereco.rua}, {selectedDoacao.endereco.numero}
-                        {selectedDoacao.endereco.complemento &&
-                          `, ${selectedDoacao.endereco.complemento}`}
-                      </p>
-                      <p>
-                        {selectedDoacao.endereco.bairro} - {selectedDoacao.endereco.cidade}/
-                        {selectedDoacao.endereco.uf}
-                      </p>
-                      <p>CEP: {selectedDoacao.endereco.cep}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Items */}
+              {/* Dados da Doacao */}
               <div className="space-y-3">
-                <h3 className="font-semibold text-foreground">Itens Declarados</h3>
-                <div className="rounded-lg border border-border bg-muted/30 p-3">
-                  <div className="flex items-center gap-2">
-                    <Package className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{selectedDoacao.tipoItem}</span>
-                    {selectedDoacao.tipoItem === "Móveis" && (
-                      <span className="rounded bg-warning/20 px-1.5 py-0.5 text-xs text-warning-foreground">
-                        Validação manual
-                      </span>
-                    )}
+                <h3 className="font-semibold text-sm border-b pb-2">Dados da Doacao</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">ID da Doacao:</span>
+                    <p className="font-medium">{selectedDoacao.id}</p>
                   </div>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {selectedDoacao.itensDeclarados}
-                  </p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-secondary px-2.5 py-1 text-xs">
-                      Volume: {selectedDoacao.volume}
-                    </span>
-                    <span className="rounded-full bg-secondary px-2.5 py-1 text-xs">
-                      Veículo: {selectedDoacao.veiculoSugerido}
-                    </span>
-                    <StatusBadge status={selectedDoacao.condicaoItem} />
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>
+                    <p className={`font-medium ${
+                      selectedDoacao.status === "Coletada" || selectedDoacao.status === "Concluida"
+                        ? "text-green-600" 
+                        : selectedDoacao.status === "Cancelada"
+                        ? "text-red-600"
+                        : selectedDoacao.status === "Agendada"
+                        ? "text-blue-600"
+                        : "text-yellow-600"
+                    }`}>{selectedDoacao.status}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Tipo de Coleta:</span>
+                    <p className="font-medium">{selectedDoacao.modalidade || "-"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Porte da Doacao:</span>
+                    <p className="font-medium">{selectedDoacao.volume || "-"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Data da Coleta:</span>
+                    <p className="font-medium">
+                      {selectedDoacao.agendamento?.data 
+                        ? new Date(selectedDoacao.agendamento.data).toLocaleDateString("pt-BR")
+                        : "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Baixa Realizada:</span>
+                    <p className="font-medium">{selectedDoacao.status === "Coletada" || selectedDoacao.status === "Concluida" ? "Sim" : "Nao"}</p>
+                  </div>
+                  <div className="col-span-2 md:col-span-3">
+                    <span className="text-muted-foreground">Endereco:</span>
+                    <p className="font-medium">
+                      {selectedDoacao.endereco 
+                        ? `${selectedDoacao.endereco.rua}, ${selectedDoacao.endereco.numero}${selectedDoacao.endereco.complemento ? `, ${selectedDoacao.endereco.complemento}` : ""} - ${selectedDoacao.endereco.bairro}, ${selectedDoacao.endereco.cidade}/${selectedDoacao.endereco.uf} - CEP: ${selectedDoacao.endereco.cep}`
+                        : "-"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Data da Solicitacao:</span>
+                    <p className="font-medium">
+                      {new Date(selectedDoacao.dataCreated).toLocaleDateString("pt-BR")}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Responsavel pela Coleta:</span>
+                    <p className="font-medium">{selectedDoacao.atendente || "-"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Modificado por:</span>
+                    <p className="font-medium">{selectedDoacao.atendente || "-"}</p>
+                  </div>
+                  <div className="col-span-2 md:col-span-3">
+                    <span className="text-muted-foreground">Observacoes:</span>
+                    <p className="font-medium">{selectedDoacao.observacoes || "-"}</p>
                   </div>
                 </div>
-              </div>
-
-              {/* Schedule */}
-              {selectedDoacao.agendamento && (
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-foreground">Agendamento</h3>
-                  <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 p-3">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>
-                      {new Date(selectedDoacao.agendamento.data).toLocaleDateString("pt-BR", {
-                        weekday: "long",
-                        day: "numeric",
-                        month: "long",
-                      })}{" "}
-                      - {selectedDoacao.agendamento.periodo}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Notes */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-foreground">Observações Internas</h3>
-                <Textarea
-                  defaultValue={selectedDoacao.observacoes || ""}
-                  placeholder="Adicione observações sobre esta doação..."
-                  className="min-h-[80px]"
-                />
               </div>
             </div>
           )}
-        </SheetContent>
-      </Sheet>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDetailsOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Cancel Confirmation Dialog */}
       <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
