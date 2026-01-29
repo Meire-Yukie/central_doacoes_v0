@@ -156,6 +156,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
     selfService: index % 2 === 0 ? "Sim" : "Nao",
     prioridade: String((index % 4) + 1),
     email: `doador${index}@email.com`,
+    qtdItens: Math.floor(Math.random() * 15) + 1,
   }))
 
   const filteredRomaneio = mockRomaneioData.filter((item) => {
@@ -293,7 +294,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                 <div className="space-y-1">
                   <Label className="text-sm text-muted-foreground">Tipo de Coleta</Label>
                   <Select value={filtroRomaneioTipoColeta} onValueChange={setFiltroRomaneioTipoColeta}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -308,7 +309,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                 <div className="space-y-1">
                   <Label className="text-sm text-muted-foreground">Status Doacao</Label>
                   <Select value={filtroRomaneioStatusDoacao} onValueChange={setFiltroRomaneioStatusDoacao}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -407,8 +408,8 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                           <TableCell className="text-muted-foreground">
                             {new Date(item.dataAgendada).toLocaleDateString("pt-BR")}
                           </TableCell>
-                          <TableCell className="max-w-[150px] truncate text-sm" title={item.itens}>
-                            {item.itens}
+                          <TableCell className="text-center">
+                            {item.qtdItens}
                           </TableCell>
                           <TableCell className="font-medium">{item.doadorNome}</TableCell>
                           <TableCell className="hidden md:table-cell text-muted-foreground">
@@ -467,7 +468,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                 <div className="space-y-1">
                   <Label className="text-sm text-muted-foreground">Tipo de Coleta</Label>
                   <Select value={filtroAtrasadasTipoColeta} onValueChange={setFiltroAtrasadasTipoColeta}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -530,7 +531,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                 <div className="space-y-1">
                   <Label className="text-sm text-muted-foreground">Prioridade</Label>
                   <Select value={filtroAtrasadasPrioridade} onValueChange={setFiltroAtrasadasPrioridade}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -597,8 +598,8 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                           <TableCell className="text-muted-foreground">
                             {new Date(item.dataAgendada).toLocaleDateString("pt-BR")}
                           </TableCell>
-                          <TableCell className="max-w-[150px] truncate text-sm" title={item.itens}>
-                            {item.itens}
+                          <TableCell className="text-center">
+                            {item.qtdItens}
                           </TableCell>
                           <TableCell className="text-center">
                             <span className={`rounded-full px-2 py-1 text-xs font-medium ${
@@ -668,7 +669,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                 <div className="space-y-1">
                   <Label className="text-sm text-muted-foreground">Tipo de Coleta</Label>
                   <Select value={filtroPendentesTipoColeta} onValueChange={setFiltroPendentesTipoColeta}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -723,7 +724,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                 <div className="space-y-1">
                   <Label className="text-sm text-muted-foreground">Status da Coleta</Label>
                   <Select value={filtroPendentesStatusColeta} onValueChange={setFiltroPendentesStatusColeta}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -737,7 +738,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                 <div className="space-y-1">
                   <Label className="text-sm text-muted-foreground">Prioridade</Label>
                   <Select value={filtroPendentesPrioridade} onValueChange={setFiltroPendentesPrioridade}>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -807,8 +808,8 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                           <TableCell>
                             <StatusBadge status={item.status} />
                           </TableCell>
-                          <TableCell className="max-w-[150px] truncate text-sm" title={item.itens}>
-                            {item.itens}
+                          <TableCell className="text-center">
+                            {item.qtdItens}
                           </TableCell>
                           <TableCell className="text-center">
                             <span className={`rounded-full px-2 py-1 text-xs font-medium ${
