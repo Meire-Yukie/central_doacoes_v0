@@ -702,12 +702,13 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                       <TableHead>Status</TableHead>
                       <TableHead>Prioridade</TableHead>
                       <TableHead>Self-Service</TableHead>
+                      <TableHead className="text-right">Acoes</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredPreCadastradas.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={10} className="h-32 text-center">
+                        <TableCell colSpan={11} className="h-32 text-center">
                           <div className="flex flex-col items-center gap-2 text-muted-foreground">
                             <FileText className="h-8 w-8" />
                             <span>Nenhuma doacao pre-cadastrada encontrada</span>
@@ -755,6 +756,35 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                           </TableCell>
                           <TableCell className="text-center">
                             {item.selfService}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                  <span className="sr-only">Abrir menu</span>
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem>
+                                  <Check className="h-4 w-4" />
+                                  Efetivar Doacao
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  className="text-destructive"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Doacao cancelada",
+                                      description: `A doacao ${item.id} foi cancelada com sucesso.`,
+                                      variant: "destructive",
+                                    })
+                                  }}
+                                >
+                                  <X className="h-4 w-4" />
+                                  Cancelar Doacao
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </TableCell>
                         </TableRow>
                       ))
