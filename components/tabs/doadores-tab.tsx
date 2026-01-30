@@ -34,6 +34,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { KPICards } from "@/components/kpi-cards"
 import { StatusBadge } from "@/components/status-badge"
+import { FiltersSection } from "@/components/filters-section"
 import { mockDoadores, mockDoacoes } from "@/lib/mock-data"
 import type { Doador } from "@/lib/types"
 import { Plus, Pencil, Package, MapPin, Mail, Phone, FileText, MoreHorizontal, MessageSquare, Trash2, Download } from "lucide-react"
@@ -465,80 +466,78 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
       <KPICards variant="doadores" />
 
       {/* Filtros */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid grid-cols-6 gap-4">
-            <div className="space-y-1">
-              <Label className="text-sm text-muted-foreground">ID Doador</Label>
-              <Input
-                id="filtro-id"
-                placeholder="Buscar"
-                value={filtroId}
-                onChange={(e) => setFiltroId(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-sm text-muted-foreground">Nome</Label>
-              <Input
-                id="filtro-nome"
-                placeholder="Buscar"
-                value={filtroNome}
-                onChange={(e) => setFiltroNome(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-sm text-muted-foreground">E-mail</Label>
-              <Input
-                id="filtro-email"
-                placeholder="Buscar"
-                value={filtroEmail}
-                onChange={(e) => setFiltroEmail(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-sm text-muted-foreground">Telefone</Label>
-              <Input
-                id="filtro-telefone"
-                placeholder="Buscar"
-                value={filtroTelefone}
-                onChange={(e) => setFiltroTelefone(e.target.value)}
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-sm text-muted-foreground">Tipo de doador</Label>
-              <Select value={filtroTipo} onValueChange={setFiltroTipo}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="PF">Pessoa Física</SelectItem>
-                  <SelectItem value="PJ">Pessoa Jurídica</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label className="text-sm text-muted-foreground">Prioridade</Label>
-              <Select value={filtroPrioridade} onValueChange={setFiltroPrioridade}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Todas" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todos">Todas</SelectItem>
-                  <SelectItem value="Alta">Alta</SelectItem>
-                  <SelectItem value="Média">Média</SelectItem>
-                  <SelectItem value="Baixa">Baixa</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex items-end">
-              <Button variant="outline" onClick={handleLimparFiltros}>
-                Limpar filtros
-              </Button>
-            </div>
+      <FiltersSection>
+        <div className="grid grid-cols-6 gap-4">
+          <div className="space-y-1">
+            <Label className="text-sm text-muted-foreground">ID Doador</Label>
+            <Input
+              id="filtro-id"
+              placeholder="Buscar"
+              value={filtroId}
+              onChange={(e) => setFiltroId(e.target.value)}
+            />
           </div>
-        </CardContent>
-      </Card>
+          <div className="space-y-1">
+            <Label className="text-sm text-muted-foreground">Nome</Label>
+            <Input
+              id="filtro-nome"
+              placeholder="Buscar"
+              value={filtroNome}
+              onChange={(e) => setFiltroNome(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-sm text-muted-foreground">E-mail</Label>
+            <Input
+              id="filtro-email"
+              placeholder="Buscar"
+              value={filtroEmail}
+              onChange={(e) => setFiltroEmail(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-sm text-muted-foreground">Telefone</Label>
+            <Input
+              id="filtro-telefone"
+              placeholder="Buscar"
+              value={filtroTelefone}
+              onChange={(e) => setFiltroTelefone(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-sm text-muted-foreground">Tipo de doador</Label>
+            <Select value={filtroTipo} onValueChange={setFiltroTipo}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Todos" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos</SelectItem>
+                <SelectItem value="PF">Pessoa Fisica</SelectItem>
+                <SelectItem value="PJ">Pessoa Juridica</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-sm text-muted-foreground">Prioridade</Label>
+            <Select value={filtroPrioridade} onValueChange={setFiltroPrioridade}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Todas" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todas</SelectItem>
+                <SelectItem value="Alta">Alta</SelectItem>
+                <SelectItem value="Media">Media</SelectItem>
+                <SelectItem value="Baixa">Baixa</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-end">
+            <Button variant="outline" onClick={handleLimparFiltros}>
+              Limpar filtros
+            </Button>
+          </div>
+        </div>
+      </FiltersSection>
 
       <Card>
         <CardHeader className="pb-3">

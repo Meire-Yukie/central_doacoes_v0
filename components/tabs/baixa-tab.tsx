@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { StatusBadge } from "@/components/status-badge"
+import { FiltersSection } from "@/components/filters-section"
 import { mockColetas } from "@/lib/mock-data"
 import { Download, FileText, MoreHorizontal, Eye, Pencil, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -203,86 +204,84 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
       {activeSubTab === "relatorio" && (
         <>
           {/* Filtros */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-4 gap-4">
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Tipo de Coleta</Label>
-                  <Select value={filtroRelatorioTipoColeta} onValueChange={setFiltroRelatorioTipoColeta}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      <SelectItem value="Caminhao - Retirada no endereco">Caminhao - Retirada no endereco</SelectItem>
-                      <SelectItem value="Carro - Retirada no endereco">Carro - Retirada no endereco</SelectItem>
-                      <SelectItem value="Ponto de Coleta">Ponto de Coleta</SelectItem>
-                      <SelectItem value="Correios">Correios</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">ID Doacao</Label>
-                  <Input
-                    placeholder="Buscar"
-                    value={filtroRelatorioIdDoacao}
-                    onChange={(e) => setFiltroRelatorioIdDoacao(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">ID Coleta</Label>
-                  <Input
-                    placeholder="Buscar"
-                    value={filtroRelatorioIdColeta}
-                    onChange={(e) => setFiltroRelatorioIdColeta(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Data Coleta - Inicial</Label>
-                  <Input
-                    type="date"
-                    value={filtroRelatorioDataInicio}
-                    onChange={(e) => setFiltroRelatorioDataInicio(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Data Coleta - Final</Label>
-                  <Input
-                    type="date"
-                    value={filtroRelatorioDataFinal}
-                    onChange={(e) => setFiltroRelatorioDataFinal(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Nome do Doador</Label>
-                  <Input
-                    placeholder="Buscar"
-                    value={filtroRelatorioNomeDoador}
-                    onChange={(e) => setFiltroRelatorioNomeDoador(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Tipo de Baixa</Label>
-                  <Select value={filtroRelatorioTipoBaixa} onValueChange={setFiltroRelatorioTipoBaixa}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      <SelectItem value="Baixa no CD">Baixa no CD</SelectItem>
-                      <SelectItem value="Baixa no Doador">Baixa no Doador</SelectItem>
-                      <SelectItem value="Baixa no Ponto de Coleta">Baixa no Ponto de Coleta</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-end">
-                  <Button variant="outline" onClick={handleLimparFiltrosRelatorio}>
-                    Limpar filtros
-                  </Button>
-                </div>
+          <FiltersSection>
+            <div className="grid grid-cols-4 gap-4">
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Tipo de Coleta</Label>
+                <Select value={filtroRelatorioTipoColeta} onValueChange={setFiltroRelatorioTipoColeta}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    <SelectItem value="Caminhao - Retirada no endereco">Caminhao - Retirada no endereco</SelectItem>
+                    <SelectItem value="Carro - Retirada no endereco">Carro - Retirada no endereco</SelectItem>
+                    <SelectItem value="Ponto de Coleta">Ponto de Coleta</SelectItem>
+                    <SelectItem value="Correios">Correios</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </CardContent>
-          </Card>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">ID Doacao</Label>
+                <Input
+                  placeholder="Buscar"
+                  value={filtroRelatorioIdDoacao}
+                  onChange={(e) => setFiltroRelatorioIdDoacao(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">ID Coleta</Label>
+                <Input
+                  placeholder="Buscar"
+                  value={filtroRelatorioIdColeta}
+                  onChange={(e) => setFiltroRelatorioIdColeta(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Data Coleta - Inicial</Label>
+                <Input
+                  type="date"
+                  value={filtroRelatorioDataInicio}
+                  onChange={(e) => setFiltroRelatorioDataInicio(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Data Coleta - Final</Label>
+                <Input
+                  type="date"
+                  value={filtroRelatorioDataFinal}
+                  onChange={(e) => setFiltroRelatorioDataFinal(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Nome do Doador</Label>
+                <Input
+                  placeholder="Buscar"
+                  value={filtroRelatorioNomeDoador}
+                  onChange={(e) => setFiltroRelatorioNomeDoador(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Tipo de Baixa</Label>
+                <Select value={filtroRelatorioTipoBaixa} onValueChange={setFiltroRelatorioTipoBaixa}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    <SelectItem value="Baixa no CD">Baixa no CD</SelectItem>
+                    <SelectItem value="Baixa no Doador">Baixa no Doador</SelectItem>
+                    <SelectItem value="Baixa no Ponto de Coleta">Baixa no Ponto de Coleta</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-end">
+                <Button variant="outline" onClick={handleLimparFiltrosRelatorio}>
+                  Limpar filtros
+                </Button>
+              </div>
+            </div>
+          </FiltersSection>
 
           {/* Tabela Relatorio */}
           <Card>

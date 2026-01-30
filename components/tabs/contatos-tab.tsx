@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
 import { Eye, MoreHorizontal, FileText } from "lucide-react"
+import { FiltersSection } from "@/components/filters-section"
 
 interface ContatosTabProps {
   searchQuery: string
@@ -364,122 +365,120 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
       {activeSubTab === "lista" && (
         <>
           {/* Filtros */}
-          <Card>
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-4 gap-4">
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">ID Doador</Label>
-                  <Input
-                    placeholder="Buscar"
-                    value={filtroIdDoador}
-                    onChange={(e) => setFiltroIdDoador(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">ID do Contato</Label>
-                  <Input
-                    placeholder="Buscar"
-                    value={filtroIdContato}
-                    onChange={(e) => setFiltroIdContato(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Data Inicial</Label>
-                  <Input
-                    type="date"
-                    value={filtroDataInicial}
-                    onChange={(e) => setFiltroDataInicial(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Data Final</Label>
-                  <Input
-                    type="date"
-                    value={filtroDataFinal}
-                    onChange={(e) => setFiltroDataFinal(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Nome da Atendente</Label>
-                  <Select value={filtroAtendente} onValueChange={setFiltroAtendente}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      <SelectItem value="Ana Paula Silva">Ana Paula Silva</SelectItem>
-                      <SelectItem value="Carlos Eduardo Santos">Carlos Eduardo Santos</SelectItem>
-                      <SelectItem value="Mariana Oliveira">Mariana Oliveira</SelectItem>
-                      <SelectItem value="Joao Pedro Costa">Joao Pedro Costa</SelectItem>
-                      <SelectItem value="Fernanda Lima">Fernanda Lima</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Canal</Label>
-                  <Select value={filtroCanal} onValueChange={setFiltroCanal}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      <SelectItem value="Whatsapp">Whatsapp</SelectItem>
-                      <SelectItem value="Ligacao Telefonica">Ligacao Telefonica</SelectItem>
-                      <SelectItem value="Email">Email</SelectItem>
-                      <SelectItem value="Site">Site</SelectItem>
-                      <SelectItem value="Outros">Outros</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Tipo de Contato</Label>
-                  <Select value={filtroTipoContato} onValueChange={setFiltroTipoContato}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      <SelectItem value="Ativo">Ativo</SelectItem>
-                      <SelectItem value="Receptivo">Receptivo</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Motivo do Contato</Label>
-                  <Select value={filtroMotivoContato} onValueChange={setFiltroMotivoContato}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      {motivosContato.map((motivo) => (
-                        <SelectItem key={motivo} value={motivo}>{motivo}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Fonte do Contato</Label>
-                  <Select value={filtroFonteContato} onValueChange={setFiltroFonteContato}>
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="todos">Todos</SelectItem>
-                      {fontesContato.map((fonte) => (
-                        <SelectItem key={fonte} value={fonte}>{fonte}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex items-end">
-                  <Button variant="outline" onClick={handleLimparFiltros}>
-                    Limpar filtros
-                  </Button>
-                </div>
+          <FiltersSection>
+            <div className="grid grid-cols-4 gap-4">
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">ID Doador</Label>
+                <Input
+                  placeholder="Buscar"
+                  value={filtroIdDoador}
+                  onChange={(e) => setFiltroIdDoador(e.target.value)}
+                />
               </div>
-            </CardContent>
-          </Card>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">ID do Contato</Label>
+                <Input
+                  placeholder="Buscar"
+                  value={filtroIdContato}
+                  onChange={(e) => setFiltroIdContato(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Data Inicial</Label>
+                <Input
+                  type="date"
+                  value={filtroDataInicial}
+                  onChange={(e) => setFiltroDataInicial(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Data Final</Label>
+                <Input
+                  type="date"
+                  value={filtroDataFinal}
+                  onChange={(e) => setFiltroDataFinal(e.target.value)}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Nome da Atendente</Label>
+                <Select value={filtroAtendente} onValueChange={setFiltroAtendente}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    <SelectItem value="Ana Paula Silva">Ana Paula Silva</SelectItem>
+                    <SelectItem value="Carlos Eduardo Santos">Carlos Eduardo Santos</SelectItem>
+                    <SelectItem value="Mariana Oliveira">Mariana Oliveira</SelectItem>
+                    <SelectItem value="Joao Pedro Costa">Joao Pedro Costa</SelectItem>
+                    <SelectItem value="Fernanda Lima">Fernanda Lima</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Canal</Label>
+                <Select value={filtroCanal} onValueChange={setFiltroCanal}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    <SelectItem value="Whatsapp">Whatsapp</SelectItem>
+                    <SelectItem value="Ligacao Telefonica">Ligacao Telefonica</SelectItem>
+                    <SelectItem value="Email">Email</SelectItem>
+                    <SelectItem value="Site">Site</SelectItem>
+                    <SelectItem value="Outros">Outros</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Tipo de Contato</Label>
+                <Select value={filtroTipoContato} onValueChange={setFiltroTipoContato}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    <SelectItem value="Ativo">Ativo</SelectItem>
+                    <SelectItem value="Receptivo">Receptivo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Motivo do Contato</Label>
+                <Select value={filtroMotivoContato} onValueChange={setFiltroMotivoContato}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    {motivosContato.map((motivo) => (
+                      <SelectItem key={motivo} value={motivo}>{motivo}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Fonte do Contato</Label>
+                <Select value={filtroFonteContato} onValueChange={setFiltroFonteContato}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    {fontesContato.map((fonte) => (
+                      <SelectItem key={fonte} value={fonte}>{fonte}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex items-end">
+                <Button variant="outline" onClick={handleLimparFiltros}>
+                  Limpar filtros
+                </Button>
+              </div>
+            </div>
+          </FiltersSection>
 
           {/* Tabela */}
           <Card>
