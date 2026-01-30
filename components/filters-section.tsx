@@ -19,7 +19,7 @@ export function FiltersSection({ children, defaultOpen = false, title = "Filtros
     <Card>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         <CollapsibleTrigger asChild>
-          <button className="flex w-full items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors rounded-t-lg">
+          <button className="flex w-full items-center justify-between px-4 py-2 text-left hover:bg-muted/50 transition-colors rounded-t-lg">
             <span className="font-semibold text-sm">{title}</span>
             <ChevronDown className={cn(
               "h-4 w-4 text-muted-foreground transition-transform duration-200",
