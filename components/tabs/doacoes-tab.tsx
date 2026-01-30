@@ -67,6 +67,10 @@ import {
   CircleDot,
   MoreHorizontal,
   Download,
+  Upload,
+  Trash2,
+  Image as ImageIcon,
+  Phone,
 } from "lucide-react"
 import {
   DropdownMenu,
@@ -117,6 +121,21 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
   const [doacaoToCancel, setDoacaoToCancel] = useState<Doacao | null>(null)
   const { toast } = useToast()
+
+  // Edit Items Modal State
+  const [isEditItemsOpen, setIsEditItemsOpen] = useState(false)
+  const [doacaoToEdit, setDoacaoToEdit] = useState<Doacao | null>(null)
+  const [editItemDoacao, setEditItemDoacao] = useState("")
+  const [editQuantidadeItem, setEditQuantidadeItem] = useState("")
+  const [editDescricaoItem, setEditDescricaoItem] = useState("")
+  const [editImagemPreview, setEditImagemPreview] = useState<string | null>(null)
+  const [editItensDoacao, setEditItensDoacao] = useState<Array<{
+    item: string
+    quantidade: string
+    descricao: string
+    imagem: string | null
+  }>>([])
+
 
   // Sub-tab state
   const [activeSubTab, setActiveSubTab] = useState<"doacoes" | "pre-cadastradas">("doacoes")
@@ -185,6 +204,71 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
       title: "Doação cancelada",
       description: "A doação foi cancelada com sucesso.",
       variant: "destructive",
+    })
+  }
+
+  // Edit Items Modal Handlers
+  const handleEditItemsClick = (doacao: Doacao) => {
+    setDoacaoToEdit(doacao)
+    // Initialize with existing items if any
+    const existingItems = doacao.itens?.map(item => ({
+      item: item.tipo || "",
+      quantidade: String(item.quantidade || ""),
+      descricao: item.descricao || "",
+      imagem: null
+    })) || []
+    setEditItensDoacao(existingItems)
+    setIsEditItemsOpen(true)
+  }
+
+  const handleEditImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setEditImagemPreview(event.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleEditRemoveImage = () => {
+    setEditImagemPreview(null)
+  }
+
+  const handleEditSalvarItem = () => {
+    if (editItemDoacao && editQuantidadeItem) {
+      setEditItensDoacao(prev => [...prev, {
+        item: editItemDoacao,
+        quantidade: editQuantidadeItem,
+        descricao: editDescricaoItem,
+        imagem: editImagemPreview
+      }])
+      setEditItemDoacao("")
+      setEditQuantidadeItem("")
+      setEditDescricaoItem("")
+      setEditImagemPreview(null)
+      toast({
+        title: "Item adicionado",
+        description: "O item foi adicionado a lista.",
+      })
+    }
+  }
+
+  const handleEditRemoverItem = (index: number) => {
+    setEditItensDoacao(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleSaveEditedItems = () => {
+    setIsEditItemsOpen(false)
+    setDoacaoToEdit(null)
+    setEditItemDoacao("")
+    setEditQuantidadeItem("")
+    setEditDescricaoItem("")
+    setEditImagemPreview(null)
+    toast({
+      title: "Itens atualizados",
+      description: "Os itens da doacao foram atualizados com sucesso.",
     })
   }
 
@@ -500,7 +584,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                                     <Eye className="h-4 w-4" />
                                     Ver detalhes
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleEditItemsClick(doacao)}>
                                     <Pencil className="h-4 w-4" />
                                     Editar Itens
                                   </DropdownMenuItem>
@@ -525,7 +609,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                                     <Eye className="h-4 w-4" />
                                     Ver detalhes
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleEditItemsClick(doacao)}>
                                     <Pencil className="h-4 w-4" />
                                     Editar Itens
                                   </DropdownMenuItem>
@@ -929,6 +1013,186 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDetailsOpen(false)}>
               Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Items Modal */}
+      <Dialog open={isEditItemsOpen} onOpenChange={setIsEditItemsOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Editar Itens da Doacao</DialogTitle>
+            <DialogDescription>
+              Gerencie os itens da doacao
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Dados do Doador */}
+          <div className="space-y-4">
+            <h4 className="font-medium text-sm border-b pb-2">Dados do Doador</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">ID da Doacao</Label>
+                <p className="text-sm font-medium">{doacaoToEdit?.id || "-"}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Nome do Doador</Label>
+                <p className="text-sm font-medium">{doacaoToEdit?.doador.nome || "-"}</p>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Telefone</Label>
+                <div className="flex items-center gap-2 text-sm">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  {doacaoToEdit?.doador.telefone || "-"}
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs text-muted-foreground">Email</Label>
+                <div className="flex items-center gap-2 text-sm">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  {doacaoToEdit?.doador.email || "-"}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Cadastro de novos itens */}
+          <div className="border-t pt-4 mt-2">
+            <h4 className="font-medium text-sm mb-4">Cadastro de novos itens</h4>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-item-doacao">Item *</Label>
+                <Select value={editItemDoacao} onValueChange={setEditItemDoacao}>
+                  <SelectTrigger id="edit-item-doacao" className="w-full">
+                    <SelectValue placeholder="Selecione o item" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Roupas, calcados e acessorios">Roupas, calcados e acessorios</SelectItem>
+                    <SelectItem value="Utensilios domesticos">Utensilios domesticos</SelectItem>
+                    <SelectItem value="Brinquedos">Brinquedos</SelectItem>
+                    <SelectItem value="Objetos de decoracao">Objetos de decoracao</SelectItem>
+                    <SelectItem value="Papelaria e material escolar">Papelaria e material escolar</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="edit-quantidade-item">Quantidade *</Label>
+                <Input 
+                  id="edit-quantidade-item" 
+                  type="number" 
+                  placeholder="0" 
+                  value={editQuantidadeItem}
+                  onChange={(e) => setEditQuantidadeItem(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2 mt-4">
+              <Label htmlFor="edit-descricao-item">Descricao do item</Label>
+              <Textarea 
+                id="edit-descricao-item" 
+                placeholder="Descreva o item..." 
+                value={editDescricaoItem}
+                onChange={(e) => setEditDescricaoItem(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2 mt-4">
+              <Label>Imagem do item (opcional)</Label>
+              {editImagemPreview ? (
+                <div className="relative w-32 h-32 rounded-lg border overflow-hidden">
+                  <img 
+                    src={editImagemPreview} 
+                    alt="Preview" 
+                    className="w-full h-full object-cover"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-1 right-1 h-6 w-6"
+                    onClick={handleEditRemoveImage}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <label 
+                  htmlFor="edit-imagem-item" 
+                  className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                >
+                  <Upload className="h-6 w-6 text-muted-foreground mb-2" />
+                  <span className="text-xs text-muted-foreground">Fazer upload</span>
+                  <input
+                    id="edit-imagem-item"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleEditImageUpload}
+                  />
+                </label>
+              )}
+            </div>
+
+            <div className="mt-4">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleEditSalvarItem}
+                disabled={!editItemDoacao || !editQuantidadeItem}
+              >
+                Salvar item
+              </Button>
+            </div>
+          </div>
+
+          {/* Lista de Itens Cadastrados */}
+          {editItensDoacao.length > 0 && (
+            <div className="border-t pt-4 mt-2">
+              <h4 className="font-medium text-sm mb-4">Itens cadastrados ({editItensDoacao.length})</h4>
+              <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                {editItensDoacao.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30 gap-3">
+                    {item.imagem ? (
+                      <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
+                        <img src={item.imagem} alt={item.item} className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 rounded bg-muted flex items-center justify-center flex-shrink-0">
+                        <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{item.item}</p>
+                      <p className="text-xs text-muted-foreground">Qtd: {item.quantidade} {item.descricao && `- ${item.descricao}`}</p>
+                    </div>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm"
+                      onClick={() => handleEditRemoverItem(index)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 mt-4">
+            <Button variant="outline" onClick={() => setIsEditItemsOpen(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              className="gf-gradient text-white"
+              onClick={handleSaveEditedItems}
+            >
+              Salvar alteracoes
             </Button>
           </DialogFooter>
         </DialogContent>
