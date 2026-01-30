@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { StatusBadge } from "@/components/status-badge"
 import { FiltersSection } from "@/components/filters-section"
+import { ScrollableTable } from "@/components/scrollable-table"
 import { mockColetas } from "@/lib/mock-data"
 import { Download, FileText, MoreHorizontal, Eye, Pencil, Check } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -295,7 +296,7 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
+              <ScrollableTable>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -382,7 +383,7 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
                     )}
                   </TableBody>
                 </Table>
-              </div>
+              </ScrollableTable>
             </CardContent>
           </Card>
         </>

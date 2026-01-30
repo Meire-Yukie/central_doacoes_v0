@@ -45,6 +45,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { StatusBadge } from "@/components/status-badge"
 import { FiltersSection } from "@/components/filters-section"
+import { ScrollableTable } from "@/components/scrollable-table"
 import { mockColetas } from "@/lib/mock-data"
 import type { Coleta } from "@/lib/types"
 import {
@@ -372,7 +373,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
+              <ScrollableTable>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -452,7 +453,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                     )}
                   </TableBody>
                 </Table>
-              </div>
+              </ScrollableTable>
             </CardContent>
           </Card>
         </>
@@ -560,7 +561,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
+              <ScrollableTable>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -651,7 +652,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                     )}
                   </TableBody>
                 </Table>
-              </div>
+              </ScrollableTable>
             </CardContent>
           </Card>
         </>
@@ -765,7 +766,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
+              <ScrollableTable>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -856,7 +857,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                     )}
                   </TableBody>
                 </Table>
-              </div>
+              </ScrollableTable>
             </CardContent>
           </Card>
         </>

@@ -38,6 +38,7 @@ import {
 import { useToast } from "@/hooks/use-toast"
 import { Eye, MoreHorizontal, FileText } from "lucide-react"
 import { FiltersSection } from "@/components/filters-section"
+import { ScrollableTable } from "@/components/scrollable-table"
 
 interface ContatosTabProps {
   searchQuery: string
@@ -486,7 +487,7 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
               <CardTitle className="text-lg">Lista de Contatos</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
+              <ScrollableTable>
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -570,7 +571,7 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
                     )}
                   </TableBody>
                 </Table>
-              </div>
+              </ScrollableTable>
             </CardContent>
           </Card>
         </>
