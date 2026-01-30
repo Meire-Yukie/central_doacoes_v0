@@ -37,7 +37,7 @@ import { StatusBadge } from "@/components/status-badge"
 import { FiltersSection } from "@/components/filters-section"
 import { mockDoadores, mockDoacoes } from "@/lib/mock-data"
 import type { Doador } from "@/lib/types"
-import { Plus, Pencil, Package, MapPin, Mail, Phone, FileText, MoreHorizontal, MessageSquare, Trash2, Download } from "lucide-react"
+import { Plus, Pencil, Package, MapPin, Mail, Phone, FileText, MoreHorizontal, MessageSquare, Trash2, Download, Upload, ImageIcon, X } from "lucide-react"
 import {
   Select,
   SelectContent,
@@ -97,7 +97,9 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
   const [itemDoacao, setItemDoacao] = useState("")
   const [quantidadeItem, setQuantidadeItem] = useState("")
   const [descricaoItem, setDescricaoItem] = useState("")
-  const [itensDoacao, setItensDoacao] = useState<Array<{ item: string; quantidade: string; descricao: string }>>([])
+  const [imagemItem, setImagemItem] = useState<File | null>(null)
+  const [imagemPreview, setImagemPreview] = useState<string | null>(null)
+  const [itensDoacao, setItensDoacao] = useState<Array<{ item: string; quantidade: string; descricao: string; imagem?: string }>>([])
   const { toast } = useToast()
 
   // Dados mockados de endereços por doador (um doador pode ter múltiplos endereços)
@@ -303,20 +305,41 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
     setComoConheceu("")
     setMotivoDoacao("")
     setCampanhaDoacao("")
-    setItemDoacao("")
-    setQuantidadeItem("")
-    setDescricaoItem("")
-    setItensDoacao([])
-    setIsFazerDoacaoOpen(true)
+setItemDoacao("")
+  setQuantidadeItem("")
+  setDescricaoItem("")
+  setImagemItem(null)
+  setImagemPreview(null)
+  setItensDoacao([])
+  setIsFazerDoacaoOpen(true)
   }
 
-  const handleSalvarItem = () => {
-    if (itemDoacao && quantidadeItem) {
-      setItensDoacao([...itensDoacao, { item: itemDoacao, quantidade: quantidadeItem, descricao: descricaoItem }])
-      setItemDoacao("")
-      setQuantidadeItem("")
-      setDescricaoItem("")
+const handleSalvarItem = () => {
+  if (itemDoacao && quantidadeItem) {
+  setItensDoacao([...itensDoacao, { item: itemDoacao, quantidade: quantidadeItem, descricao: descricaoItem, imagem: imagemPreview || undefined }])
+  setItemDoacao("")
+  setQuantidadeItem("")
+  setDescricaoItem("")
+  setImagemItem(null)
+  setImagemPreview(null)
+  }
+  }
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setImagemItem(file)
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagemPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
     }
+  }
+
+  const handleRemoveImage = () => {
+    setImagemItem(null)
+    setImagemPreview(null)
   }
 
   const handleRemoverItem = (index: number) => {
@@ -1705,6 +1728,43 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                     />
                   </div>
 
+                  <div className="space-y-2 mt-4">
+                    <Label>Imagem do item (opcional)</Label>
+                    {imagemPreview ? (
+                      <div className="relative w-32 h-32 rounded-lg border overflow-hidden">
+                        <img 
+                          src={imagemPreview} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6"
+                          onClick={handleRemoveImage}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <label 
+                        htmlFor="imagem-item" 
+                        className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                      >
+                        <Upload className="h-6 w-6 text-muted-foreground mb-2" />
+                        <span className="text-xs text-muted-foreground">Fazer upload</span>
+                        <input
+                          id="imagem-item"
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleImageUpload}
+                        />
+                      </label>
+                    )}
+                  </div>
+
                   <div className="mt-4">
                     <Button 
                       type="button" 
@@ -1723,7 +1783,17 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                     <h4 className="font-medium text-sm mb-4">Itens cadastrados ({itensDoacao.length})</h4>
                     <div className="space-y-2 max-h-[150px] overflow-y-auto">
                       {itensDoacao.map((item, index) => (
-                        <div key={index} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                        <div key={index} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30 gap-3">
+                          {item.imagem && (
+                            <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
+                              <img src={item.imagem} alt={item.item} className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                          {!item.imagem && (
+                            <div className="w-12 h-12 rounded bg-muted flex items-center justify-center flex-shrink-0">
+                              <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                          )}
                           <div className="flex-1">
                             <p className="font-medium text-sm">{item.item}</p>
                             <p className="text-xs text-muted-foreground">Qtd: {item.quantidade} {item.descricao && `- ${item.descricao}`}</p>

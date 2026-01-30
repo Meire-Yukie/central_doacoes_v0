@@ -485,34 +485,111 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewDetails(doacao)}>
-                                <Eye className="h-4 w-4" />
-                                Ver detalhes
-                              </DropdownMenuItem>
-                              {doacao.status !== "Cancelada" && doacao.status !== "Coletada" && doacao.status !== "Concluida" && (
+                              {/* Concluida ou Cancelada - apenas Ver detalhes */}
+                              {(doacao.status === "Concluida" || doacao.status === "Cancelada") && (
+                                <DropdownMenuItem onClick={() => handleViewDetails(doacao)}>
+                                  <Eye className="h-4 w-4" />
+                                  Ver detalhes
+                                </DropdownMenuItem>
+                              )}
+
+                              {/* Cadastrada - Ver Detalhes, Editar Itens, Reagendamento, Cancelamento */}
+                              {doacao.status === "Cadastrada" && (
                                 <>
+                                  <DropdownMenuItem onClick={() => handleViewDetails(doacao)}>
+                                    <Eye className="h-4 w-4" />
+                                    Ver detalhes
+                                  </DropdownMenuItem>
                                   <DropdownMenuItem>
                                     <Pencil className="h-4 w-4" />
-                                    Editar
+                                    Editar Itens
                                   </DropdownMenuItem>
                                   <DropdownMenuItem>
                                     <Calendar className="h-4 w-4" />
-                                    Reagendar
+                                    Reagendamento
                                   </DropdownMenuItem>
                                   <DropdownMenuItem 
                                     className="text-destructive"
                                     onClick={() => handleCancelClick(doacao)}
                                   >
                                     <X className="h-4 w-4" />
-                                    Cancelar
+                                    Cancelamento
                                   </DropdownMenuItem>
                                 </>
                               )}
-                              {doacao.status === "Coletada" && (
-                                <DropdownMenuItem>
-                                  <Check className="h-4 w-4" />
-                                  Finalizar
+
+                              {/* Pendente - Quantidade de Itens Atipica */}
+                              {doacao.status === "Pendente - Quantidade de Itens Atipica" && (
+                                <>
+                                  <DropdownMenuItem onClick={() => handleViewDetails(doacao)}>
+                                    <Eye className="h-4 w-4" />
+                                    Ver detalhes
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Pencil className="h-4 w-4" />
+                                    Editar Itens
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Check className="h-4 w-4" />
+                                    Efetivar Doacao
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    className="text-destructive"
+                                    onClick={() => handleCancelClick(doacao)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                    Cancelar Doacao
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+
+                              {/* Pre-Cadastrada */}
+                              {doacao.status === "Pre-Cadastrada" && (
+                                <>
+                                  <DropdownMenuItem onClick={() => handleViewDetails(doacao)}>
+                                    <Eye className="h-4 w-4" />
+                                    Ver detalhes
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Check className="h-4 w-4" />
+                                    Efetivar Doacao
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    className="text-destructive"
+                                    onClick={() => handleCancelClick(doacao)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                    Cancelar Doacao
+                                  </DropdownMenuItem>
+                                </>
+                              )}
+
+                              {/* Pre-Cadastro Cancelado - nenhuma acao */}
+                              {doacao.status === "Pre-cadastro Cancelado" && (
+                                <DropdownMenuItem disabled className="text-muted-foreground">
+                                  Nenhuma acao disponivel
                                 </DropdownMenuItem>
+                              )}
+
+                              {/* Pre-Cadastro Expirado */}
+                              {doacao.status === "Pre-cadastro Expirado" && (
+                                <>
+                                  <DropdownMenuItem onClick={() => handleViewDetails(doacao)}>
+                                    <Eye className="h-4 w-4" />
+                                    Ver detalhes
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem>
+                                    <Check className="h-4 w-4" />
+                                    Efetivar Doacao
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem 
+                                    className="text-destructive"
+                                    onClick={() => handleCancelClick(doacao)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                    Cancelar Doacao
+                                  </DropdownMenuItem>
+                                </>
                               )}
                             </DropdownMenuContent>
                           </DropdownMenu>
