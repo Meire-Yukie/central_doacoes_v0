@@ -8,6 +8,7 @@ import { DoacoesTab } from "@/components/tabs/doacoes-tab"
 import { CalendarioTab } from "@/components/tabs/calendario-tab"
 import { AcompanhamentoTab } from "@/components/tabs/acompanhamento-tab"
 import { BaixaTab } from "@/components/tabs/baixa-tab"
+import { ContatosTab } from "@/components/tabs/contatos-tab"
 
 export default function AdminDoacoesPage() {
   const [activeTab, setActiveTab] = useState<TabType>("doadores")
@@ -24,6 +25,7 @@ export default function AdminDoacoesPage() {
         {activeTab === "calendario" && <CalendarioTab searchQuery={searchQuery} />}
         {activeTab === "acompanhamento" && <AcompanhamentoTab searchQuery={searchQuery} />}
         {activeTab === "baixa" && <BaixaTab searchQuery={searchQuery} />}
+        {activeTab === "contatos" && <ContatosTab searchQuery={searchQuery} />}
       </main>
     </div>
   )
