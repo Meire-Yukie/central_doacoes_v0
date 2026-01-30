@@ -12,11 +12,11 @@ import { ContatosTab } from "@/components/tabs/contatos-tab"
 
 export default function AdminDoacoesPage() {
   const [activeTab, setActiveTab] = useState<TabType>("doadores")
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery] = useState("")
 
   return (
     <div className="min-h-screen bg-background">
-      <Header searchValue={searchQuery} onSearchChange={setSearchQuery} />
+      <Header />
       <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       
       <main className="mx-auto max-w-[1600px] px-4 py-6 md:px-6">
