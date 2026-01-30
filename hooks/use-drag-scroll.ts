@@ -1,63 +1,74 @@
 "use client"
 
-import { useRef, useState, useEffect, useCallback } from "react"
+import { useRef, useState, useEffect } from "react"
 
 export function useDragScroll<T extends HTMLElement = HTMLDivElement>() {
   const ref = useRef<T>(null)
   const [isDragging, setIsDragging] = useState(false)
-  const [startX, setStartX] = useState(0)
-  const [scrollLeft, setScrollLeft] = useState(0)
-
-  const handleMouseDown = useCallback((e: MouseEvent) => {
-    if (!ref.current) return
-    setIsDragging(true)
-    setStartX(e.pageX - ref.current.offsetLeft)
-    setScrollLeft(ref.current.scrollLeft)
-    ref.current.style.cursor = "grabbing"
-    ref.current.style.userSelect = "none"
-  }, [])
-
-  const handleMouseUp = useCallback(() => {
-    if (!ref.current) return
-    setIsDragging(false)
-    ref.current.style.cursor = "grab"
-    ref.current.style.removeProperty("user-select")
-  }, [])
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !ref.current) return
-    e.preventDefault()
-    const x = e.pageX - ref.current.offsetLeft
-    const walk = (x - startX) * 1.5 // Velocidade do scroll
-    ref.current.scrollLeft = scrollLeft - walk
-  }, [isDragging, startX, scrollLeft])
-
-  const handleMouseLeave = useCallback(() => {
-    if (!ref.current) return
-    setIsDragging(false)
-    ref.current.style.cursor = "grab"
-    ref.current.style.removeProperty("user-select")
-  }, [])
+  
+  // Usar refs para valores mutaveis para evitar stale closures
+  const isDraggingRef = useRef(false)
+  const startXRef = useRef(0)
+  const scrollLeftRef = useRef(0)
 
   useEffect(() => {
     const element = ref.current
     if (!element) return
 
+    const handleMouseDown = (e: MouseEvent) => {
+      // Ignorar se clicar em botoes ou elementos interativos
+      const target = e.target as HTMLElement
+      if (target.closest('button, a, input, select, [role="button"]')) {
+        return
+      }
+      
+      isDraggingRef.current = true
+      setIsDragging(true)
+      startXRef.current = e.pageX - element.offsetLeft
+      scrollLeftRef.current = element.scrollLeft
+      element.style.cursor = "grabbing"
+      element.style.userSelect = "none"
+    }
+
+    const handleMouseUp = () => {
+      if (!isDraggingRef.current) return
+      isDraggingRef.current = false
+      setIsDragging(false)
+      element.style.cursor = "grab"
+      element.style.removeProperty("user-select")
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return
+      e.preventDefault()
+      const x = e.pageX - element.offsetLeft
+      const walk = (x - startXRef.current) * 1.5
+      element.scrollLeft = scrollLeftRef.current - walk
+    }
+
+    const handleMouseLeave = () => {
+      if (!isDraggingRef.current) return
+      isDraggingRef.current = false
+      setIsDragging(false)
+      element.style.cursor = "grab"
+      element.style.removeProperty("user-select")
+    }
+
     // Define cursor inicial
     element.style.cursor = "grab"
 
     element.addEventListener("mousedown", handleMouseDown)
-    element.addEventListener("mouseup", handleMouseUp)
-    element.addEventListener("mousemove", handleMouseMove)
+    document.addEventListener("mouseup", handleMouseUp)
+    document.addEventListener("mousemove", handleMouseMove)
     element.addEventListener("mouseleave", handleMouseLeave)
 
     return () => {
       element.removeEventListener("mousedown", handleMouseDown)
-      element.removeEventListener("mouseup", handleMouseUp)
-      element.removeEventListener("mousemove", handleMouseMove)
+      document.removeEventListener("mouseup", handleMouseUp)
+      document.removeEventListener("mousemove", handleMouseMove)
       element.removeEventListener("mouseleave", handleMouseLeave)
     }
-  }, [handleMouseDown, handleMouseUp, handleMouseMove, handleMouseLeave])
+  }, [])
 
   return { ref, isDragging }
 }
