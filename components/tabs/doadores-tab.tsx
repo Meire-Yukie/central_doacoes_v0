@@ -35,7 +35,6 @@ import { Textarea } from "@/components/ui/textarea"
 import { KPICards } from "@/components/kpi-cards"
 import { StatusBadge } from "@/components/status-badge"
 import { FiltersSection } from "@/components/filters-section"
-import { ScrollableTable } from "@/components/scrollable-table"
 import { mockDoadores, mockDoacoes } from "@/lib/mock-data"
 import type { Doador } from "@/lib/types"
 import { Plus, Pencil, Package, MapPin, Mail, Phone, FileText, MoreHorizontal, MessageSquare, Trash2, Download, Upload, ImageIcon, X } from "lucide-react"
@@ -568,7 +567,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
           <CardTitle className="text-lg">Lista de Doadores</CardTitle>
         </CardHeader>
         <CardContent>
-          <ScrollableTable>
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -675,7 +674,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                 )}
               </TableBody>
             </Table>
-          </ScrollableTable>
+          </div>
         </CardContent>
       </Card>
 

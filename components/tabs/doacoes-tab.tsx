@@ -48,7 +48,6 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { KPICards } from "@/components/kpi-cards"
 import { FiltersSection } from "@/components/filters-section"
-import { ScrollableTable } from "@/components/scrollable-table"
 import { StatusBadge } from "@/components/status-badge"
 import { mockDoacoes } from "@/lib/mock-data"
 import type { Doacao } from "@/lib/types"
@@ -397,7 +396,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <ScrollableTable>
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -601,7 +600,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                 )}
               </TableBody>
             </Table>
-          </ScrollableTable>
+          </div>
         </CardContent>
       </Card>
         </>
@@ -689,7 +688,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
               <CardTitle className="text-lg">Doacoes Pre-Cadastradas</CardTitle>
             </CardHeader>
             <CardContent>
-              <ScrollableTable>
+              <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -762,7 +761,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                     )}
                   </TableBody>
                 </Table>
-              </ScrollableTable>
+              </div>
             </CardContent>
           </Card>
         </>
