@@ -599,7 +599,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                       </TableCell>
                       <TableCell>
                         <span
-                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                             doador.tipo === "PJ"
                               ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                               : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300"
@@ -617,7 +617,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         <span
-                          className={`inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ${
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                             doador.prioridade === "Alta"
                               ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                               : doador.prioridade === "Média"

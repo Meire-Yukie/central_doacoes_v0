@@ -736,7 +736,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                       <TableRow key={doacao.id}>
                         <TableCell className="font-mono text-sm">{doacao.id}</TableCell>
                         <TableCell>
-                          <span className={`rounded px-2 py-1 text-xs font-medium ${
+                          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                             tipoDoador === "PF" 
                               ? "bg-blue-100 text-blue-700" 
                               : "bg-purple-100 text-purple-700"
@@ -1033,7 +1033,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                             {item.telefone}
                           </TableCell>
                           <TableCell>
-                            <span className={`rounded px-2 py-1 text-xs font-medium ${
+                            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                               item.optIn 
                                 ? "bg-green-100 text-green-700" 
                                 : "bg-red-100 text-red-700"
@@ -1048,7 +1048,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                             <StatusBadge status={item.status} />
                           </TableCell>
                           <TableCell className="text-center">
-                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+                            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                               item.prioridade === "1" ? "bg-red-100 text-red-700" :
                               item.prioridade === "2" ? "bg-orange-100 text-orange-700" :
                               item.prioridade === "3" ? "bg-yellow-100 text-yellow-700" :

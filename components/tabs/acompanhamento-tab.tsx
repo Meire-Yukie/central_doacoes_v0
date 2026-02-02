@@ -636,7 +636,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                             {item.qtdItens}
                           </TableCell>
                           <TableCell className="text-center">
-                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+                            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                               item.prioridade === "1" ? "bg-red-100 text-red-700" :
                               item.prioridade === "2" ? "bg-orange-100 text-orange-700" :
                               item.prioridade === "3" ? "bg-yellow-100 text-yellow-700" :
@@ -837,12 +837,12 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                           {item.qtdItens}
                         </TableCell>
                         <TableCell className="text-center">
-                          <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+<span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                             item.prioridade === "1" ? "bg-red-100 text-red-700" :
-                              item.prioridade === "2" ? "bg-orange-100 text-orange-700" :
-                              item.prioridade === "3" ? "bg-yellow-100 text-yellow-700" :
-                              "bg-gray-100 text-gray-700"
-                            }`}>
+                            item.prioridade === "2" ? "bg-orange-100 text-orange-700" :
+                            item.prioridade === "3" ? "bg-yellow-100 text-yellow-700" :
+                            "bg-gray-100 text-gray-700"
+                          }`}>
                               {item.prioridade}
                             </span>
                           </TableCell>

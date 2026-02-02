@@ -564,7 +564,7 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
                           </TableCell>
                           <TableCell>{contato.canal}</TableCell>
                           <TableCell>
-                            <span className={`rounded px-2 py-1 text-xs font-medium ${
+                            <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                               contato.tipoContato === "Ativo" 
                                 ? "bg-blue-100 text-blue-700" 
                                 : "bg-purple-100 text-purple-700"
@@ -576,7 +576,7 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
                             {contato.motivoContato}
                           </TableCell>
                           <TableCell>
-                            <span className="rounded border bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
+                            <span className="rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
                               {contato.status}
                             </span>
                           </TableCell>
