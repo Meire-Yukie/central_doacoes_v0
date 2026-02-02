@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { StatusBadge } from "@/components/status-badge"
 import { FiltersSection } from "@/components/filters-section"
+import { TablePagination } from "@/components/table-pagination"
 import { mockColetas } from "@/lib/mock-data"
 import { Download, FileText, MoreHorizontal, Eye, MapPin } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
@@ -66,6 +67,10 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
   const [filtroRelatorioNomeDoador, setFiltroRelatorioNomeDoador] = useState("")
   const [filtroRelatorioTipoBaixa, setFiltroRelatorioTipoBaixa] = useState("")
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+
   // Modal states
   const [isDetalhesBaixaOpen, setIsDetalhesBaixaOpen] = useState(false)
   const [isRegistrarBaixaOpen, setIsRegistrarBaixaOpen] = useState(false)
@@ -82,6 +87,7 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
     setFiltroRelatorioDataFinal("")
     setFiltroRelatorioNomeDoador("")
     setFiltroRelatorioTipoBaixa("")
+    setCurrentPage(1)
   }
 
   const handleEnviarCadastro = () => {
@@ -378,7 +384,9 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredRelatorioBaixas.map((item) => (
+                      filteredRelatorioBaixas
+                        .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                        .map((item) => (
                         <TableRow key={item.id}>
                           <TableCell>
                             <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -437,6 +445,13 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
                   </TableBody>
                 </Table>
               </div>
+              <TablePagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(filteredRelatorioBaixas.length / itemsPerPage)}
+                totalItems={filteredRelatorioBaixas.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+              />
             </CardContent>
           </Card>
         </>

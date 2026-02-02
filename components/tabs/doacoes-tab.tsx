@@ -196,6 +196,11 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
   const [filtroPreId, setFiltroPreId] = useState("")
   const [filtroPrePrioridade, setFiltroPrePrioridade] = useState("")
 
+  // Pagination state
+  const [currentPageDoacoes, setCurrentPageDoacoes] = useState(1)
+  const [currentPagePre, setCurrentPagePre] = useState(1)
+  const itemsPerPage = 10
+
   const filteredDoacoes = mockDoacoes.filter((doacao) => {
     const query = searchQuery.toLowerCase()
     const matchesSearch =
@@ -490,6 +495,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
     setFiltroAtendente("")
     setFiltroDataInicio("")
     setFiltroDataFinal("")
+    setCurrentPageDoacoes(1)
   }
 
   const handleLimparFiltrosPre = () => {
@@ -500,6 +506,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
     setFiltroPreTelefone("")
     setFiltroPreId("")
     setFiltroPrePrioridade("")
+    setCurrentPagePre(1)
   }
 
   // Mock data para pre-cadastradas
@@ -716,7 +723,9 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredDoacoes.map((doacao) => {
+                  filteredDoacoes
+                    .slice((currentPageDoacoes - 1) * itemsPerPage, currentPageDoacoes * itemsPerPage)
+                    .map((doacao) => {
                     // Determina o tipo do doador (PF ou PJ) baseado no doadorId
                     const tipoDoador = doacao.doadorId?.startsWith("DOA003") || doacao.doadorId?.startsWith("DOA005") ? "PJ" : "PF"
                     
@@ -894,6 +903,13 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
               </TableBody>
             </Table>
           </div>
+          <TablePagination
+            currentPage={currentPageDoacoes}
+            totalPages={Math.ceil(filteredDoacoes.length / itemsPerPage)}
+            totalItems={filteredDoacoes.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPageDoacoes}
+          />
         </CardContent>
       </Card>
         </>
@@ -1020,7 +1036,9 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredPreCadastradas.map((item) => (
+                      filteredPreCadastradas
+                        .slice((currentPagePre - 1) * itemsPerPage, currentPagePre * itemsPerPage)
+                        .map((item) => (
                         <TableRow key={item.id}>
                           <TableCell className="font-mono text-sm">{item.id}</TableCell>
                           <TableCell className="font-medium">{item.nomeDoador}</TableCell>
@@ -1096,6 +1114,13 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                   </TableBody>
                 </Table>
               </div>
+              <TablePagination
+                currentPage={currentPagePre}
+                totalPages={Math.ceil(filteredPreCadastradas.length / itemsPerPage)}
+                totalItems={filteredPreCadastradas.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPagePre}
+              />
             </CardContent>
           </Card>
         </>
