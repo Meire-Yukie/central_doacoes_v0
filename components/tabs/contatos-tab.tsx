@@ -36,8 +36,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useToast } from "@/hooks/use-toast"
-import { Eye, MoreHorizontal, FileText } from "lucide-react"
+import { Download, Eye, MoreHorizontal, FileText } from "lucide-react"
 import { FiltersSection } from "@/components/filters-section"
+import { TablePagination } from "@/components/table-pagination"
 
 interface ContatosTabProps {
   searchQuery: string
@@ -65,6 +66,10 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
   const [filtroDataFinal, setFiltroDataFinal] = useState("")
   const [filtroAtendente, setFiltroAtendente] = useState("")
   const [filtroCanal, setFiltroCanal] = useState("")
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
   const [filtroTipoContato, setFiltroTipoContato] = useState("")
   const [filtroMotivoContato, setFiltroMotivoContato] = useState("")
   const [filtroFonteContato, setFiltroFonteContato] = useState("")
@@ -161,9 +166,9 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
     return matchIdDoador && matchIdContato && matchAtendente && matchCanal && matchTipoContato && matchMotivoContato && matchFonteContato && matchDataInicial && matchDataFinal
   })
 
-  const handleLimparFiltros = () => {
-    setFiltroIdDoador("")
+const handleLimparFiltros = () => {
     setFiltroIdContato("")
+    setFiltroIdDoador("")
     setFiltroDataInicial("")
     setFiltroDataFinal("")
     setFiltroAtendente("")
@@ -171,6 +176,7 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
     setFiltroTipoContato("")
     setFiltroMotivoContato("")
     setFiltroFonteContato("")
+    setCurrentPage(1)
   }
 
   const handleRegistrar = () => {
@@ -523,7 +529,18 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
           {/* Tabela */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Lista de Contatos</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Lista de Contatos</CardTitle>
+                <Button variant="outline" onClick={() => {
+                  toast({
+                    title: "Download iniciado",
+                    description: "Os dados estao sendo exportados.",
+                  })
+                }}>
+                  <Download className="h-4 w-4" />
+                  Baixar Dados
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -554,7 +571,9 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredContatos.map((contato) => (
+                      filteredContatos
+                        .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                        .map((contato) => (
                         <TableRow key={contato.id}>
                           <TableCell className="font-mono text-sm">{contato.id}</TableCell>
                           <TableCell className="font-mono text-sm">{contato.idDoador}</TableCell>
@@ -607,6 +626,13 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
                   </TableBody>
                 </Table>
               </div>
+              <TablePagination
+                currentPage={currentPage}
+                totalPages={Math.ceil(filteredContatos.length / itemsPerPage)}
+                totalItems={filteredContatos.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setCurrentPage}
+              />
             </CardContent>
           </Card>
         </>

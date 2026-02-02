@@ -45,6 +45,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { StatusBadge } from "@/components/status-badge"
 import { FiltersSection } from "@/components/filters-section"
+import { TablePagination } from "@/components/table-pagination"
 import { mockColetas } from "@/lib/mock-data"
 import type { Coleta } from "@/lib/types"
 import {
@@ -91,6 +92,13 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
   // Sub-tab state
   const [activeSubTab, setActiveSubTab] = useState<"romaneio" | "exportacao" | "atrasadas" | "pendentes">("romaneio")
 
+  // Pagination states
+  const [pageRomaneio, setPageRomaneio] = useState(1)
+  const [pageExportacao, setPageExportacao] = useState(1)
+  const [pageAtrasadas, setPageAtrasadas] = useState(1)
+  const [pagePendentes, setPagePendentes] = useState(1)
+  const itemsPerPage = 10
+
   // Filtros Romaneio
   const [filtroRomaneioTipoColeta, setFiltroRomaneioTipoColeta] = useState("")
   const [filtroRomaneioStatusDoacao, setFiltroRomaneioStatusDoacao] = useState("")
@@ -130,14 +138,16 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
     setFiltroRomaneioDataFinal("")
     setFiltroRomaneioIdDoador("")
     setFiltroRomaneioIdDoacao("")
+    setPageRomaneio(1)
   }
 
   const handleLimparFiltrosExportacao = () => {
     setFiltroExportacaoTipoColeta("")
     setFiltroExportacaoDataColeta("")
+    setPageExportacao(1)
   }
 
-  const handleLimparFiltrosAtrasadas = () => {
+const handleLimparFiltrosAtrasadas = () => {
     setFiltroAtrasadasTipoColeta("")
     setFiltroAtrasadasDataInicio("")
     setFiltroAtrasadasDataFinal("")
@@ -146,8 +156,9 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
     setFiltroAtrasadasTelefone("")
     setFiltroAtrasadasIdDoacao("")
     setFiltroAtrasadasPrioridade("")
+    setPageAtrasadas(1)
   }
-
+  
   const handleLimparFiltrosPendentes = () => {
     setFiltroPendentesTipoColeta("")
     setFiltroPendentesDataInicio("")
@@ -157,6 +168,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
     setFiltroPendentesIdDoacao("")
     setFiltroPendentesStatusColeta("")
     setFiltroPendentesPrioridade("")
+    setPagePendentes(1)
   }
 
   const handleBaixarDados = (tipo: string) => {
@@ -225,7 +237,16 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
     const matchDataFinal = !dataFinal || dataColeta <= dataFinal
     
     return matchTipoColeta && matchNome && matchEmail && matchTelefone && matchIdDoacao && matchPrioridade && matchDataInicio && matchDataFinal
-  }).slice(0, 10)
+  })
+
+  const filteredExportacao = mockRomaneioData.filter((item) => {
+    const matchTipo = !filtroExportacaoTipoColeta || filtroExportacaoTipoColeta === "todos" || item.tipoColeta === filtroExportacaoTipoColeta
+    const matchData = !filtroExportacaoDataColeta || item.dataAgendada === filtroExportacaoDataColeta
+    const matchSearch = !searchQuery || 
+      item.doadorNome.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.id.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchTipo && matchData && matchSearch
+  })
 
   const filteredPendentes = mockRomaneioData.filter((item) => {
     const matchTipoColeta = !filtroPendentesTipoColeta || filtroPendentesTipoColeta === "todos" || item.tipoColeta === filtroPendentesTipoColeta
@@ -464,7 +485,9 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredRomaneio.slice(0, 20).map((item) => (
+                      filteredRomaneio
+                        .slice((pageRomaneio - 1) * itemsPerPage, pageRomaneio * itemsPerPage)
+                        .map((item) => (
                         <TableRow key={item.id}>
                           <TableCell className="font-mono text-sm">{item.id}</TableCell>
                           <TableCell className="text-sm">{item.tipoColeta}</TableCell>
@@ -505,15 +528,22 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                           </TableCell>
                         </TableRow>
                       ))
-                    )}
+)}
                   </TableBody>
                 </Table>
               </div>
+              <TablePagination
+                currentPage={pageRomaneio}
+                totalPages={Math.ceil(filteredRomaneio.length / itemsPerPage)}
+                totalItems={filteredRomaneio.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setPageRomaneio}
+              />
             </CardContent>
           </Card>
         </>
-)}
-
+      )}
+      
       {/* Romaneio para Exportacao */}
       {activeSubTab === "exportacao" && (
         <>
@@ -582,17 +612,16 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {mockRomaneioData
-                      .filter((item) => {
-                        const matchTipo = !filtroExportacaoTipoColeta || filtroExportacaoTipoColeta === "todos" || item.tipoColeta === filtroExportacaoTipoColeta
-                        const matchData = !filtroExportacaoDataColeta || item.dataAgendada === filtroExportacaoDataColeta
-                        const matchSearch = !searchQuery || 
-                          item.doadorNome.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.id.toLowerCase().includes(searchQuery.toLowerCase())
-                        return matchTipo && matchData && matchSearch
-                      })
-                      .slice(0, 10)
-                      .map((item, index) => (
+                    {filteredExportacao.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={14} className="text-center py-8 text-muted-foreground">
+                          Nenhum registro encontrado
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredExportacao
+                        .slice((pageExportacao - 1) * itemsPerPage, pageExportacao * itemsPerPage)
+                        .map((item, index) => (
                         <TableRow key={item.id}>
                           <TableCell className="font-medium">{item.doadorNome}</TableCell>
                           <TableCell className="text-muted-foreground">{item.email}</TableCell>
@@ -615,24 +644,18 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                             {new Date(item.dataAgendada).toLocaleDateString("pt-BR")}
                           </TableCell>
                         </TableRow>
-                      ))}
-                    {mockRomaneioData.filter((item) => {
-                      const matchTipo = !filtroExportacaoTipoColeta || filtroExportacaoTipoColeta === "todos" || item.tipoColeta === filtroExportacaoTipoColeta
-                      const matchData = !filtroExportacaoDataColeta || item.dataAgendada === filtroExportacaoDataColeta
-                      const matchSearch = !searchQuery || 
-                        item.doadorNome.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        item.id.toLowerCase().includes(searchQuery.toLowerCase())
-                      return matchTipo && matchData && matchSearch
-                    }).length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={14} className="text-center py-8 text-muted-foreground">
-                          Nenhum registro encontrado
-                        </TableCell>
-                      </TableRow>
+                      ))
                     )}
                   </TableBody>
                 </Table>
               </div>
+              <TablePagination
+                currentPage={pageExportacao}
+                totalPages={Math.ceil(filteredExportacao.length / itemsPerPage)}
+                totalItems={filteredExportacao.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setPageExportacao}
+              />
             </CardContent>
           </Card>
         </>
@@ -768,7 +791,9 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredAtrasadas.map((item) => (
+                      filteredAtrasadas
+                        .slice((pageAtrasadas - 1) * itemsPerPage, pageAtrasadas * itemsPerPage)
+                        .map((item) => (
                         <TableRow key={item.id}>
                           <TableCell className="font-mono text-sm">{item.id}</TableCell>
                           <TableCell className="text-sm">{item.tipoColeta}</TableCell>
@@ -820,6 +845,13 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                   </TableBody>
                 </Table>
               </div>
+              <TablePagination
+                currentPage={pageAtrasadas}
+                totalPages={Math.ceil(filteredAtrasadas.length / itemsPerPage)}
+                totalItems={filteredAtrasadas.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setPageAtrasadas}
+              />
             </CardContent>
           </Card>
         </>
@@ -966,7 +998,9 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      filteredPendentes.map((item) => (
+                      filteredPendentes
+                        .slice((pagePendentes - 1) * itemsPerPage, pagePendentes * itemsPerPage)
+                        .map((item) => (
                         <TableRow key={item.id}>
                           <TableCell className="font-mono text-sm">{item.id}</TableCell>
                           <TableCell className="text-sm">{item.tipoColeta}</TableCell>
@@ -1018,13 +1052,20 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                           </TableCell>
                         </TableRow>
                       ))
-                    )}
+)}
                   </TableBody>
                 </Table>
               </div>
+              <TablePagination
+                currentPage={pagePendentes}
+                totalPages={Math.ceil(filteredPendentes.length / itemsPerPage)}
+                totalItems={filteredPendentes.length}
+                itemsPerPage={itemsPerPage}
+                onPageChange={setPagePendentes}
+              />
             </CardContent>
           </Card>
-</>
+        </>
       )}
 
       {/* Agendar Coleta Modal */}

@@ -35,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { KPICards } from "@/components/kpi-cards"
 import { StatusBadge } from "@/components/status-badge"
 import { FiltersSection } from "@/components/filters-section"
+import { TablePagination } from "@/components/table-pagination"
 import { mockDoadores, mockDoacoes } from "@/lib/mock-data"
 import type { Doador } from "@/lib/types"
 import { Plus, Pencil, Package, MapPin, Mail, Phone, FileText, MoreHorizontal, MessageSquare, Trash2, Download, Upload, ImageIcon, X } from "lucide-react"
@@ -272,6 +273,10 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
   const [filtroTipo, setFiltroTipo] = useState("")
   const [filtroPrioridade, setFiltroPrioridade] = useState("")
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
+
   const filteredDoadores = mockDoadores.filter((doador) => {
     const query = searchQuery.toLowerCase()
     const matchSearch = 
@@ -463,6 +468,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
     setFiltroTelefone("")
     setFiltroTipo("")
     setFiltroPrioridade("")
+    setCurrentPage(1)
   }
 
   const doadorDoacoes = selectedDoador
@@ -591,9 +597,11 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                       </div>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  filteredDoadores.map((doador) => (
-                    <TableRow key={doador.id}>
+) : (
+                      filteredDoadores
+                        .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                        .map((doador) => (
+                        <TableRow key={doador.id}>
                       <TableCell className="font-mono text-xs text-muted-foreground">
                         {doador.id}
                       </TableCell>
@@ -675,6 +683,13 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
               </TableBody>
             </Table>
           </div>
+          <TablePagination
+            currentPage={currentPage}
+            totalPages={Math.ceil(filteredDoadores.length / itemsPerPage)}
+            totalItems={filteredDoadores.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
         </CardContent>
       </Card>
 

@@ -48,6 +48,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { KPICards } from "@/components/kpi-cards"
 import { FiltersSection } from "@/components/filters-section"
+import { TablePagination } from "@/components/table-pagination"
 import { StatusBadge } from "@/components/status-badge"
 import { mockDoacoes } from "@/lib/mock-data"
 import type { Doacao } from "@/lib/types"
