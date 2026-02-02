@@ -142,6 +142,15 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
   const [reagendamentoTipoContato, setReagendamentoTipoContato] = useState("")
   const [reagendamentoCanal, setReagendamentoCanal] = useState("")
   const [reagendamentoFonteContato, setReagendamentoFonteContato] = useState("")
+  const [reagendamentoStep, setReagendamentoStep] = useState(1)
+  // Reagendamento Step 2 fields (same as Agendar Coleta)
+  const [reagendamentoResponsavel, setReagendamentoResponsavel] = useState("")
+  const [reagendamentoMotivoReagendamento, setReagendamentoMotivoReagendamento] = useState("")
+  const [reagendamentoComentarios, setReagendamentoComentarios] = useState("")
+  const [reagendamentoReagendamentoAberto, setReagendamentoReagendamentoAberto] = useState("")
+  const [reagendamentoTipoColeta, setReagendamentoTipoColeta] = useState("")
+  const [reagendamentoNovaDataColeta, setReagendamentoNovaDataColeta] = useState("")
+  const [reagendamentoObservacao, setReagendamentoObservacao] = useState("")
 
   // Efetivar Doacao Modal State
   const [isEfetivarOpen, setIsEfetivarOpen] = useState(false)
@@ -302,7 +311,24 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
     setReagendamentoTipoContato("")
     setReagendamentoCanal("")
     setReagendamentoFonteContato("")
+    setReagendamentoStep(1)
+    // Reset step 2 fields
+    setReagendamentoResponsavel("")
+    setReagendamentoMotivoReagendamento("")
+    setReagendamentoComentarios("")
+    setReagendamentoReagendamentoAberto("")
+    setReagendamentoTipoColeta("")
+    setReagendamentoNovaDataColeta("")
+    setReagendamentoObservacao("")
     setIsReagendamentoOpen(true)
+  }
+
+  const handleReagendamentoNextStep = () => {
+    setReagendamentoStep(2)
+  }
+
+  const handleReagendamentoPrevStep = () => {
+    setReagendamentoStep(1)
   }
 
   const handleSaveReagendamento = () => {
@@ -311,6 +337,15 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
     setReagendamentoTipoContato("")
     setReagendamentoCanal("")
     setReagendamentoFonteContato("")
+    setReagendamentoStep(1)
+    // Reset step 2 fields
+    setReagendamentoResponsavel("")
+    setReagendamentoMotivoReagendamento("")
+    setReagendamentoComentarios("")
+    setReagendamentoReagendamentoAberto("")
+    setReagendamentoTipoColeta("")
+    setReagendamentoNovaDataColeta("")
+    setReagendamentoObservacao("")
     toast({
       title: "Reagendamento registrado",
       description: "O reagendamento foi salvo com sucesso.",
@@ -1394,84 +1429,248 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
       </Dialog>
 
       {/* Reagendamento Modal */}
-      <Dialog open={isReagendamentoOpen} onOpenChange={setIsReagendamentoOpen}>
-        <DialogContent className="sm:max-w-lg">
+      <Dialog open={isReagendamentoOpen} onOpenChange={(open) => {
+        if (!open) {
+          setReagendamentoStep(1)
+        }
+        setIsReagendamentoOpen(open)
+      }}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Registro de Contato para Reagendamento</DialogTitle>
+            <DialogTitle>
+              {reagendamentoStep === 1 ? "Registro de Contato para Reagendamento" : "Agendar Coleta"}
+            </DialogTitle>
             <DialogDescription>
-              {doacaoToReagendar?.doador.nome}
+              {doacaoToReagendar?.doador.nome} - Etapa {reagendamentoStep} de 2
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="reagendamento-tipo-contato">Tipo de contato *</Label>
-                <Select value={reagendamentoTipoContato} onValueChange={(value) => {
-                  setReagendamentoTipoContato(value)
-                  if (value !== "Ativo") {
-                    setReagendamentoFonteContato("")
-                  }
-                }}>
-                  <SelectTrigger id="reagendamento-tipo-contato" className="w-full">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Ativo">Ativo</SelectItem>
-                    <SelectItem value="Receptivo">Receptivo</SelectItem>
-                  </SelectContent>
-                </Select>
+
+          {/* Step 1: Tipo de Contato e Canal */}
+          {reagendamentoStep === 1 && (
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reagendamento-tipo-contato">Tipo de contato *</Label>
+                  <Select value={reagendamentoTipoContato} onValueChange={(value) => {
+                    setReagendamentoTipoContato(value)
+                    if (value !== "Ativo") {
+                      setReagendamentoFonteContato("")
+                    }
+                  }}>
+                    <SelectTrigger id="reagendamento-tipo-contato" className="w-full h-10">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ativo">Ativo</SelectItem>
+                      <SelectItem value="Receptivo">Receptivo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="reagendamento-canal">Canal *</Label>
+                  <Select value={reagendamentoCanal} onValueChange={setReagendamentoCanal}>
+                    <SelectTrigger id="reagendamento-canal" className="w-full h-10">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Whatsapp">Whatsapp</SelectItem>
+                      <SelectItem value="Ligacao Telefonica">Ligacao Telefonica</SelectItem>
+                      <SelectItem value="Email">Email</SelectItem>
+                      <SelectItem value="Site">Site</SelectItem>
+                      <SelectItem value="Outros">Outros</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="reagendamento-canal">Canal *</Label>
-                <Select value={reagendamentoCanal} onValueChange={setReagendamentoCanal}>
-                  <SelectTrigger id="reagendamento-canal" className="w-full">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Whatsapp">Whatsapp</SelectItem>
-                    <SelectItem value="Ligacao Telefonica">Ligacao Telefonica</SelectItem>
-                    <SelectItem value="Email">Email</SelectItem>
-                    <SelectItem value="Site">Site</SelectItem>
-                    <SelectItem value="Outros">Outros</SelectItem>
-                  </SelectContent>
-                </Select>
+              {reagendamentoTipoContato === "Ativo" && (
+                <div className="space-y-2">
+                  <Label htmlFor="reagendamento-fonte-contato">Fonte do contato *</Label>
+                  <Select value={reagendamentoFonteContato} onValueChange={setReagendamentoFonteContato}>
+                    <SelectTrigger id="reagendamento-fonte-contato" className="w-full h-10">
+                      <SelectValue placeholder="Selecione a fonte do contato" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Leads Planilha">Leads Planilha</SelectItem>
+                      <SelectItem value="Leads Rede de Mobilizacao">Leads Rede de Mobilizacao</SelectItem>
+                      <SelectItem value="Leads Rede Mobilizacao - Influenciadores">Leads Rede Mobilizacao - Influenciadores</SelectItem>
+                      <SelectItem value="Leads Salesforce">Leads Salesforce</SelectItem>
+                      <SelectItem value="Leads Doare">Leads Doare</SelectItem>
+                      <SelectItem value="Retorno de ligacao abandonada">Retorno de ligacao abandonada</SelectItem>
+                      <SelectItem value="Cliente loja">Cliente loja</SelectItem>
+                      <SelectItem value="Doador recorrente">Doador recorrente</SelectItem>
+                      <SelectItem value="Outros">Outros</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 2: Agendar Coleta fields */}
+          {reagendamentoStep === 2 && (
+            <div className="grid gap-4 py-4">
+              {/* Endereco */}
+              <div className="space-y-2 w-full">
+                <Label>Endereco</Label>
+                <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 h-10 w-full">
+                  <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-sm truncate">
+                    {doacaoToReagendar?.endereco 
+                      ? `${doacaoToReagendar.endereco.rua}, ${doacaoToReagendar.endereco.numero}${doacaoToReagendar.endereco.complemento ? `, ${doacaoToReagendar.endereco.complemento}` : ""} - ${doacaoToReagendar.endereco.bairro}, ${doacaoToReagendar.endereco.cidade}/${doacaoToReagendar.endereco.uf} - CEP: ${doacaoToReagendar.endereco.cep}`
+                      : "-"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {/* Responsavel pela Coleta */}
+                <div className="space-y-2 w-full">
+                  <Label htmlFor="reagendamento-responsavel">Responsavel pela Coleta *</Label>
+                  <Select value={reagendamentoResponsavel} onValueChange={setReagendamentoResponsavel}>
+                    <SelectTrigger id="reagendamento-responsavel" className="w-full h-10">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Carlos Silva">Carlos Silva</SelectItem>
+                      <SelectItem value="Joao Santos">Joao Santos</SelectItem>
+                      <SelectItem value="Maria Oliveira">Maria Oliveira</SelectItem>
+                      <SelectItem value="Pedro Costa">Pedro Costa</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Motivo Reagendamento */}
+                <div className="space-y-2 w-full">
+                  <Label htmlFor="reagendamento-motivo">Motivo Reagendamento *</Label>
+                  <Select value={reagendamentoMotivoReagendamento} onValueChange={setReagendamentoMotivoReagendamento}>
+                    <SelectTrigger id="reagendamento-motivo" className="w-full h-10">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Necessidade Logistica">Necessidade Logistica</SelectItem>
+                      <SelectItem value="Necessidade do Doador">Necessidade do Doador</SelectItem>
+                      <SelectItem value="Remanejamento de Coleta">Remanejamento de Coleta</SelectItem>
+                      <SelectItem value="Falha da Central">Falha da Central</SelectItem>
+                      <SelectItem value="Falha do Prestador">Falha do Prestador</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Comentarios */}
+              <div className="space-y-2 w-full">
+                <Label htmlFor="reagendamento-comentarios">Comentarios</Label>
+                <Input 
+                  id="reagendamento-comentarios"
+                  className="w-full h-10"
+                  placeholder="Digite seus comentarios..."
+                  value={reagendamentoComentarios}
+                  onChange={(e) => setReagendamentoComentarios(e.target.value)}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {/* Reagendamento em aberto */}
+                <div className="space-y-2 w-full">
+                  <Label htmlFor="reagendamento-aberto">Reagendamento em aberto?</Label>
+                  <Select value={reagendamentoReagendamentoAberto} onValueChange={setReagendamentoReagendamentoAberto}>
+                    <SelectTrigger id="reagendamento-aberto" className="w-full h-10">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Sim">Sim</SelectItem>
+                      <SelectItem value="Nao">Nao</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Tipo de Coleta */}
+                <div className="space-y-2 w-full">
+                  <Label htmlFor="reagendamento-tipo-coleta">Tipo de Coleta *</Label>
+                  <Select value={reagendamentoTipoColeta} onValueChange={setReagendamentoTipoColeta}>
+                    <SelectTrigger id="reagendamento-tipo-coleta" className="w-full h-10">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Caminhao - Retirada no Endereco">Caminhao - Retirada no Endereco</SelectItem>
+                      <SelectItem value="Carro - Retirada no Endereco">Carro - Retirada no Endereco</SelectItem>
+                      <SelectItem value="Ponto de Coleta">Ponto de Coleta</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {/* Data da Coleta Anterior */}
+                <div className="space-y-2 w-full">
+                  <Label>Data da Coleta Anterior</Label>
+                  <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 h-10 w-full">
+                    <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-sm">
+                      {doacaoToReagendar?.agendamento?.data 
+                        ? new Date(doacaoToReagendar.agendamento.data).toLocaleDateString("pt-BR")
+                        : "-"}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Nova Data de Coleta */}
+                <div className="space-y-2 w-full">
+                  <Label htmlFor="reagendamento-nova-data">Nova Data de Coleta *</Label>
+                  <Input 
+                    id="reagendamento-nova-data"
+                    type="date"
+                    className="w-full h-10"
+                    value={reagendamentoNovaDataColeta}
+                    onChange={(e) => setReagendamentoNovaDataColeta(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Observacao */}
+              <div className="space-y-2 w-full">
+                <Label htmlFor="reagendamento-observacao">Observacao</Label>
+                <Input 
+                  id="reagendamento-observacao"
+                  className="w-full h-10"
+                  placeholder="Digite uma observacao..."
+                  value={reagendamentoObservacao}
+                  onChange={(e) => setReagendamentoObservacao(e.target.value)}
+                />
               </div>
             </div>
+          )}
 
-            {reagendamentoTipoContato === "Ativo" && (
-              <div className="space-y-2">
-                <Label htmlFor="reagendamento-fonte-contato">Fonte do contato *</Label>
-                <Select value={reagendamentoFonteContato} onValueChange={setReagendamentoFonteContato}>
-                  <SelectTrigger id="reagendamento-fonte-contato">
-                    <SelectValue placeholder="Selecione a fonte do contato" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Leads Planilha">Leads Planilha</SelectItem>
-                    <SelectItem value="Leads Rede de Mobilizacao">Leads Rede de Mobilizacao</SelectItem>
-                    <SelectItem value="Leads Rede Mobilizacao - Influenciadores">Leads Rede Mobilizacao - Influenciadores</SelectItem>
-                    <SelectItem value="Leads Salesforce">Leads Salesforce</SelectItem>
-                    <SelectItem value="Leads Doare">Leads Doare</SelectItem>
-                    <SelectItem value="Retorno de ligacao abandonada">Retorno de ligacao abandonada</SelectItem>
-                    <SelectItem value="Cliente loja">Cliente loja</SelectItem>
-                    <SelectItem value="Doador recorrente">Doador recorrente</SelectItem>
-                    <SelectItem value="Outros">Outros</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsReagendamentoOpen(false)}>
-              Cancelar
-            </Button>
-            <Button 
-              className="gf-gradient text-white"
-              disabled={!reagendamentoTipoContato || !reagendamentoCanal || (reagendamentoTipoContato === "Ativo" && !reagendamentoFonteContato)}
-              onClick={handleSaveReagendamento}
-            >
-              Salvar
-            </Button>
+            {reagendamentoStep === 1 ? (
+              <>
+                <Button variant="outline" onClick={() => setIsReagendamentoOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button 
+                  className="gf-gradient text-white"
+                  disabled={!reagendamentoTipoContato || !reagendamentoCanal || (reagendamentoTipoContato === "Ativo" && !reagendamentoFonteContato)}
+                  onClick={handleReagendamentoNextStep}
+                >
+                  Proximo
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" onClick={handleReagendamentoPrevStep}>
+                  Voltar
+                </Button>
+                <Button 
+                  className="gf-gradient text-white"
+                  disabled={!reagendamentoResponsavel || !reagendamentoMotivoReagendamento || !reagendamentoTipoColeta || !reagendamentoNovaDataColeta}
+                  onClick={handleSaveReagendamento}
+                >
+                  Salvar
+                </Button>
+              </>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
