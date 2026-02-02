@@ -136,6 +136,30 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
     imagem: string | null
   }>>([])
 
+  // Reagendamento Modal State
+  const [isReagendamentoOpen, setIsReagendamentoOpen] = useState(false)
+  const [doacaoToReagendar, setDoacaoToReagendar] = useState<Doacao | null>(null)
+  const [reagendamentoTipoContato, setReagendamentoTipoContato] = useState("")
+  const [reagendamentoCanal, setReagendamentoCanal] = useState("")
+  const [reagendamentoFonteContato, setReagendamentoFonteContato] = useState("")
+
+  // Efetivar Doacao Modal State
+  const [isEfetivarOpen, setIsEfetivarOpen] = useState(false)
+  const [doacaoToEfetivar, setDoacaoToEfetivar] = useState<Doacao | null>(null)
+  const [efetivarComoConheceu, setEfetivarComoConheceu] = useState("")
+  const [efetivarMotivoDoacao, setEfetivarMotivoDoacao] = useState("")
+  const [efetivarCampanhaDoacao, setEfetivarCampanhaDoacao] = useState("")
+  const [efetivarItemDoacao, setEfetivarItemDoacao] = useState("")
+  const [efetivarQuantidadeItem, setEfetivarQuantidadeItem] = useState("")
+  const [efetivarDescricaoItem, setEfetivarDescricaoItem] = useState("")
+  const [efetivarImagemPreview, setEfetivarImagemPreview] = useState<string | null>(null)
+  const [efetivarItensDoacao, setEfetivarItensDoacao] = useState<Array<{
+    item: string
+    quantidade: string
+    descricao: string
+    imagem: string | null
+  }>>([])
+
 
   // Sub-tab state
   const [activeSubTab, setActiveSubTab] = useState<"doacoes" | "pre-cadastradas">("doacoes")
@@ -269,6 +293,155 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
     toast({
       title: "Itens atualizados",
       description: "Os itens da doacao foram atualizados com sucesso.",
+    })
+  }
+
+  // Reagendamento Modal Handlers
+  const handleReagendamentoClick = (doacao: Doacao) => {
+    setDoacaoToReagendar(doacao)
+    setReagendamentoTipoContato("")
+    setReagendamentoCanal("")
+    setReagendamentoFonteContato("")
+    setIsReagendamentoOpen(true)
+  }
+
+  const handleSaveReagendamento = () => {
+    setIsReagendamentoOpen(false)
+    setDoacaoToReagendar(null)
+    setReagendamentoTipoContato("")
+    setReagendamentoCanal("")
+    setReagendamentoFonteContato("")
+    toast({
+      title: "Reagendamento registrado",
+      description: "O reagendamento foi salvo com sucesso.",
+    })
+  }
+
+  // Efetivar Doacao Modal Handlers
+  const handleEfetivarClick = (doacao: Doacao) => {
+    setDoacaoToEfetivar(doacao)
+    // Initialize with existing items if any
+    const existingItems = doacao.itens?.map(item => ({
+      item: item.tipo || "",
+      quantidade: String(item.quantidade || ""),
+      descricao: item.descricao || "",
+      imagem: null
+    })) || []
+    setEfetivarItensDoacao(existingItems)
+    setEfetivarComoConheceu("")
+    setEfetivarMotivoDoacao("")
+    setEfetivarCampanhaDoacao("")
+    setIsEfetivarOpen(true)
+  }
+
+  const handleEfetivarImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setEfetivarImagemPreview(event.target?.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleEfetivarRemoveImage = () => {
+    setEfetivarImagemPreview(null)
+  }
+
+  const handleEfetivarSalvarItem = () => {
+    if (efetivarItemDoacao && efetivarQuantidadeItem) {
+      setEfetivarItensDoacao(prev => [...prev, {
+        item: efetivarItemDoacao,
+        quantidade: efetivarQuantidadeItem,
+        descricao: efetivarDescricaoItem,
+        imagem: efetivarImagemPreview
+      }])
+      setEfetivarItemDoacao("")
+      setEfetivarQuantidadeItem("")
+      setEfetivarDescricaoItem("")
+      setEfetivarImagemPreview(null)
+      toast({
+        title: "Item adicionado",
+        description: "O item foi adicionado a lista.",
+      })
+    }
+  }
+
+  const handleEfetivarRemoverItem = (index: number) => {
+    setEfetivarItensDoacao(prev => prev.filter((_, i) => i !== index))
+  }
+
+  const handleSaveEfetivar = () => {
+    setIsEfetivarOpen(false)
+    setDoacaoToEfetivar(null)
+    setEfetivarComoConheceu("")
+    setEfetivarMotivoDoacao("")
+    setEfetivarCampanhaDoacao("")
+    setEfetivarItemDoacao("")
+    setEfetivarQuantidadeItem("")
+    setEfetivarDescricaoItem("")
+    setEfetivarImagemPreview(null)
+    toast({
+      title: "Doacao efetivada",
+      description: "A doacao foi efetivada com sucesso.",
+    })
+  }
+
+  // Efetivar Doacao from Pre-Cadastradas Handler
+  const handleEfetivarPreCadastradaClick = (item: typeof preCadastradas[0]) => {
+    // Convert pre-cadastrada item to Doacao-like structure for the modal
+    const doacaoLike: Doacao = {
+      id: item.id,
+      doador: {
+        nome: item.nomeDoador,
+        email: item.emailDoador,
+        telefone: item.telefone,
+      },
+      doadorId: "",
+      status: item.status,
+      dataCreated: item.data,
+      modalidade: "",
+      volume: "",
+      observacoes: "",
+      atendente: "",
+    }
+    setDoacaoToEfetivar(doacaoLike)
+    setEfetivarItensDoacao([])
+    setEfetivarComoConheceu("")
+    setEfetivarMotivoDoacao("")
+    setEfetivarCampanhaDoacao("")
+    setIsEfetivarOpen(true)
+  }
+
+  // Download data handler
+  const handleDownloadData = () => {
+    if (!selectedDoacao) return
+    
+    const data = {
+      id: selectedDoacao.id,
+      doador: selectedDoacao.doador,
+      status: selectedDoacao.status,
+      modalidade: selectedDoacao.modalidade,
+      volume: selectedDoacao.volume,
+      endereco: selectedDoacao.endereco,
+      dataCreated: selectedDoacao.dataCreated,
+      observacoes: selectedDoacao.observacoes,
+    }
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `doacao-${selectedDoacao.id}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    
+    toast({
+      title: "Download iniciado",
+      description: "Os dados da doacao foram baixados.",
     })
   }
 
@@ -588,7 +761,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                                     <Pencil className="h-4 w-4" />
                                     Editar Itens
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleReagendamentoClick(doacao)}>
                                     <Calendar className="h-4 w-4" />
                                     Reagendamento
                                   </DropdownMenuItem>
@@ -613,7 +786,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                                     <Pencil className="h-4 w-4" />
                                     Editar Itens
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleEfetivarClick(doacao)}>
                                     <Check className="h-4 w-4" />
                                     Efetivar Doacao
                                   </DropdownMenuItem>
@@ -634,7 +807,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                                     <Eye className="h-4 w-4" />
                                     Ver detalhes
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleEfetivarClick(doacao)}>
                                     <Check className="h-4 w-4" />
                                     Efetivar Doacao
                                   </DropdownMenuItem>
@@ -662,7 +835,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                                     <Eye className="h-4 w-4" />
                                     Ver detalhes
                                   </DropdownMenuItem>
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleEfetivarClick(doacao)}>
                                     <Check className="h-4 w-4" />
                                     Efetivar Doacao
                                   </DropdownMenuItem>
@@ -850,7 +1023,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleEfetivarPreCadastradaClick(item)}>
                                   <Check className="h-4 w-4" />
                                   Efetivar Doacao
                                 </DropdownMenuItem>
@@ -885,10 +1058,23 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Detalhes da Doacao</DialogTitle>
-            <DialogDescription>
-              {selectedDoacao?.id}
-            </DialogDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle>Detalhes da Doacao</DialogTitle>
+                <DialogDescription>
+                  {selectedDoacao?.id}
+                </DialogDescription>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleDownloadData}
+                className="flex items-center gap-2"
+              >
+                <Download className="h-4 w-4" />
+                Baixar Dados
+              </Button>
+            </div>
           </DialogHeader>
           {selectedDoacao && (
             <div className="space-y-6 py-4">
@@ -1193,6 +1379,294 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
               onClick={handleSaveEditedItems}
             >
               Salvar alteracoes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reagendamento Modal */}
+      <Dialog open={isReagendamentoOpen} onOpenChange={setIsReagendamentoOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Registro de Contato para Reagendamento</DialogTitle>
+            <DialogDescription>
+              {doacaoToReagendar?.doador.nome}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="reagendamento-tipo-contato">Tipo de contato *</Label>
+                <Select value={reagendamentoTipoContato} onValueChange={(value) => {
+                  setReagendamentoTipoContato(value)
+                  if (value !== "Ativo") {
+                    setReagendamentoFonteContato("")
+                  }
+                }}>
+                  <SelectTrigger id="reagendamento-tipo-contato" className="w-full">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Ativo">Ativo</SelectItem>
+                    <SelectItem value="Receptivo">Receptivo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="reagendamento-canal">Canal *</Label>
+                <Select value={reagendamentoCanal} onValueChange={setReagendamentoCanal}>
+                  <SelectTrigger id="reagendamento-canal" className="w-full">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Whatsapp">Whatsapp</SelectItem>
+                    <SelectItem value="Ligacao Telefonica">Ligacao Telefonica</SelectItem>
+                    <SelectItem value="Email">Email</SelectItem>
+                    <SelectItem value="Site">Site</SelectItem>
+                    <SelectItem value="Outros">Outros</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {reagendamentoTipoContato === "Ativo" && (
+              <div className="space-y-2">
+                <Label htmlFor="reagendamento-fonte-contato">Fonte do contato *</Label>
+                <Select value={reagendamentoFonteContato} onValueChange={setReagendamentoFonteContato}>
+                  <SelectTrigger id="reagendamento-fonte-contato">
+                    <SelectValue placeholder="Selecione a fonte do contato" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Leads Planilha">Leads Planilha</SelectItem>
+                    <SelectItem value="Leads Rede de Mobilizacao">Leads Rede de Mobilizacao</SelectItem>
+                    <SelectItem value="Leads Rede Mobilizacao - Influenciadores">Leads Rede Mobilizacao - Influenciadores</SelectItem>
+                    <SelectItem value="Leads Salesforce">Leads Salesforce</SelectItem>
+                    <SelectItem value="Leads Doare">Leads Doare</SelectItem>
+                    <SelectItem value="Retorno de ligacao abandonada">Retorno de ligacao abandonada</SelectItem>
+                    <SelectItem value="Cliente loja">Cliente loja</SelectItem>
+                    <SelectItem value="Doador recorrente">Doador recorrente</SelectItem>
+                    <SelectItem value="Outros">Outros</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsReagendamentoOpen(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              className="gf-gradient text-white"
+              disabled={!reagendamentoTipoContato || !reagendamentoCanal || (reagendamentoTipoContato === "Ativo" && !reagendamentoFonteContato)}
+              onClick={handleSaveReagendamento}
+            >
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Efetivar Doacao Modal */}
+      <Dialog open={isEfetivarOpen} onOpenChange={setIsEfetivarOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Efetivar Doacao</DialogTitle>
+            <DialogDescription>
+              {doacaoToEfetivar?.doador.nome} - {doacaoToEfetivar?.id}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {/* Secao de Registro de Doacao */}
+            <div className="space-y-4">
+              <h4 className="font-medium text-sm border-b pb-2">Registro de doacao</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="efetivar-como-conheceu">Como o doador conheceu o bazar? *</Label>
+                  <Select value={efetivarComoConheceu} onValueChange={setEfetivarComoConheceu}>
+                    <SelectTrigger id="efetivar-como-conheceu" className="w-full">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Campanha Corona no Paredao">Campanha Corona no Paredao</SelectItem>
+                      <SelectItem value="Email">Email</SelectItem>
+                      <SelectItem value="Facebook">Facebook</SelectItem>
+                      <SelectItem value="Google">Google</SelectItem>
+                      <SelectItem value="Indicacao">Indicacao</SelectItem>
+                      <SelectItem value="Instagram">Instagram</SelectItem>
+                      <SelectItem value="Parceria com empresas">Parceria com empresas</SelectItem>
+                      <SelectItem value="Site">Site</SelectItem>
+                      <SelectItem value="TV">TV</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="efetivar-motivo-doacao">Motivo da doacao *</Label>
+                  <Select value={efetivarMotivoDoacao} onValueChange={setEfetivarMotivoDoacao}>
+                    <SelectTrigger id="efetivar-motivo-doacao" className="w-full">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Mudanca de casa">Mudanca de casa</SelectItem>
+                      <SelectItem value="Produto quebrado">Produto quebrado</SelectItem>
+                      <SelectItem value="Limpeza na casa">Limpeza na casa</SelectItem>
+                      <SelectItem value="Trocando tudo">Trocando tudo</SelectItem>
+                      <SelectItem value="Falecimento na familia">Falecimento na familia</SelectItem>
+                      <SelectItem value="Outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="efetivar-campanha-doacao">Campanha da Doacao (opcional)</Label>
+                <Input 
+                  id="efetivar-campanha-doacao" 
+                  placeholder="Nome da campanha" 
+                  value={efetivarCampanhaDoacao}
+                  onChange={(e) => setEfetivarCampanhaDoacao(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Secao de Cadastro de Itens */}
+            <div className="border-t pt-4 mt-2">
+              <h4 className="font-medium text-sm mb-4">Cadastro de novos itens</h4>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="efetivar-item-doacao">Item *</Label>
+                  <Select value={efetivarItemDoacao} onValueChange={setEfetivarItemDoacao}>
+                    <SelectTrigger id="efetivar-item-doacao" className="w-full">
+                      <SelectValue placeholder="Selecione o item" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Roupas, calcados e acessorios">Roupas, calcados e acessorios</SelectItem>
+                      <SelectItem value="Utensilios domesticos">Utensilios domesticos</SelectItem>
+                      <SelectItem value="Brinquedos">Brinquedos</SelectItem>
+                      <SelectItem value="Objetos de decoracao">Objetos de decoracao</SelectItem>
+                      <SelectItem value="Papelaria e material escolar">Papelaria e material escolar</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="efetivar-quantidade-item">Quantidade *</Label>
+                  <Input 
+                    id="efetivar-quantidade-item" 
+                    type="number" 
+                    placeholder="0" 
+                    value={efetivarQuantidadeItem}
+                    onChange={(e) => setEfetivarQuantidadeItem(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label htmlFor="efetivar-descricao-item">Descricao do item</Label>
+                <Textarea 
+                  id="efetivar-descricao-item" 
+                  placeholder="Descreva o item..." 
+                  value={efetivarDescricaoItem}
+                  onChange={(e) => setEfetivarDescricaoItem(e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2 mt-4">
+                <Label>Imagem do item (opcional)</Label>
+                {efetivarImagemPreview ? (
+                  <div className="relative w-32 h-32 rounded-lg border overflow-hidden">
+                    <img 
+                      src={efetivarImagemPreview} 
+                      alt="Preview" 
+                      className="w-full h-full object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-1 right-1 h-6 w-6"
+                      onClick={handleEfetivarRemoveImage}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label 
+                    htmlFor="efetivar-imagem-item" 
+                    className="flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                  >
+                    <Upload className="h-6 w-6 text-muted-foreground mb-2" />
+                    <span className="text-xs text-muted-foreground">Fazer upload</span>
+                    <input
+                      id="efetivar-imagem-item"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleEfetivarImageUpload}
+                    />
+                  </label>
+                )}
+              </div>
+
+              <div className="mt-4">
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleEfetivarSalvarItem}
+                  disabled={!efetivarItemDoacao || !efetivarQuantidadeItem}
+                >
+                  Salvar item
+                </Button>
+              </div>
+            </div>
+
+            {/* Lista de Itens Cadastrados */}
+            {efetivarItensDoacao.length > 0 && (
+              <div className="border-t pt-4 mt-2">
+                <h4 className="font-medium text-sm mb-4">Itens cadastrados ({efetivarItensDoacao.length})</h4>
+                <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                  {efetivarItensDoacao.map((item, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30 gap-3">
+                      {item.imagem ? (
+                        <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
+                          <img src={item.imagem} alt={item.item} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-12 h-12 rounded bg-muted flex items-center justify-center flex-shrink-0">
+                          <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <p className="font-medium text-sm">{item.item}</p>
+                        <p className="text-xs text-muted-foreground">Qtd: {item.quantidade} {item.descricao && `- ${item.descricao}`}</p>
+                      </div>
+                      <Button 
+                        type="button" 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => handleEfetivarRemoverItem(index)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+          <DialogFooter className="gap-2 mt-4">
+            <Button variant="outline" onClick={() => setIsEfetivarOpen(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              className="gf-gradient text-white"
+              onClick={handleSaveEfetivar}
+              disabled={!efetivarComoConheceu || !efetivarMotivoDoacao}
+            >
+              Efetivar Doacao
             </Button>
           </DialogFooter>
         </DialogContent>
