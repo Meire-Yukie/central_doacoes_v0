@@ -157,15 +157,27 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
     })
   }
 
-  // Mock data para as tabelas
+// Mock data para as tabelas
+  const statusColetasPendentes = [
+    "Agendamento Pendente - Doacao de Moveis",
+    "Agendamento Pendente - Porte Alterado",
+    "Agendamento Pendente - Quantidade de Itens Atipica",
+    "Coleta Concluida",
+    "Coleta Nao Realizada",
+    "Coleta Pendente - Nao Realizada",
+    "Coleta Pendente - Parcial",
+    "Reagendamento em Aberto"
+  ]
+
   const mockRomaneioData = mockColetas.map((coleta, index) => ({
     ...coleta,
-    tipoColeta: coleta.veiculo === "Van" || coleta.veiculo === "Utilitario" 
-      ? "Caminhao - Retirada no endereco" 
-      : coleta.veiculo === "Carro" 
-        ? "Carro - Retirada no endereco" 
-        : "Ponto de Coleta",
+    tipoColeta: coleta.veiculo === "Van" || coleta.veiculo === "Utilitario"
+      ? "Caminhao - Retirada no endereco"
+      : coleta.veiculo === "Carro"
+      ? "Carro - Retirada no endereco"
+      : "Ponto de Coleta",
     statusDoacao: index % 4 === 0 ? "Cadastrada" : index % 4 === 1 ? "Concluida" : index % 4 === 2 ? "Cancelada" : "Pre-Cadastro Cancelado",
+    statusColeta: statusColetasPendentes[index % statusColetasPendentes.length],
     selfService: index % 2 === 0 ? "Sim" : "Nao",
     prioridade: String((index % 4) + 1),
     email: `doador${index}@email.com`,
@@ -211,7 +223,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
     const matchNome = !filtroPendentesNome || item.doadorNome.toLowerCase().includes(filtroPendentesNome.toLowerCase())
     const matchEmail = !filtroPendentesEmail || item.email.toLowerCase().includes(filtroPendentesEmail.toLowerCase())
     const matchIdDoacao = !filtroPendentesIdDoacao || item.id.toLowerCase().includes(filtroPendentesIdDoacao.toLowerCase())
-    const matchStatusColeta = !filtroPendentesStatusColeta || filtroPendentesStatusColeta === "todos" || item.status === filtroPendentesStatusColeta
+    const matchStatusColeta = !filtroPendentesStatusColeta || filtroPendentesStatusColeta === "todos" || item.statusColeta === filtroPendentesStatusColeta
     const matchPrioridade = !filtroPendentesPrioridade || filtroPendentesPrioridade === "todos" || item.prioridade === filtroPendentesPrioridade
     
     const dataColeta = new Date(item.dataAgendada)
@@ -738,9 +750,14 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="todos">Todos</SelectItem>
-                    <SelectItem value="Pendente">Pendente</SelectItem>
-                    <SelectItem value="Em rota">Em rota</SelectItem>
-                    <SelectItem value="Atrasada">Atrasada</SelectItem>
+                    <SelectItem value="Agendamento Pendente - Doacao de Moveis">Agendamento Pendente - Doacao de Moveis</SelectItem>
+                    <SelectItem value="Agendamento Pendente - Porte Alterado">Agendamento Pendente - Porte Alterado</SelectItem>
+                    <SelectItem value="Agendamento Pendente - Quantidade de Itens Atipica">Agendamento Pendente - Quantidade de Itens Atipica</SelectItem>
+                    <SelectItem value="Coleta Concluida">Coleta Concluida</SelectItem>
+                    <SelectItem value="Coleta Nao Realizada">Coleta Nao Realizada</SelectItem>
+                    <SelectItem value="Coleta Pendente - Nao Realizada">Coleta Pendente - Nao Realizada</SelectItem>
+                    <SelectItem value="Coleta Pendente - Parcial">Coleta Pendente - Parcial</SelectItem>
+                    <SelectItem value="Reagendamento em Aberto">Reagendamento em Aberto</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -813,15 +830,15 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                           <TableCell className="text-muted-foreground">
                             {new Date(item.dataAgendada).toLocaleDateString("pt-BR")}
                           </TableCell>
-                          <TableCell>
-                            <StatusBadge status={item.status} />
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {item.qtdItens}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-                              item.prioridade === "1" ? "bg-red-100 text-red-700" :
+<TableCell>
+                          <StatusBadge status={item.statusColeta as any} />
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {item.qtdItens}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <span className={`rounded-full px-2 py-1 text-xs font-medium ${
+                            item.prioridade === "1" ? "bg-red-100 text-red-700" :
                               item.prioridade === "2" ? "bg-orange-100 text-orange-700" :
                               item.prioridade === "3" ? "bg-yellow-100 text-yellow-700" :
                               "bg-gray-100 text-gray-700"
@@ -878,24 +895,24 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
           </DialogHeader>
           <div className="grid gap-4 py-4">
             {/* Endereco */}
-            <div className="space-y-2">
+            <div className="space-y-2 w-full">
               <Label className="text-sm font-medium">Endereco</Label>
-              <div className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3">
-                <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <p className="text-sm">
+              <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 h-10 w-full">
+                <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-sm truncate">
                   {coletaToAgendar?.enderecoCompleto 
                     ? `${coletaToAgendar.enderecoCompleto.rua}, ${coletaToAgendar.enderecoCompleto.numero}${coletaToAgendar.enderecoCompleto.complemento ? `, ${coletaToAgendar.enderecoCompleto.complemento}` : ""} - ${coletaToAgendar.enderecoCompleto.bairro}, ${coletaToAgendar.enderecoCompleto.cidade}/${coletaToAgendar.enderecoCompleto.uf} - CEP: ${coletaToAgendar.enderecoCompleto.cep}`
                     : coletaToAgendar?.endereco || "-"}
-                </p>
+                </span>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               {/* Responsavel pela Coleta */}
-              <div className="space-y-2">
+              <div className="space-y-2 w-full">
                 <Label htmlFor="agendar-responsavel">Responsavel pela Coleta *</Label>
                 <Select value={agendarResponsavel} onValueChange={setAgendarResponsavel}>
-                  <SelectTrigger id="agendar-responsavel">
+                  <SelectTrigger id="agendar-responsavel" className="w-full h-10">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -908,10 +925,10 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
               </div>
 
               {/* Motivo Reagendamento */}
-              <div className="space-y-2">
+              <div className="space-y-2 w-full">
                 <Label htmlFor="agendar-motivo">Motivo Reagendamento *</Label>
                 <Select value={agendarMotivoReagendamento} onValueChange={setAgendarMotivoReagendamento}>
-                  <SelectTrigger id="agendar-motivo">
+                  <SelectTrigger id="agendar-motivo" className="w-full h-10">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -926,10 +943,11 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
             </div>
 
             {/* Comentarios */}
-            <div className="space-y-2">
+            <div className="space-y-2 w-full">
               <Label htmlFor="agendar-comentarios">Comentarios</Label>
               <Input 
                 id="agendar-comentarios"
+                className="w-full h-10"
                 placeholder="Digite seus comentarios..."
                 value={agendarComentarios}
                 onChange={(e) => setAgendarComentarios(e.target.value)}
@@ -938,10 +956,10 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
 
             <div className="grid grid-cols-2 gap-4">
               {/* Reagendamento em aberto */}
-              <div className="space-y-2">
+              <div className="space-y-2 w-full">
                 <Label htmlFor="agendar-reagendamento-aberto">Reagendamento em aberto?</Label>
                 <Select value={agendarReagendamentoAberto} onValueChange={setAgendarReagendamentoAberto}>
-                  <SelectTrigger id="agendar-reagendamento-aberto">
+                  <SelectTrigger id="agendar-reagendamento-aberto" className="w-full h-10">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -952,10 +970,10 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
               </div>
 
               {/* Modalidade de coleta */}
-              <div className="space-y-2">
+              <div className="space-y-2 w-full">
                 <Label htmlFor="agendar-modalidade">Modalidade de coleta *</Label>
                 <Select value={agendarModalidadeColeta} onValueChange={setAgendarModalidadeColeta}>
-                  <SelectTrigger id="agendar-modalidade">
+                  <SelectTrigger id="agendar-modalidade" className="w-full h-10">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
@@ -969,10 +987,10 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
 
             <div className="grid grid-cols-2 gap-4">
               {/* Data da Coleta Anterior */}
-              <div className="space-y-2">
+              <div className="space-y-2 w-full">
                 <Label className="text-sm font-medium">Data da Coleta Anterior</Label>
-                <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-3">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 h-10 w-full">
+                  <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   <span className="text-sm">
                     {coletaToAgendar?.dataAgendada 
                       ? new Date(coletaToAgendar.dataAgendada).toLocaleDateString("pt-BR")
@@ -982,11 +1000,12 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
               </div>
 
               {/* Nova Data de Coleta */}
-              <div className="space-y-2">
+              <div className="space-y-2 w-full">
                 <Label htmlFor="agendar-nova-data">Nova Data de Coleta *</Label>
                 <Input 
                   id="agendar-nova-data"
                   type="date"
+                  className="w-full h-10"
                   value={agendarNovaDataColeta}
                   onChange={(e) => setAgendarNovaDataColeta(e.target.value)}
                 />
@@ -994,10 +1013,11 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
             </div>
 
             {/* Observacao */}
-            <div className="space-y-2">
+            <div className="space-y-2 w-full">
               <Label htmlFor="agendar-observacao">Observacao</Label>
               <Input 
                 id="agendar-observacao"
+                className="w-full h-10"
                 placeholder="Digite uma observacao..."
                 value={agendarObservacao}
                 onChange={(e) => setAgendarObservacao(e.target.value)}
