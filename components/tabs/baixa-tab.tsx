@@ -30,9 +30,18 @@ import { Label } from "@/components/ui/label"
 import { StatusBadge } from "@/components/status-badge"
 import { FiltersSection } from "@/components/filters-section"
 import { mockColetas } from "@/lib/mock-data"
-import { Download, FileText, MoreHorizontal, Eye, Pencil, Check } from "lucide-react"
+import { Download, FileText, MoreHorizontal, Eye, MapPin } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
 
 interface BaixaTabProps {
   searchQuery: string
@@ -56,6 +65,14 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
   const [filtroRelatorioDataFinal, setFiltroRelatorioDataFinal] = useState("")
   const [filtroRelatorioNomeDoador, setFiltroRelatorioNomeDoador] = useState("")
   const [filtroRelatorioTipoBaixa, setFiltroRelatorioTipoBaixa] = useState("")
+
+  // Modal states
+  const [isDetalhesBaixaOpen, setIsDetalhesBaixaOpen] = useState(false)
+  const [isRegistrarBaixaOpen, setIsRegistrarBaixaOpen] = useState(false)
+  const [selectedBaixa, setSelectedBaixa] = useState<typeof mockRelatorioBaixas[0] | null>(null)
+  const [registrarStatusColeta, setRegistrarStatusColeta] = useState("")
+  const [registrarObservacoes, setRegistrarObservacoes] = useState("")
+  const [detalheObservacoes, setDetalheObservacoes] = useState("")
 
   const handleLimparFiltrosRelatorio = () => {
     setFiltroRelatorioTipoColeta("")
@@ -91,6 +108,41 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
     })
   }
 
+  const handleDetalhesBaixa = (item: typeof mockRelatorioBaixas[0]) => {
+    setSelectedBaixa(item)
+    setDetalheObservacoes("")
+    setIsDetalhesBaixaOpen(true)
+  }
+
+  const handleRegistrarBaixa = (item: typeof mockRelatorioBaixas[0]) => {
+    setSelectedBaixa(item)
+    setRegistrarStatusColeta("")
+    setRegistrarObservacoes("")
+    setIsRegistrarBaixaOpen(true)
+  }
+
+  const handleSaveRegistrarBaixa = () => {
+    setIsRegistrarBaixaOpen(false)
+    setSelectedBaixa(null)
+    toast({
+      title: "Baixa registrada",
+      description: `A baixa foi registrada com sucesso.`,
+    })
+  }
+
+  // Status options for Status da Coleta
+  const statusColetaOptions = [
+    "Coleta Concluida",
+    "Coleta Agendada",
+    "Reagendamento em Aberto",
+    "Coleta Reagendada",
+    "Coleta Nao Realizada",
+    "Coleta Pendente - Parcial"
+  ]
+
+  // Status options for Status da Baixa
+  const statusBaixaOptions = ["Coleta Completa", "Coleta Nao Realizada"]
+
   // Mock data para relatorio de baixas
   const mockRelatorioBaixas = mockColetas.slice(0, 15).map((coleta, index) => ({
     id: coleta.id,
@@ -98,7 +150,7 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
     idColeta: coleta.id,
     nomeDoador: coleta.doadorNome,
     selfService: index % 2 === 0 ? "Sim" : "Nao",
-    statusColeta: coleta.status,
+    statusColeta: statusColetaOptions[index % statusColetaOptions.length],
     tipoColeta: coleta.veiculo === "Van" || coleta.veiculo === "Utilitario" 
       ? "Caminhao - Retirada no endereco" 
       : coleta.veiculo === "Carro" 
@@ -106,8 +158,11 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
         : "Ponto de Coleta",
     tipoBaixa: index % 3 === 0 ? "Baixa no CD" : index % 3 === 1 ? "Baixa no Doador" : "Baixa no Ponto de Coleta",
     dataColeta: coleta.dataAgendada,
-    statusBaixa: index % 4 === 0 ? "Pendente" : index % 4 === 1 ? "Realizada" : index % 4 === 2 ? "Cancelada" : "Em andamento",
+    statusBaixa: statusBaixaOptions[index % statusBaixaOptions.length],
     baixaCD: index % 2 === 0,
+    endereco: coleta.enderecoCompleto 
+      ? `${coleta.enderecoCompleto.rua}, ${coleta.enderecoCompleto.numero}${coleta.enderecoCompleto.complemento ? `, ${coleta.enderecoCompleto.complemento}` : ""} - ${coleta.enderecoCompleto.bairro}, ${coleta.enderecoCompleto.cidade}/${coleta.enderecoCompleto.uf} - CEP: ${coleta.enderecoCompleto.cep}`
+      : coleta.endereco,
   }))
 
   const filteredRelatorioBaixas = mockRelatorioBaixas.filter((item) => {
@@ -362,18 +417,17 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem>
-                                  <Eye className="h-4 w-4" />
-                                  Ver detalhes
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Pencil className="h-4 w-4" />
-                                  Editar
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Check className="h-4 w-4" />
-                                  Dar baixa
-                                </DropdownMenuItem>
+                                {item.baixaCD ? (
+                                  <DropdownMenuItem onClick={() => handleDetalhesBaixa(item)}>
+                                    <Eye className="h-4 w-4" />
+                                    Detalhes da Baixa
+                                  </DropdownMenuItem>
+                                ) : (
+                                  <DropdownMenuItem onClick={() => handleRegistrarBaixa(item)}>
+                                    <Eye className="h-4 w-4" />
+                                    Registrar Baixa
+                                  </DropdownMenuItem>
+                                )}
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </TableCell>
@@ -387,6 +441,117 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
           </Card>
         </>
       )}
+
+      {/* Detalhes da Baixa Modal */}
+      <Dialog open={isDetalhesBaixaOpen} onOpenChange={setIsDetalhesBaixaOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Baixa</DialogTitle>
+            <DialogDescription>
+              Informacoes da baixa registrada
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-muted-foreground text-sm">ID da Doacao</Label>
+                <p className="font-medium">{selectedBaixa?.idDoacao}</p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-muted-foreground text-sm">Nome do Doador</Label>
+                <p className="font-medium">{selectedBaixa?.nomeDoador}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-muted-foreground text-sm">Endereco</Label>
+              <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 h-10 w-full">
+                <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-sm truncate">{selectedBaixa?.endereco || "-"}</span>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-muted-foreground text-sm">Status da Coleta</Label>
+              <div className="flex items-center h-10">
+                {selectedBaixa && <StatusBadge status={selectedBaixa.statusColeta as any} />}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="detalhe-observacoes">Observacoes</Label>
+              <Textarea
+                id="detalhe-observacoes"
+                placeholder="Observacoes..."
+                value={detalheObservacoes}
+                onChange={(e) => setDetalheObservacoes(e.target.value)}
+                className="min-h-[80px]"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDetalhesBaixaOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Registrar Baixa Modal */}
+      <Dialog open={isRegistrarBaixaOpen} onOpenChange={setIsRegistrarBaixaOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Registrar Baixa</DialogTitle>
+            <DialogDescription>
+              Registre a baixa da coleta
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-muted-foreground text-sm">ID da Doacao</Label>
+                <p className="font-medium">{selectedBaixa?.idDoacao}</p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-muted-foreground text-sm">Nome do Doador</Label>
+                <p className="font-medium">{selectedBaixa?.nomeDoador}</p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="registrar-status-coleta">Status da Coleta *</Label>
+              <Select value={registrarStatusColeta} onValueChange={setRegistrarStatusColeta}>
+                <SelectTrigger id="registrar-status-coleta" className="w-full h-10">
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Coleta Completa">Coleta Completa</SelectItem>
+                  <SelectItem value="Coleta Parcial">Coleta Parcial</SelectItem>
+                  <SelectItem value="Coleta Nao Realizada">Coleta Nao Realizada</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="registrar-observacoes">Observacoes</Label>
+              <Textarea
+                id="registrar-observacoes"
+                placeholder="Observacoes..."
+                value={registrarObservacoes}
+                onChange={(e) => setRegistrarObservacoes(e.target.value)}
+                className="min-h-[80px]"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsRegistrarBaixaOpen(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              className="gf-gradient text-white"
+              onClick={handleSaveRegistrarBaixa}
+              disabled={!registrarStatusColeta}
+            >
+              Registrar Baixa
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

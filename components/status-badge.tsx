@@ -23,6 +23,9 @@ type StatusType =
   | "Coleta Pendente - Nao Realizada"
   | "Coleta Pendente - Parcial"
   | "Reagendamento em Aberto"
+  | "Coleta Agendada"
+  | "Coleta Reagendada"
+  | "Coleta Completa"
 
 interface StatusBadgeProps {
   status: StatusType
@@ -52,6 +55,9 @@ const statusStyles: Record<StatusType, string> = {
   "Coleta Pendente - Nao Realizada": "bg-muted text-muted-foreground border-border",
   "Coleta Pendente - Parcial": "bg-muted text-muted-foreground border-border",
   "Reagendamento em Aberto": "bg-muted text-muted-foreground border-border",
+  "Coleta Agendada": "bg-muted text-muted-foreground border-border",
+  "Coleta Reagendada": "bg-muted text-muted-foreground border-border",
+  "Coleta Completa": "bg-muted text-muted-foreground border-border",
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
