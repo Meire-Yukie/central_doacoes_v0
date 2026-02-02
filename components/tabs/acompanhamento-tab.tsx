@@ -89,7 +89,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
   const [agendarObservacao, setAgendarObservacao] = useState("")
 
   // Sub-tab state
-  const [activeSubTab, setActiveSubTab] = useState<"romaneio" | "atrasadas" | "pendentes">("romaneio")
+  const [activeSubTab, setActiveSubTab] = useState<"romaneio" | "exportacao" | "atrasadas" | "pendentes">("romaneio")
 
   // Filtros Romaneio
   const [filtroRomaneioTipoColeta, setFiltroRomaneioTipoColeta] = useState("")
@@ -98,6 +98,10 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
   const [filtroRomaneioDataFinal, setFiltroRomaneioDataFinal] = useState("")
   const [filtroRomaneioIdDoador, setFiltroRomaneioIdDoador] = useState("")
   const [filtroRomaneioIdDoacao, setFiltroRomaneioIdDoacao] = useState("")
+
+  // Filtros Exportacao
+  const [filtroExportacaoTipoColeta, setFiltroExportacaoTipoColeta] = useState("")
+  const [filtroExportacaoDataColeta, setFiltroExportacaoDataColeta] = useState("")
 
   // Filtros Atrasadas
   const [filtroAtrasadasTipoColeta, setFiltroAtrasadasTipoColeta] = useState("")
@@ -126,6 +130,11 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
     setFiltroRomaneioDataFinal("")
     setFiltroRomaneioIdDoador("")
     setFiltroRomaneioIdDoacao("")
+  }
+
+  const handleLimparFiltrosExportacao = () => {
+    setFiltroExportacaoTipoColeta("")
+    setFiltroExportacaoDataColeta("")
   }
 
   const handleLimparFiltrosAtrasadas = () => {
@@ -308,6 +317,16 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
           }`}
         >
           Romaneio de Transporte
+        </button>
+        <button
+          onClick={() => setActiveSubTab("exportacao")}
+          className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            activeSubTab === "exportacao"
+              ? "border-primary text-primary"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Romaneio para Exportacao
         </button>
         <button
           onClick={() => setActiveSubTab("atrasadas")}
@@ -493,8 +512,132 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
             </CardContent>
           </Card>
         </>
-      )}
+)}
 
+      {/* Romaneio para Exportacao */}
+      {activeSubTab === "exportacao" && (
+        <>
+          <FiltersSection>
+            <div className="grid grid-cols-4 gap-4">
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Tipo de Coleta</Label>
+                <Select value={filtroExportacaoTipoColeta} onValueChange={setFiltroExportacaoTipoColeta}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="todos">Todos</SelectItem>
+                    <SelectItem value="Caminhao - Retirada no Endereco">Caminhao - Retirada no Endereco</SelectItem>
+                    <SelectItem value="Carro - Retirada no Endereco">Carro - Retirada no Endereco</SelectItem>
+                    <SelectItem value="Ponto de Coleta">Ponto de Coleta</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label className="text-sm text-muted-foreground">Data de Coleta</Label>
+                <Input
+                  type="date"
+                  value={filtroExportacaoDataColeta}
+                  onChange={(e) => setFiltroExportacaoDataColeta(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end mt-4">
+              <Button variant="outline" onClick={handleLimparFiltrosExportacao}>
+                Limpar Filtros
+              </Button>
+            </div>
+          </FiltersSection>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-lg">Romaneio para Exportacao</CardTitle>
+                <Button variant="outline" onClick={() => handleBaixarDados("Romaneio para Exportacao")}>
+                  <Download className="h-4 w-4" />
+                  Baixar Dados
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nome Doador</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Telefone</TableHead>
+                      <TableHead>Endereco</TableHead>
+                      <TableHead>Numero</TableHead>
+                      <TableHead>Bairro</TableHead>
+                      <TableHead>Cidade</TableHead>
+                      <TableHead>Instrucoes</TableHead>
+                      <TableHead>Itens</TableHead>
+                      <TableHead className="text-center">Qtd. Itens</TableHead>
+                      <TableHead>ID Produto</TableHead>
+                      <TableHead>Tamanho</TableHead>
+                      <TableHead>Reference ID</TableHead>
+                      <TableHead>Data Entrega</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {mockRomaneioData
+                      .filter((item) => {
+                        const matchTipo = !filtroExportacaoTipoColeta || filtroExportacaoTipoColeta === "todos" || item.tipoColeta === filtroExportacaoTipoColeta
+                        const matchData = !filtroExportacaoDataColeta || item.dataAgendada === filtroExportacaoDataColeta
+                        const matchSearch = !searchQuery || 
+                          item.doadorNome.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          item.id.toLowerCase().includes(searchQuery.toLowerCase())
+                        return matchTipo && matchData && matchSearch
+                      })
+                      .slice(0, 10)
+                      .map((item, index) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">{item.doadorNome}</TableCell>
+                          <TableCell className="text-muted-foreground">{item.email}</TableCell>
+                          <TableCell className="text-muted-foreground">{item.doadorTelefone || "-"}</TableCell>
+                          <TableCell className="text-muted-foreground max-w-[150px] truncate" title={item.enderecoCompleto?.rua || item.endereco}>
+                            {item.enderecoCompleto?.rua || item.endereco}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">{item.enderecoCompleto?.numero || "-"}</TableCell>
+                          <TableCell className="text-muted-foreground">{item.enderecoCompleto?.bairro || "-"}</TableCell>
+                          <TableCell className="text-muted-foreground">{item.enderecoCompleto?.cidade || "-"}</TableCell>
+                          <TableCell className="text-muted-foreground max-w-[120px] truncate" title={`Instrucoes da coleta ${item.id}`}>
+                            {`Instrucoes da coleta ${item.id}`}
+                          </TableCell>
+                          <TableCell className="text-muted-foreground">{`Sofa, Mesa, Cadeira`}</TableCell>
+                          <TableCell className="text-center">{item.qtdItens}</TableCell>
+                          <TableCell className="text-muted-foreground">{`PROD${String(index + 1).padStart(3, "0")}`}</TableCell>
+                          <TableCell className="text-muted-foreground">{["P", "M", "G", "GG"][index % 4]}</TableCell>
+                          <TableCell className="text-muted-foreground">{`REF${String(index + 100).padStart(5, "0")}`}</TableCell>
+                          <TableCell className="text-muted-foreground">
+                            {new Date(item.dataAgendada).toLocaleDateString("pt-BR")}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    {mockRomaneioData.filter((item) => {
+                      const matchTipo = !filtroExportacaoTipoColeta || filtroExportacaoTipoColeta === "todos" || item.tipoColeta === filtroExportacaoTipoColeta
+                      const matchData = !filtroExportacaoDataColeta || item.dataAgendada === filtroExportacaoDataColeta
+                      const matchSearch = !searchQuery || 
+                        item.doadorNome.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        item.id.toLowerCase().includes(searchQuery.toLowerCase())
+                      return matchTipo && matchData && matchSearch
+                    }).length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={14} className="text-center py-8 text-muted-foreground">
+                          Nenhum registro encontrado
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
+      
       {/* Coletas Atrasadas */}
       {activeSubTab === "atrasadas" && (
         <>
