@@ -77,6 +77,17 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
   const [coletaToReschedule, setColetaToReschedule] = useState<Coleta | null>(null)
   const { toast } = useToast()
 
+  // Agendar Coleta Modal State
+  const [isAgendarColetaOpen, setIsAgendarColetaOpen] = useState(false)
+  const [coletaToAgendar, setColetaToAgendar] = useState<Coleta | null>(null)
+  const [agendarResponsavel, setAgendarResponsavel] = useState("")
+  const [agendarMotivoReagendamento, setAgendarMotivoReagendamento] = useState("")
+  const [agendarComentarios, setAgendarComentarios] = useState("")
+  const [agendarReagendamentoAberto, setAgendarReagendamentoAberto] = useState("")
+  const [agendarModalidadeColeta, setAgendarModalidadeColeta] = useState("")
+  const [agendarNovaDataColeta, setAgendarNovaDataColeta] = useState("")
+  const [agendarObservacao, setAgendarObservacao] = useState("")
+
   // Sub-tab state
   const [activeSubTab, setActiveSubTab] = useState<"romaneio" | "atrasadas" | "pendentes">("romaneio")
 
@@ -228,6 +239,27 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
   const handleReschedule = (coleta: Coleta) => {
     setColetaToReschedule(coleta)
     setIsRescheduleOpen(true)
+  }
+
+  const handleAgendarColeta = (coleta: Coleta) => {
+    setColetaToAgendar(coleta)
+    setAgendarResponsavel("")
+    setAgendarMotivoReagendamento("")
+    setAgendarComentarios("")
+    setAgendarReagendamentoAberto("")
+    setAgendarModalidadeColeta("")
+    setAgendarNovaDataColeta("")
+    setAgendarObservacao("")
+    setIsAgendarColetaOpen(true)
+  }
+
+  const handleSaveAgendarColeta = () => {
+    setIsAgendarColetaOpen(false)
+    setColetaToAgendar(null)
+    toast({
+      title: "Coleta agendada",
+      description: `A coleta ${coletaToAgendar?.id} foi agendada com sucesso.`,
+    })
   }
 
   const handleConfirmReschedule = (e: React.FormEvent) => {
@@ -619,22 +651,10 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                                   <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
+<DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => handleViewDetails(item)}>
                                   <Eye className="h-4 w-4" />
                                   Ver detalhes
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleReschedule(item)}>
-                                  <Calendar className="h-4 w-4" />
-                                  Reagendar
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDarBaixa(item)}>
-                                  <CheckCircle className="h-4 w-4" />
-                                  Dar baixa
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="text-destructive">
-                                  <X className="h-4 w-4" />
-                                  Cancelar
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -649,7 +669,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
           </Card>
         </>
       )}
-
+      
       {/* Coletas Pendentes */}
       {activeSubTab === "pendentes" && (
         <>
@@ -829,17 +849,9 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                                   <Eye className="h-4 w-4" />
                                   Ver detalhes
                                 </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Pencil className="h-4 w-4" />
-                                  Editar
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleReschedule(item)}>
+                                <DropdownMenuItem onClick={() => handleAgendarColeta(item)}>
                                   <Calendar className="h-4 w-4" />
-                                  Reagendar
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDarBaixa(item)}>
-                                  <CheckCircle className="h-4 w-4" />
-                                  Dar baixa
+                                  Agendar Coleta
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -852,9 +864,161 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
               </div>
             </CardContent>
           </Card>
-        </>
+</>
       )}
 
+      {/* Agendar Coleta Modal */}
+      <Dialog open={isAgendarColetaOpen} onOpenChange={setIsAgendarColetaOpen}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Agendar Coleta</DialogTitle>
+            <DialogDescription>
+              {coletaToAgendar?.doadorNome} - {coletaToAgendar?.id}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            {/* Endereco */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Endereco</Label>
+              <div className="flex items-start gap-2 rounded-lg border bg-muted/30 p-3">
+                <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                <p className="text-sm">
+                  {coletaToAgendar?.enderecoCompleto 
+                    ? `${coletaToAgendar.enderecoCompleto.rua}, ${coletaToAgendar.enderecoCompleto.numero}${coletaToAgendar.enderecoCompleto.complemento ? `, ${coletaToAgendar.enderecoCompleto.complemento}` : ""} - ${coletaToAgendar.enderecoCompleto.bairro}, ${coletaToAgendar.enderecoCompleto.cidade}/${coletaToAgendar.enderecoCompleto.uf} - CEP: ${coletaToAgendar.enderecoCompleto.cep}`
+                    : coletaToAgendar?.endereco || "-"}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* Responsavel pela Coleta */}
+              <div className="space-y-2">
+                <Label htmlFor="agendar-responsavel">Responsavel pela Coleta *</Label>
+                <Select value={agendarResponsavel} onValueChange={setAgendarResponsavel}>
+                  <SelectTrigger id="agendar-responsavel">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Carlos Silva">Carlos Silva</SelectItem>
+                    <SelectItem value="Joao Santos">Joao Santos</SelectItem>
+                    <SelectItem value="Maria Oliveira">Maria Oliveira</SelectItem>
+                    <SelectItem value="Pedro Costa">Pedro Costa</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Motivo Reagendamento */}
+              <div className="space-y-2">
+                <Label htmlFor="agendar-motivo">Motivo Reagendamento *</Label>
+                <Select value={agendarMotivoReagendamento} onValueChange={setAgendarMotivoReagendamento}>
+                  <SelectTrigger id="agendar-motivo">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Necessidade Logistica">Necessidade Logistica</SelectItem>
+                    <SelectItem value="Necessidade do Doador">Necessidade do Doador</SelectItem>
+                    <SelectItem value="Remanejamento de Coleta">Remanejamento de Coleta</SelectItem>
+                    <SelectItem value="Falha da Central">Falha da Central</SelectItem>
+                    <SelectItem value="Falha do Prestador">Falha do Prestador</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Comentarios */}
+            <div className="space-y-2">
+              <Label htmlFor="agendar-comentarios">Comentarios</Label>
+              <Input 
+                id="agendar-comentarios"
+                placeholder="Digite seus comentarios..."
+                value={agendarComentarios}
+                onChange={(e) => setAgendarComentarios(e.target.value)}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* Reagendamento em aberto */}
+              <div className="space-y-2">
+                <Label htmlFor="agendar-reagendamento-aberto">Reagendamento em aberto?</Label>
+                <Select value={agendarReagendamentoAberto} onValueChange={setAgendarReagendamentoAberto}>
+                  <SelectTrigger id="agendar-reagendamento-aberto">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Sim">Sim</SelectItem>
+                    <SelectItem value="Nao">Nao</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Modalidade de coleta */}
+              <div className="space-y-2">
+                <Label htmlFor="agendar-modalidade">Modalidade de coleta *</Label>
+                <Select value={agendarModalidadeColeta} onValueChange={setAgendarModalidadeColeta}>
+                  <SelectTrigger id="agendar-modalidade">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Coleta Domiciliar">Coleta Domiciliar</SelectItem>
+                    <SelectItem value="Ponto de Entrega">Ponto de Entrega</SelectItem>
+                    <SelectItem value="Coleta Expressa">Coleta Expressa</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* Data da Coleta Anterior */}
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Data da Coleta Anterior</Label>
+                <div className="flex items-center gap-2 rounded-lg border bg-muted/30 p-3">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    {coletaToAgendar?.dataAgendada 
+                      ? new Date(coletaToAgendar.dataAgendada).toLocaleDateString("pt-BR")
+                      : "-"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Nova Data de Coleta */}
+              <div className="space-y-2">
+                <Label htmlFor="agendar-nova-data">Nova Data de Coleta *</Label>
+                <Input 
+                  id="agendar-nova-data"
+                  type="date"
+                  value={agendarNovaDataColeta}
+                  onChange={(e) => setAgendarNovaDataColeta(e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Observacao */}
+            <div className="space-y-2">
+              <Label htmlFor="agendar-observacao">Observacao</Label>
+              <Input 
+                id="agendar-observacao"
+                placeholder="Digite uma observacao..."
+                value={agendarObservacao}
+                onChange={(e) => setAgendarObservacao(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAgendarColetaOpen(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              className="gf-gradient text-white"
+              onClick={handleSaveAgendarColeta}
+              disabled={!agendarResponsavel || !agendarMotivoReagendamento || !agendarModalidadeColeta || !agendarNovaDataColeta}
+            >
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
       {/* Details Modal */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
