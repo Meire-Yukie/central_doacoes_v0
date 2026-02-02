@@ -61,6 +61,7 @@ import {
   MoreHorizontal,
   Pencil,
   X,
+  Mail,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -435,14 +436,6 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                                 <DropdownMenuItem onClick={() => handleViewDetails(item)}>
                                   <Eye className="h-4 w-4" />
                                   Ver detalhes
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Pencil className="h-4 w-4" />
-                                  Editar
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDarBaixa(item)}>
-                                  <CheckCircle className="h-4 w-4" />
-                                  Dar baixa
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
@@ -862,99 +855,158 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
         </>
       )}
 
-      {/* Details Drawer */}
-      <Sheet open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <SheetContent className="w-full overflow-y-auto sm:max-w-lg">
-          <SheetHeader>
-            <SheetTitle className="text-xl">Coleta {selectedColeta?.id}</SheetTitle>
-            <SheetDescription>Detalhes da coleta</SheetDescription>
-          </SheetHeader>
-
+      {/* Details Modal */}
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detalhes da Doacao</DialogTitle>
+            <DialogDescription>
+              {selectedColeta?.id}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end -mt-2 mb-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                toast({
+                  title: "Download iniciado",
+                  description: "Os dados da doacao estao sendo baixados.",
+                })
+              }}
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Baixar Dados
+            </Button>
+          </div>
           {selectedColeta && (
-            <div className="mt-6 space-y-6">
-              <div className="flex items-center justify-between">
-                <StatusBadge status={selectedColeta.status} />
-                {selectedColeta.ordemRota && (
-                  <span className="text-sm text-muted-foreground">
-                    Ordem na rota: {selectedColeta.ordemRota}
-                  </span>
-                )}
-              </div>
-
+            <div className="space-y-6 py-4">
+              {/* Dados do Doador */}
               <div className="space-y-3">
-                <h3 className="font-semibold text-foreground">Doador</h3>
-                <div className="rounded-lg border border-border bg-muted/30 p-3">
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">{selectedColeta.doadorNome}</span>
+                <h3 className="font-semibold text-sm border-b pb-2">Dados do Doador</h3>
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Nome do Doador:</span>
+                    <p className="font-medium">{selectedColeta.doadorNome}</p>
                   </div>
-                  {selectedColeta.doadorTelefone && (
-                    <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                      <Phone className="h-4 w-4" />
-                      <span>{selectedColeta.doadorTelefone}</span>
-                    </div>
-                  )}
+                  <div>
+                    <span className="text-muted-foreground">ID Doador:</span>
+                    <p className="font-medium">{selectedColeta.doacaoId || "-"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Telefone:</span>
+                    <p className="font-medium">{selectedColeta.doadorTelefone || "-"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Email:</span>
+                    <p className="font-medium">{(selectedColeta as typeof mockRomaneioData[0]).email || "-"}</p>
+                  </div>
                 </div>
               </div>
 
+              {/* Dados da Doacao */}
               <div className="space-y-3">
-                <h3 className="font-semibold text-foreground">Endereco</h3>
-                <div className="flex items-start gap-2 rounded-lg border border-border bg-muted/30 p-3">
-                  <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                  <div className="text-sm">
-                    <p>
-                      {selectedColeta.enderecoCompleto.rua},{" "}
-                      {selectedColeta.enderecoCompleto.numero}
-                      {selectedColeta.enderecoCompleto.complemento &&
-                        `, ${selectedColeta.enderecoCompleto.complemento}`}
+                <h3 className="font-semibold text-sm border-b pb-2">Dados da Doacao</h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">ID da Doacao:</span>
+                    <p className="font-medium">{selectedColeta.id}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Status:</span>
+                    <p className={`font-medium ${
+                      selectedColeta.status === "Coletada" || selectedColeta.status === "Concluida"
+                        ? "text-green-600" 
+                        : selectedColeta.status === "Cancelada"
+                        ? "text-red-600"
+                        : selectedColeta.status === "Agendada"
+                        ? "text-blue-600"
+                        : "text-yellow-600"
+                    }`}>{selectedColeta.status}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Tipo de Coleta:</span>
+                    <p className="font-medium">{(selectedColeta as typeof mockRomaneioData[0]).tipoColeta || "-"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Porte da Doacao:</span>
+                    <p className="font-medium">{selectedColeta.volume || "-"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Data da Coleta:</span>
+                    <p className="font-medium">
+                      {selectedColeta.dataAgendada 
+                        ? new Date(selectedColeta.dataAgendada).toLocaleDateString("pt-BR")
+                        : "-"}
                     </p>
-                    <p>
-                      {selectedColeta.enderecoCompleto.bairro} -{" "}
-                      {selectedColeta.enderecoCompleto.cidade}/
-                      {selectedColeta.enderecoCompleto.uf}
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Baixa Realizada:</span>
+                    <p className="font-medium">{selectedColeta.status === "Coletada" || selectedColeta.status === "Concluida" ? "Sim" : "Nao"}</p>
+                  </div>
+                  <div className="col-span-2 md:col-span-3">
+                    <span className="text-muted-foreground">Endereco:</span>
+                    <p className="font-medium">
+                      {selectedColeta.enderecoCompleto 
+                        ? `${selectedColeta.enderecoCompleto.rua}, ${selectedColeta.enderecoCompleto.numero}${selectedColeta.enderecoCompleto.complemento ? `, ${selectedColeta.enderecoCompleto.complemento}` : ""} - ${selectedColeta.enderecoCompleto.bairro}, ${selectedColeta.enderecoCompleto.cidade}/${selectedColeta.enderecoCompleto.uf} - CEP: ${selectedColeta.enderecoCompleto.cep}`
+                        : "-"}
                     </p>
-                    <p>CEP: {selectedColeta.enderecoCompleto.cep}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Data da Solicitacao:</span>
+                    <p className="font-medium">
+                      {new Date(selectedColeta.dataAgendada).toLocaleDateString("pt-BR")}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Responsavel pela Coleta:</span>
+                    <p className="font-medium">{selectedColeta.motorista || "-"}</p>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Modificado por:</span>
+                    <p className="font-medium">{selectedColeta.motorista || "-"}</p>
+                  </div>
+                  <div className="col-span-2 md:col-span-3">
+                    <span className="text-muted-foreground">Observacoes:</span>
+                    <p className="font-medium">{selectedColeta.observacoes || "-"}</p>
                   </div>
                 </div>
               </div>
 
+              {/* Tabela de Itens */}
               <div className="space-y-3">
-                <h3 className="font-semibold text-foreground">Itens e Volume</h3>
-                <div className="rounded-lg border border-border bg-muted/30 p-3">
-                  <p className="text-sm">{selectedColeta.itens}</p>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-secondary px-2.5 py-1 text-xs">
-                      {selectedColeta.volume}
-                    </span>
-                    <span className="rounded-full bg-secondary px-2.5 py-1 text-xs">
-                      <Truck className="mr-1 inline-block h-3 w-3" />
-                      {selectedColeta.veiculo}
-                    </span>
-                  </div>
+                <h3 className="font-semibold text-sm border-b pb-2">Itens da Doacao</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="gf-gradient text-white text-sm">
+                        <th className="text-left p-3 font-medium rounded-l-lg">Itens</th>
+                        <th className="text-center p-3 font-medium">Total de Itens</th>
+                        <th className="text-center p-3 font-medium">Tamanho</th>
+                        <th className="text-left p-3 font-medium rounded-r-lg">Descricao</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="border-b text-sm">
+                        <td className="p-3">{selectedColeta.itens || "-"}</td>
+                        <td className="text-center p-3">{(selectedColeta as typeof mockRomaneioData[0]).qtdItens || "-"}</td>
+                        <td className="text-center p-3">{selectedColeta.volume || "-"}</td>
+                        <td className="p-3">{selectedColeta.observacoes || "-"}</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
               </div>
-
-              {selectedColeta.observacoes && (
-                <div className="space-y-3">
-                  <h3 className="font-semibold text-foreground">Observacoes</h3>
-                  <p className="text-sm text-muted-foreground">{selectedColeta.observacoes}</p>
-                </div>
-              )}
-
-              <Button
-                onClick={() => {
-                  handleDarBaixa(selectedColeta)
-                  setIsDetailsOpen(false)
-                }}
-                className="w-full gf-gradient text-white"
-              >
-                <CheckCircle className="h-4 w-4" />
-                Dar baixa
-              </Button>
             </div>
           )}
-        </SheetContent>
-      </Sheet>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDetailsOpen(false)}>
+              Fechar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Reschedule Dialog */}
       <Dialog open={isRescheduleOpen} onOpenChange={setIsRescheduleOpen}>

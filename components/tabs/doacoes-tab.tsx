@@ -939,11 +939,22 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
             </div>
           </FiltersSection>
 
-          {/* Tabela Pre-Cadastradas */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Doacoes Pre-Cadastradas</CardTitle>
-            </CardHeader>
+{/* Tabela Pre-Cadastradas */}
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg">Doacoes Pre-Cadastradas</CardTitle>
+                  <Button variant="outline" onClick={() => {
+                    toast({
+                      title: "Download iniciado",
+                      description: "O relatorio de Doacoes Pre-Cadastradas esta sendo gerado.",
+                    })
+                  }}>
+                    <Download className="h-4 w-4" />
+                    Baixar Dados
+                  </Button>
+                </div>
+              </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
                 <Table>
@@ -1058,24 +1069,22 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <DialogTitle>Detalhes da Doacao</DialogTitle>
-                <DialogDescription>
-                  {selectedDoacao?.id}
-                </DialogDescription>
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleDownloadData}
-                className="flex items-center gap-2"
-              >
-                <Download className="h-4 w-4" />
-                Baixar Dados
-              </Button>
-            </div>
+            <DialogTitle>Detalhes da Doacao</DialogTitle>
+            <DialogDescription>
+              {selectedDoacao?.id}
+            </DialogDescription>
           </DialogHeader>
+          <div className="flex justify-end -mt-2 mb-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleDownloadData}
+              className="flex items-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Baixar Dados
+            </Button>
+          </div>
           {selectedDoacao && (
             <div className="space-y-6 py-4">
               {/* Dados do Doador */}
