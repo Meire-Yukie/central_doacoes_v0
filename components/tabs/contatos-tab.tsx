@@ -55,6 +55,8 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
   const [observacoes, setObservacoes] = useState("")
   const [fonteContato, setFonteContato] = useState("")
   const [motivoContato, setMotivoContato] = useState("")
+  const [elogioTexto, setElogioTexto] = useState("")
+  const [reclamacaoTexto, setReclamacaoTexto] = useState("")
 
   // Lista de Contato filter states
   const [filtroIdDoador, setFiltroIdDoador] = useState("")
@@ -82,7 +84,7 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
       canal: "Whatsapp", 
       tipoContato: "Ativo", 
       motivoContato: "Doacao/Prospeccao de doacao", 
-      status: "Finalizado", 
+      status: "Efetivado", 
       fonteContato: "Leads Planilha", 
       observacoes: "Cliente interessado em doar moveis" 
     },
@@ -95,7 +97,7 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
       canal: "Ligacao Telefonica", 
       tipoContato: "Receptivo", 
       motivoContato: "Reagendamento de coletas", 
-      status: "Finalizado", 
+      status: "Efetivado", 
       fonteContato: "-", 
       observacoes: "Solicitou reagendamento para proxima semana" 
     },
@@ -108,7 +110,7 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
       canal: "Email", 
       tipoContato: "Ativo", 
       motivoContato: "Informacao ou duvida", 
-      status: "Em andamento", 
+      status: "Nao Efetivado", 
       fonteContato: "Leads Salesforce", 
       observacoes: "Aguardando retorno do cliente" 
     },
@@ -121,7 +123,7 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
       canal: "Site", 
       tipoContato: "Receptivo", 
       motivoContato: "Cancelamento de coleta", 
-      status: "Finalizado", 
+      status: "Efetivado", 
       fonteContato: "-", 
       observacoes: "Cliente cancelou por motivos pessoais" 
     },
@@ -134,7 +136,7 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
       canal: "Whatsapp", 
       tipoContato: "Ativo", 
       motivoContato: "Elogio", 
-      status: "Finalizado", 
+      status: "Nao Efetivado", 
       fonteContato: "Doador recorrente", 
       observacoes: "Elogiou o atendimento da equipe" 
     },
@@ -192,6 +194,8 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
     setObservacoes("")
     setFonteContato("")
     setMotivoContato("")
+    setElogioTexto("")
+    setReclamacaoTexto("")
   }
 
   const handleViewDetails = (contato: any) => {
@@ -321,7 +325,12 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
                 </div>
                 <div className="space-y-2">
                   <Label>Motivo do Contato</Label>
-                  <Select value={motivoContato} onValueChange={setMotivoContato}>
+                  <Select value={motivoContato} onValueChange={(value) => {
+                    setMotivoContato(value)
+                    // Reset elogio/reclamacao when changing motivo
+                    if (value !== "Elogio") setElogioTexto("")
+                    if (value !== "Reclamacao") setReclamacaoTexto("")
+                  }}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
@@ -335,11 +344,42 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
               </div>
             )}
 
+            {/* Campo Elogio - condicional ao Motivo do Contato */}
+            {motivoContato === "Elogio" && (
+              <div className="space-y-2 mt-4">
+                <Label>Elogio</Label>
+                <Textarea
+                  placeholder="Descreva o elogio..."
+                  value={elogioTexto}
+                  onChange={(e) => setElogioTexto(e.target.value)}
+                  className="min-h-[80px]"
+                />
+              </div>
+            )}
+
+            {/* Campo Reclamacao - condicional ao Motivo do Contato */}
+            {motivoContato === "Reclamacao" && (
+              <div className="space-y-2 mt-4">
+                <Label>Reclamacao</Label>
+                <Textarea
+                  placeholder="Descreva a reclamacao..."
+                  value={reclamacaoTexto}
+                  onChange={(e) => setReclamacaoTexto(e.target.value)}
+                  className="min-h-[80px]"
+                />
+              </div>
+            )}
+
             {tipoContato === "Receptivo" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="space-y-2">
                   <Label>Motivo do Contato</Label>
-                  <Select value={motivoContato} onValueChange={setMotivoContato}>
+                  <Select value={motivoContato} onValueChange={(value) => {
+                    setMotivoContato(value)
+                    // Reset elogio/reclamacao when changing motivo
+                    if (value !== "Elogio") setElogioTexto("")
+                    if (value !== "Reclamacao") setReclamacaoTexto("")
+                  }}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
@@ -536,11 +576,7 @@ export function ContatosTab({ searchQuery }: ContatosTabProps) {
                             {contato.motivoContato}
                           </TableCell>
                           <TableCell>
-                            <span className={`rounded px-2 py-1 text-xs font-medium ${
-                              contato.status === "Finalizado" 
-                                ? "bg-green-100 text-green-700" 
-                                : "bg-yellow-100 text-yellow-700"
-                            }`}>
+                            <span className="rounded border bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
                               {contato.status}
                             </span>
                           </TableCell>
