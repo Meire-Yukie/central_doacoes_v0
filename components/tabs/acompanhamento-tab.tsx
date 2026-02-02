@@ -896,7 +896,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
           <div className="grid gap-4 py-4">
             {/* Endereco */}
             <div className="space-y-2 w-full">
-              <Label className="text-sm font-medium">Endereco</Label>
+              <Label>Endereco</Label>
               <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 h-10 w-full">
                 <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span className="text-sm truncate">
@@ -969,17 +969,17 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
                 </Select>
               </div>
 
-              {/* Modalidade de coleta */}
+              {/* Tipo de Coleta */}
               <div className="space-y-2 w-full">
-                <Label htmlFor="agendar-modalidade">Modalidade de coleta *</Label>
+                <Label htmlFor="agendar-modalidade">Tipo de Coleta *</Label>
                 <Select value={agendarModalidadeColeta} onValueChange={setAgendarModalidadeColeta}>
                   <SelectTrigger id="agendar-modalidade" className="w-full h-10">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Coleta Domiciliar">Coleta Domiciliar</SelectItem>
-                    <SelectItem value="Ponto de Entrega">Ponto de Entrega</SelectItem>
-                    <SelectItem value="Coleta Expressa">Coleta Expressa</SelectItem>
+                    <SelectItem value="Caminhao - Retirada no Endereco">Caminhao - Retirada no Endereco</SelectItem>
+                    <SelectItem value="Carro - Retirada no Endereco">Carro - Retirada no Endereco</SelectItem>
+                    <SelectItem value="Ponto de Coleta">Ponto de Coleta</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -988,7 +988,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
             <div className="grid grid-cols-2 gap-4">
               {/* Data da Coleta Anterior */}
               <div className="space-y-2 w-full">
-                <Label className="text-sm font-medium">Data da Coleta Anterior</Label>
+                <Label>Data da Coleta Anterior</Label>
                 <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 h-10 w-full">
                   <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   <span className="text-sm">
