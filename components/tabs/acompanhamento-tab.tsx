@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import { StatusBadge } from "@/components/status-badge"
 import { FiltersSection } from "@/components/filters-section"
 import { TablePagination } from "@/components/table-pagination"
@@ -63,6 +64,8 @@ import {
   Pencil,
   X,
   Mail,
+  Plus,
+  Trash2,
 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { Toaster } from "@/components/ui/toaster"
@@ -88,6 +91,47 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
   const [agendarModalidadeColeta, setAgendarModalidadeColeta] = useState("")
   const [agendarNovaDataColeta, setAgendarNovaDataColeta] = useState("")
   const [agendarObservacao, setAgendarObservacao] = useState("")
+  const [reagendamentoManual, setReagendamentoManual] = useState(false)
+  
+  // Endereco Modal States
+  const [agendarViewMode, setAgendarViewMode] = useState<"agendar" | "enderecos">("agendar")
+  const [isNewAddressOpen, setIsNewAddressOpen] = useState(false)
+  const [isEditAddressOpen, setIsEditAddressOpen] = useState(false)
+  const [isDeleteAddressOpen, setIsDeleteAddressOpen] = useState(false)
+  const [selectedEndereco, setSelectedEndereco] = useState<{
+    id: string
+    tipo: string
+    cep: string
+    rua: string
+    numero: string
+    complemento?: string
+    bairro: string
+    cidade: string
+    uf: string
+    principal: boolean
+  } | null>(null)
+
+  // Mock enderecos para demonstracao
+  const mockEnderecosAgendar: Record<string, Array<{
+    id: string
+    tipo: string
+    cep: string
+    rua: string
+    numero: string
+    complemento?: string
+    bairro: string
+    cidade: string
+    uf: string
+    principal: boolean
+  }>> = {
+    "DOA001": [
+      { id: "END001", tipo: "Casa", cep: "01310-100", rua: "Av. Paulista", numero: "1000", complemento: "Apto 101", bairro: "Bela Vista", cidade: "Sao Paulo", uf: "SP", principal: true },
+      { id: "END002", tipo: "Trabalho", cep: "01310-200", rua: "Rua Augusta", numero: "500", bairro: "Consolacao", cidade: "Sao Paulo", uf: "SP", principal: false },
+    ],
+    "DOA002": [
+      { id: "END003", tipo: "Casa", cep: "22041-080", rua: "Av. Atlantica", numero: "2000", bairro: "Copacabana", cidade: "Rio de Janeiro", uf: "RJ", principal: true },
+    ],
+  }
 
   // Sub-tab state
   const [activeSubTab, setActiveSubTab] = useState<"romaneio" | "exportacao" | "atrasadas" | "pendentes">("romaneio")
@@ -295,12 +339,66 @@ const handleLimparFiltrosAtrasadas = () => {
     setIsAgendarColetaOpen(true)
   }
 
-  const handleSaveAgendarColeta = () => {
-    setIsAgendarColetaOpen(false)
-    setColetaToAgendar(null)
+const handleSaveAgendarColeta = () => {
+  setIsAgendarColetaOpen(false)
+  setColetaToAgendar(null)
+  setAgendarViewMode("agendar")
+  setReagendamentoManual(false)
+  toast({
+  title: "Coleta agendada",
+  description: `A coleta ${coletaToAgendar?.id} foi agendada com sucesso.`,
+  })
+  }
+
+  const handleNovoEnderecoClick = () => {
+    setAgendarViewMode("enderecos")
+  }
+
+  const handleVoltarAgendar = () => {
+    setAgendarViewMode("agendar")
+  }
+
+  const handleNewAddressAgendar = () => {
+    setSelectedEndereco(null)
+    setIsNewAddressOpen(true)
+  }
+
+  const handleEditAddressAgendar = (endereco: typeof selectedEndereco) => {
+    setSelectedEndereco(endereco)
+    setIsEditAddressOpen(true)
+  }
+
+  const handleDeleteAddressAgendar = (endereco: typeof selectedEndereco) => {
+    setSelectedEndereco(endereco)
+    setIsDeleteAddressOpen(true)
+  }
+
+  const handleSaveNewAddressAgendar = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsNewAddressOpen(false)
     toast({
-      title: "Coleta agendada",
-      description: `A coleta ${coletaToAgendar?.id} foi agendada com sucesso.`,
+      title: "Endereco adicionado",
+      description: "O novo endereco foi cadastrado com sucesso.",
+    })
+  }
+
+  const handleSaveEditAddressAgendar = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsEditAddressOpen(false)
+    setSelectedEndereco(null)
+    toast({
+      title: "Endereco atualizado",
+      description: "O endereco foi atualizado com sucesso.",
+    })
+  }
+
+  const handleConfirmDeleteAddressAgendar = () => {
+    setIsDeleteAddressOpen(false)
+    setSelectedEndereco(null)
+    toast({
+      title: "Endereco excluido",
+      description: "O endereco foi excluido com sucesso.",
+      variant: "destructive",
     })
   }
 
@@ -1069,27 +1167,44 @@ const handleLimparFiltrosAtrasadas = () => {
       )}
 
       {/* Agendar Coleta Modal */}
-      <Dialog open={isAgendarColetaOpen} onOpenChange={setIsAgendarColetaOpen}>
+      <Dialog open={isAgendarColetaOpen} onOpenChange={(open) => {
+        setIsAgendarColetaOpen(open)
+        if (!open) {
+          setAgendarViewMode("agendar")
+          setReagendamentoManual(false)
+        }
+      }}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Agendar Coleta</DialogTitle>
-            <DialogDescription>
-              {coletaToAgendar?.doadorNome} - {coletaToAgendar?.id}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            {/* Endereco */}
-            <div className="space-y-2 w-full">
-              <Label>Endereco</Label>
-              <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 h-10 w-full">
-                <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="text-sm truncate">
-                  {coletaToAgendar?.enderecoCompleto 
-                    ? `${coletaToAgendar.enderecoCompleto.rua}, ${coletaToAgendar.enderecoCompleto.numero}${coletaToAgendar.enderecoCompleto.complemento ? `, ${coletaToAgendar.enderecoCompleto.complemento}` : ""} - ${coletaToAgendar.enderecoCompleto.bairro}, ${coletaToAgendar.enderecoCompleto.cidade}/${coletaToAgendar.enderecoCompleto.uf} - CEP: ${coletaToAgendar.enderecoCompleto.cep}`
-                    : coletaToAgendar?.endereco || "-"}
-                </span>
-              </div>
-            </div>
+          {agendarViewMode === "agendar" ? (
+            <>
+              <DialogHeader>
+                <DialogTitle>Agendar Coleta</DialogTitle>
+                <DialogDescription>
+                  {coletaToAgendar?.doadorNome} - {coletaToAgendar?.id}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                {/* Endereco */}
+                <div className="space-y-2 w-full">
+                  <div className="flex items-center justify-between">
+                    <Label>Endereco</Label>
+                    <button 
+                      type="button"
+                      onClick={handleNovoEnderecoClick}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      Novo endereco
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2 rounded-md border bg-muted/30 px-3 h-10 w-full">
+                    <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                    <span className="text-sm truncate">
+                      {coletaToAgendar?.enderecoCompleto 
+                        ? `${coletaToAgendar.enderecoCompleto.rua}, ${coletaToAgendar.enderecoCompleto.numero}${coletaToAgendar.enderecoCompleto.complemento ? `, ${coletaToAgendar.enderecoCompleto.complemento}` : ""} - ${coletaToAgendar.enderecoCompleto.bairro}, ${coletaToAgendar.enderecoCompleto.cidade}/${coletaToAgendar.enderecoCompleto.uf} - CEP: ${coletaToAgendar.enderecoCompleto.cep}`
+                        : coletaToAgendar?.endereco || "-"}
+                    </span>
+                  </div>
+                </div>
 
             <div className="grid grid-cols-2 gap-4">
               {/* Responsavel pela Coleta */}
@@ -1192,7 +1307,21 @@ const handleLimparFiltrosAtrasadas = () => {
                   className="w-full h-10"
                   value={agendarNovaDataColeta}
                   onChange={(e) => setAgendarNovaDataColeta(e.target.value)}
+                  min={reagendamentoManual ? undefined : new Date().toISOString().split('T')[0]}
                 />
+                <div className="flex items-center space-x-2 mt-2">
+                  <Checkbox 
+                    id="reagendamento-manual" 
+                    checked={reagendamentoManual}
+                    onCheckedChange={(checked) => setReagendamentoManual(checked === true)}
+                  />
+                  <label 
+                    htmlFor="reagendamento-manual" 
+                    className="text-sm text-muted-foreground cursor-pointer"
+                  >
+                    Reagendamento manual
+                  </label>
+                </div>
               </div>
             </div>
 
@@ -1206,18 +1335,307 @@ const handleLimparFiltrosAtrasadas = () => {
                 value={agendarObservacao}
                 onChange={(e) => setAgendarObservacao(e.target.value)}
               />
+              </div>
             </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAgendarColetaOpen(false)}>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsAgendarColetaOpen(false)}>
+                Cancelar
+              </Button>
+              <Button 
+                className="gf-gradient text-white"
+                onClick={handleSaveAgendarColeta}
+                disabled={!agendarResponsavel || !agendarMotivoReagendamento || !agendarModalidadeColeta || !agendarNovaDataColeta}
+              >
+                Salvar
+              </Button>
+            </DialogFooter>
+          </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Enderecos do Doador</DialogTitle>
+                <DialogDescription>
+                  {coletaToAgendar?.doadorNome}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4 max-h-[400px] overflow-y-auto">
+                {coletaToAgendar && mockEnderecosAgendar[coletaToAgendar.doadorId] ? (
+                  mockEnderecosAgendar[coletaToAgendar.doadorId].map((endereco) => (
+                    <div
+                      key={endereco.id}
+                      className="rounded-lg border p-4 space-y-2"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-sm">{endereco.tipo}</span>
+                          {endereco.principal && (
+                            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                              Principal
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => handleEditAddressAgendar(endereco)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => handleDeleteAddressAgendar(endereco)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {endereco.rua}, {endereco.numero}
+                        {endereco.complemento && ` - ${endereco.complemento}`}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {endereco.bairro} - {endereco.cidade}/{endereco.uf}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        CEP: {endereco.cep}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-muted-foreground">
+                      Nenhum endereco cadastrado para este doador.
+                    </p>
+                  </div>
+                )}
+              </div>
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={handleVoltarAgendar}>
+                  Voltar
+                </Button>
+                <Button className="gf-gradient text-white" onClick={handleNewAddressAgendar}>
+                  <Plus className="h-4 w-4" />
+                  Novo Endereco
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* New Address Dialog - Agendar */}
+      <Dialog open={isNewAddressOpen} onOpenChange={setIsNewAddressOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Novo Endereco</DialogTitle>
+            <DialogDescription>
+              Cadastre um novo endereco para {coletaToAgendar?.doadorNome}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSaveNewAddressAgendar}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-tipo-agendar">Tipo *</Label>
+                  <Select defaultValue="Casa">
+                    <SelectTrigger id="new-tipo-agendar">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Casa">Casa</SelectItem>
+                      <SelectItem value="Apartamento">Apartamento</SelectItem>
+                      <SelectItem value="Estabelecimento comercial">Estabelecimento comercial</SelectItem>
+                      <SelectItem value="Outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-cep-agendar">CEP *</Label>
+                  <Input id="new-cep-agendar" placeholder="00000-000" />
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="col-span-3 space-y-2">
+                  <Label htmlFor="new-rua-agendar">Rua *</Label>
+                  <Input id="new-rua-agendar" placeholder="Nome da rua" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-numero-agendar">Numero *</Label>
+                  <Input id="new-numero-agendar" placeholder="N" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-complemento-agendar">Complemento</Label>
+                <Input id="new-complemento-agendar" placeholder="Apto, Bloco, etc." />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="new-bairro-agendar">Bairro *</Label>
+                  <Input id="new-bairro-agendar" placeholder="Bairro" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-cidade-agendar">Cidade *</Label>
+                  <Input id="new-cidade-agendar" placeholder="Cidade" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-uf-agendar">UF *</Label>
+                  <Select defaultValue="SP">
+                    <SelectTrigger id="new-uf-agendar">
+                      <SelectValue placeholder="UF" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SP">SP</SelectItem>
+                      <SelectItem value="RJ">RJ</SelectItem>
+                      <SelectItem value="MG">MG</SelectItem>
+                      <SelectItem value="ES">ES</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input type="checkbox" id="new-principal-agendar" className="rounded border-gray-300" />
+                <Label htmlFor="new-principal-agendar" className="text-sm font-normal">
+                  Definir como endereco principal
+                </Label>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsNewAddressOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" className="gf-gradient text-white">
+                Salvar
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Address Dialog - Agendar */}
+      <Dialog open={isEditAddressOpen} onOpenChange={setIsEditAddressOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Endereco</DialogTitle>
+            <DialogDescription>
+              Edite o endereco selecionado
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSaveEditAddressAgendar}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-tipo-agendar">Tipo *</Label>
+                  <Select defaultValue={selectedEndereco?.tipo || "Casa"}>
+                    <SelectTrigger id="edit-tipo-agendar">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Casa">Casa</SelectItem>
+                      <SelectItem value="Apartamento">Apartamento</SelectItem>
+                      <SelectItem value="Estabelecimento comercial">Estabelecimento comercial</SelectItem>
+                      <SelectItem value="Outro">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-cep-agendar">CEP *</Label>
+                  <Input id="edit-cep-agendar" defaultValue={selectedEndereco?.cep} placeholder="00000-000" />
+                </div>
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <div className="col-span-3 space-y-2">
+                  <Label htmlFor="edit-rua-agendar">Rua *</Label>
+                  <Input id="edit-rua-agendar" defaultValue={selectedEndereco?.rua} placeholder="Nome da rua" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-numero-agendar">Numero *</Label>
+                  <Input id="edit-numero-agendar" defaultValue={selectedEndereco?.numero} placeholder="N" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-complemento-agendar">Complemento</Label>
+                <Input id="edit-complemento-agendar" defaultValue={selectedEndereco?.complemento} placeholder="Apto, Bloco, etc." />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-bairro-agendar">Bairro *</Label>
+                  <Input id="edit-bairro-agendar" defaultValue={selectedEndereco?.bairro} placeholder="Bairro" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-cidade-agendar">Cidade *</Label>
+                  <Input id="edit-cidade-agendar" defaultValue={selectedEndereco?.cidade} placeholder="Cidade" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="edit-uf-agendar">UF *</Label>
+                  <Select defaultValue={selectedEndereco?.uf}>
+                    <SelectTrigger id="edit-uf-agendar">
+                      <SelectValue placeholder="UF" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SP">SP</SelectItem>
+                      <SelectItem value="RJ">RJ</SelectItem>
+                      <SelectItem value="MG">MG</SelectItem>
+                      <SelectItem value="ES">ES</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input type="checkbox" id="edit-principal-agendar" defaultChecked={selectedEndereco?.principal} className="rounded border-gray-300" />
+                <Label htmlFor="edit-principal-agendar" className="text-sm font-normal">
+                  Definir como endereco principal
+                </Label>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsEditAddressOpen(false)}>
+                Cancelar
+              </Button>
+              <Button type="submit" className="gf-gradient text-white">
+                Salvar
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Address Confirmation Dialog - Agendar */}
+      <Dialog open={isDeleteAddressOpen} onOpenChange={setIsDeleteAddressOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Excluir endereco?</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja excluir este endereco? Esta acao nao pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedEndereco && (
+            <div className="rounded-lg border p-4 space-y-1 bg-muted/50">
+              <p className="font-medium text-sm">{selectedEndereco.tipo}</p>
+              <p className="text-sm text-muted-foreground">
+                {selectedEndereco.rua}, {selectedEndereco.numero}
+                {selectedEndereco.complemento && ` - ${selectedEndereco.complemento}`}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {selectedEndereco.bairro} - {selectedEndereco.cidade}/{selectedEndereco.uf}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                CEP: {selectedEndereco.cep}
+              </p>
+            </div>
+          )}
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setIsDeleteAddressOpen(false)}>
               Cancelar
             </Button>
             <Button 
-              className="gf-gradient text-white"
-              onClick={handleSaveAgendarColeta}
-              disabled={!agendarResponsavel || !agendarMotivoReagendamento || !agendarModalidadeColeta || !agendarNovaDataColeta}
+              variant="destructive" 
+              onClick={handleConfirmDeleteAddressAgendar}
             >
-              Salvar
+              Excluir
             </Button>
           </DialogFooter>
         </DialogContent>
