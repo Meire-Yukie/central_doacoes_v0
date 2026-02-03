@@ -308,9 +308,8 @@ const handleLimparFiltros = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Tipo de Contato *</Label>
+                <Label>Tipo de Contato * (valor atual: {tipoContato || "vazio"})</Label>
                 <Select value={tipoContato} onValueChange={(val) => {
-                  alert("Select mudou para: " + val)
                   setTipoContato(val)
                 }}>
                   <SelectTrigger className="w-full">
