@@ -180,8 +180,6 @@ const handleLimparFiltros = () => {
   }
 
   const handleRegistrar = () => {
-    alert("handleRegistrar foi chamado! tipoContato=" + tipoContato + ", canal=" + canal + ", motivoContato=" + motivoContato)
-    
     // Validacao dos campos obrigatorios
     if (!tipoContato || !canal || !motivoContato) {
       toast({
@@ -308,10 +306,8 @@ const handleLimparFiltros = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Tipo de Contato * (valor atual: {tipoContato || "vazio"})</Label>
-                <Select value={tipoContato} onValueChange={(val) => {
-                  setTipoContato(val)
-                }}>
+                <Label>Tipo de Contato *</Label>
+                <Select value={tipoContato} onValueChange={setTipoContato}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
@@ -433,14 +429,11 @@ const handleLimparFiltros = () => {
               </div>
             )}
 
-            <div className="mt-6 flex gap-4">
+            <div className="mt-6">
               <Button 
                 type="button" 
                 className="gf-gradient text-white" 
-                onClick={() => {
-                  alert("Antes de chamar - tipoContato=" + tipoContato + ", canal=" + canal)
-                  handleRegistrar()
-                }}
+                onClick={handleRegistrar}
               >
                 Registrar
               </Button>
