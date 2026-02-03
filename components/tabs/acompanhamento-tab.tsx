@@ -43,7 +43,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import { StatusBadge } from "@/components/status-badge"
 import { FiltersSection } from "@/components/filters-section"
 import { TablePagination } from "@/components/table-pagination"
@@ -1310,10 +1309,12 @@ const handleSaveAgendarColeta = () => {
                   min={reagendamentoManual ? undefined : new Date().toISOString().split('T')[0]}
                 />
                 <div className="flex items-center space-x-2 mt-2">
-                  <Checkbox 
+                  <input 
+                    type="checkbox"
                     id="reagendamento-manual" 
                     checked={reagendamentoManual}
-                    onCheckedChange={(checked) => setReagendamentoManual(checked === true)}
+                    onChange={(e) => setReagendamentoManual(e.target.checked)}
+                    className="rounded border-gray-300"
                   />
                   <label 
                     htmlFor="reagendamento-manual" 
@@ -1349,7 +1350,7 @@ const handleSaveAgendarColeta = () => {
                 Salvar
               </Button>
             </DialogFooter>
-          </>
+            </>
           ) : (
             <>
               <DialogHeader>
