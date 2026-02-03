@@ -180,11 +180,7 @@ const handleLimparFiltros = () => {
   }
 
   const handleRegistrar = () => {
-    console.log("[v0] handleRegistrar chamado")
-    console.log("[v0] tipoContato:", tipoContato)
-    console.log("[v0] canal:", canal)
-    console.log("[v0] motivoContato:", motivoContato)
-    console.log("[v0] fonteContato:", fonteContato)
+    alert("handleRegistrar foi chamado! tipoContato=" + tipoContato + ", canal=" + canal + ", motivoContato=" + motivoContato)
     
     // Validacao dos campos obrigatorios
     if (!tipoContato || !canal || !motivoContato) {
