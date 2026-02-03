@@ -291,7 +291,8 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
     const matchEmail = !filtroEmail || doador.email.toLowerCase().includes(filtroEmail.toLowerCase())
     const matchTelefone = !filtroTelefone || doador.telefone?.toLowerCase().includes(filtroTelefone.toLowerCase())
     const matchTipo = !filtroTipo || filtroTipo === "todos" || doador.tipo === filtroTipo
-    const matchPrioridade = !filtroPrioridade || filtroPrioridade === "todos" || doador.prioridade === filtroPrioridade
+    const prioridadeNumero = doador.prioridade === "Alta" ? "1" : doador.prioridade === "Média" ? "2" : doador.prioridade === "Baixa" ? "3" : doador.prioridade
+    const matchPrioridade = !filtroPrioridade || filtroPrioridade === "todos" || prioridadeNumero === filtroPrioridade
 
     return matchSearch && matchId && matchNome && matchEmail && matchTelefone && matchTipo && matchPrioridade
   })
@@ -554,9 +555,10 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todos">Todas</SelectItem>
-                <SelectItem value="Alta">Alta</SelectItem>
-                <SelectItem value="Media">Media</SelectItem>
-                <SelectItem value="Baixa">Baixa</SelectItem>
+                <SelectItem value="1">1</SelectItem>
+                <SelectItem value="2">2</SelectItem>
+                <SelectItem value="3">3</SelectItem>
+                <SelectItem value="4">4</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -570,7 +572,18 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
 
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Lista de Doadores</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Lista de Doadores</CardTitle>
+            <Button variant="outline" onClick={() => {
+              toast({
+                title: "Download iniciado",
+                description: "O relatorio da Lista de Doadores esta sendo gerado.",
+              })
+            }}>
+              <Download className="h-4 w-4" />
+              Baixar Dados
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
@@ -625,15 +638,17 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            doador.prioridade === "Alta"
+                          className={`inline-flex items-center justify-center rounded-full w-6 h-6 text-xs font-medium ${
+                            doador.prioridade === "Alta" || doador.prioridade === "1"
                               ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                              : doador.prioridade === "Média"
+                              : doador.prioridade === "Média" || doador.prioridade === "2"
                                 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
-                                : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                : doador.prioridade === "Baixa" || doador.prioridade === "3"
+                                  ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                  : "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400"
                           }`}
                         >
-                          {doador.prioridade}
+                          {doador.prioridade === "Alta" ? "1" : doador.prioridade === "Média" ? "2" : doador.prioridade === "Baixa" ? "3" : doador.prioridade}
                         </span>
                       </TableCell>
                       <TableCell className="text-center font-medium">
@@ -1548,9 +1563,17 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                 <Button variant="outline" onClick={() => setIsDoacoesOpen(false)}>
                   Fechar
                 </Button>
-                <Button className="gf-gradient text-white">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    toast({
+                      title: "Download iniciado",
+                      description: "Os dados do doador estao sendo baixados.",
+                    })
+                  }}
+                >
                   <Download className="h-4 w-4" />
-                  Baixar PDF
+                  Baixar Dados
                 </Button>
               </DialogFooter>
             </>
