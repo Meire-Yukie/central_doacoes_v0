@@ -436,7 +436,15 @@ const handleLimparFiltros = () => {
             )}
 
             <div className="mt-6">
-              <Button type="button" className="gf-gradient text-white" onClick={handleRegistrar}>
+              <Button 
+                type="button" 
+                className="gf-gradient text-white" 
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleRegistrar()
+                }}
+              >
                 Registrar
               </Button>
             </div>
