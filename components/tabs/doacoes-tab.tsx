@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useDragScroll } from "@/hooks/use-drag-scroll"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -117,6 +118,7 @@ function getStatusStepIndex(status: string): number {
 }
 
 export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
+  const dragScroll = useDragScroll<HTMLDivElement>()
   const [selectedDoacao, setSelectedDoacao] = useState<Doacao | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
@@ -713,7 +715,11 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
+          <div 
+            ref={dragScroll.ref}
+            className="overflow-x-auto"
+            {...dragScroll.handlers}
+          >
             <Table>
               <TableHeader>
                 <TableRow>
