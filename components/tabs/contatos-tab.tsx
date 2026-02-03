@@ -309,7 +309,10 @@ const handleLimparFiltros = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Tipo de Contato *</Label>
-                <Select value={tipoContato} onValueChange={setTipoContato}>
+                <Select value={tipoContato} onValueChange={(val) => {
+                  alert("Select mudou para: " + val)
+                  setTipoContato(val)
+                }}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
