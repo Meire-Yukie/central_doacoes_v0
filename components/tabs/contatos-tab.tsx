@@ -436,7 +436,7 @@ const handleLimparFiltros = () => {
             )}
 
             <div className="mt-6">
-              <Button className="gf-gradient text-white" onClick={handleRegistrar}>
+              <Button type="button" className="gf-gradient text-white" onClick={handleRegistrar}>
                 Registrar
               </Button>
             </div>
