@@ -271,8 +271,8 @@ export function CalendarioTab({ searchQuery }: CalendarioTabProps) {
                           ? "Carro" 
                           : "Ponto de Coleta"
                       
-                      // Filtra sabado (2026-01-31) para mostrar apenas Ponto de Coleta
-                      const isSabado = coleta.dataAgendada === "2026-01-31"
+                      // Filtra sabado (2026-02-07) para mostrar apenas Ponto de Coleta
+                      const isSabado = coleta.dataAgendada === "2026-02-07"
                       if (isSabado && tipoColeta !== "Ponto de Coleta") {
                         return null
                       }

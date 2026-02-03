@@ -324,14 +324,14 @@ function generateColetas(): Coleta[] {
   const periodos: ("Manha" | "Tarde")[] = ["Manha", "Tarde"]
   const statusList: ("Pendente" | "Em rota" | "Coletada" | "Atrasada")[] = ["Pendente", "Pendente", "Pendente", "Em rota"]
   
-  // Datas da semana atual (26 a 01 de fevereiro de 2026)
-  const datas = ["2026-01-26", "2026-01-27", "2026-01-28", "2026-01-29", "2026-01-30", "2026-01-31", "2026-02-01"]
+  // Datas da semana atual (02 a 08 de fevereiro de 2026 - semana do dia 03/02/2026)
+  const datas = ["2026-02-02", "2026-02-03", "2026-02-04", "2026-02-05", "2026-02-06", "2026-02-07", "2026-02-08"]
   
   let coletaId = 1
   
   datas.forEach((data) => {
-    // Verifica se e sabado (2026-01-31 e sabado) - usando string direta para evitar timezone issues
-    const isSabado = data === "2026-01-31"
+    // Verifica se e sabado (2026-02-07 e sabado) - usando string direta para evitar timezone issues
+    const isSabado = data === "2026-02-07"
     
     if (isSabado) {
       // Sabado: apenas Ponto de Coleta (5 coletas)
