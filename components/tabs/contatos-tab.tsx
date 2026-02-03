@@ -437,21 +437,13 @@ const handleLimparFiltros = () => {
               <Button 
                 type="button" 
                 className="gf-gradient text-white" 
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
+                onClick={() => {
+                  alert("Antes de chamar - tipoContato=" + tipoContato + ", canal=" + canal)
                   handleRegistrar()
                 }}
               >
                 Registrar
               </Button>
-              <button 
-                type="button"
-                style={{padding: '10px 20px', background: 'red', color: 'white', borderRadius: '6px', cursor: 'pointer'}}
-                onClick={() => alert('Botao de teste funcionou!')}
-              >
-                TESTE ALERT
-              </button>
             </div>
           </CardContent>
         </Card>
