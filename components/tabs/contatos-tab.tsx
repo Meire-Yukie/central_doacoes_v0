@@ -435,7 +435,7 @@ const handleLimparFiltros = () => {
               </div>
             )}
 
-            <div className="mt-6">
+            <div className="mt-6 flex gap-4">
               <Button 
                 type="button" 
                 className="gf-gradient text-white" 
@@ -447,6 +447,13 @@ const handleLimparFiltros = () => {
               >
                 Registrar
               </Button>
+              <button 
+                type="button"
+                style={{padding: '10px 20px', background: 'red', color: 'white', borderRadius: '6px', cursor: 'pointer'}}
+                onClick={() => alert('Botao de teste funcionou!')}
+              >
+                TESTE ALERT
+              </button>
             </div>
           </CardContent>
         </Card>
