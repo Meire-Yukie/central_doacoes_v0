@@ -1182,7 +1182,7 @@ const handleSaveAgendarColeta = () => {
         }
       }}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
-          {agendarViewMode === "agendar" ? (
+          {agendarViewMode === "agendar" && (
             <>
               <DialogHeader>
                 <DialogTitle>Agendar Coleta</DialogTitle>
