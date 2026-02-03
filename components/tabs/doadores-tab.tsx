@@ -86,6 +86,11 @@ export function DoadoresTab({ searchQuery }: DoadoresTabProps) {
   const [selectedDoacao, setSelectedDoacao] = useState<string | null>(null)
   const [tipoContato, setTipoContato] = useState("")
   const [canalContato, setCanalContato] = useState("")
+  const [fonteContato, setFonteContato] = useState("")
+  const [motivoContato, setMotivoContato] = useState("")
+  const [statusContato, setStatusContato] = useState("")
+  const [elogioContato, setElogioContato] = useState("")
+  const [reclamacaoContato, setReclamacaoContato] = useState("")
   const [tipoNovoDoador, setTipoNovoDoador] = useState<"PF" | "PJ">("PF")
   const [isFazerDoacaoOpen, setIsFazerDoacaoOpen] = useState(false)
   const [fazerDoacaoStep, setFazerDoacaoStep] = useState<1 | 2>(1)
@@ -995,8 +1000,19 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
       </Dialog>
 
       {/* Contact Registration Dialog */}
-      <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={isContactOpen} onOpenChange={(open) => {
+        setIsContactOpen(open)
+        if (!open) {
+          setTipoContato("")
+          setCanalContato("")
+          setFonteContato("")
+          setMotivoContato("")
+          setStatusContato("")
+          setElogioContato("")
+          setReclamacaoContato("")
+        }
+      }}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Registro de Contato</DialogTitle>
             <DialogDescription>
@@ -1004,41 +1020,193 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSaveContact}>
-            <div className="grid grid-cols-2 gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="tipo-contato">Tipo de contato *</Label>
-                <Select value={tipoContato} onValueChange={setTipoContato} required>
-                  <SelectTrigger id="tipo-contato">
-                    <SelectValue placeholder="Selecione uma opção" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ativo">Ativo</SelectItem>
-                    <SelectItem value="receptivo">Receptivo</SelectItem>
-                  </SelectContent>
-                </Select>
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="tipo-contato">Tipo de contato *</Label>
+                  <Select value={tipoContato} onValueChange={(value) => {
+                    setTipoContato(value)
+                    setFonteContato("")
+                    setMotivoContato("")
+                    setStatusContato("")
+                    setElogioContato("")
+                    setReclamacaoContato("")
+                  }} required>
+                    <SelectTrigger id="tipo-contato" className="w-full">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ativo">Ativo</SelectItem>
+                      <SelectItem value="receptivo">Receptivo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="canal-contato">Canal *</Label>
+                  <Select value={canalContato} onValueChange={setCanalContato} required>
+                    <SelectTrigger id="canal-contato" className="w-full">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                      <SelectItem value="ligacao">Ligacao Telefonica</SelectItem>
+                      <SelectItem value="email">Email</SelectItem>
+                      <SelectItem value="site">Site</SelectItem>
+                      <SelectItem value="outros">Outros</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="canal-contato">Canal *</Label>
-                <Select value={canalContato} onValueChange={setCanalContato} required>
-                  <SelectTrigger id="canal-contato">
-                    <SelectValue placeholder="WhatsApp" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                    <SelectItem value="ligacao">Ligação Telefônica</SelectItem>
-                    <SelectItem value="email">Email</SelectItem>
-                    <SelectItem value="site">Site</SelectItem>
-                    <SelectItem value="outros">Outros</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+
+              {tipoContato === "ativo" && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="fonte-contato">Fonte do contato *</Label>
+                      <Select value={fonteContato} onValueChange={setFonteContato} required>
+                        <SelectTrigger id="fonte-contato" className="w-full">
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="indicacao">Indicacao</SelectItem>
+                          <SelectItem value="campanha">Campanha</SelectItem>
+                          <SelectItem value="site">Site</SelectItem>
+                          <SelectItem value="redes-sociais">Redes Sociais</SelectItem>
+                          <SelectItem value="outros">Outros</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="motivo-contato">Motivo do contato *</Label>
+                      <Select value={motivoContato} onValueChange={(value) => {
+                        setMotivoContato(value)
+                        setElogioContato("")
+                        setReclamacaoContato("")
+                      }} required>
+                        <SelectTrigger id="motivo-contato" className="w-full">
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="doacao">Doacao</SelectItem>
+                          <SelectItem value="informacao">Informacao</SelectItem>
+                          <SelectItem value="elogio">Elogio</SelectItem>
+                          <SelectItem value="reclamacao">Reclamacao</SelectItem>
+                          <SelectItem value="outros">Outros</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="status-contato">Status *</Label>
+                    <Select value={statusContato} onValueChange={setStatusContato} required>
+                      <SelectTrigger id="status-contato" className="w-full">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="em-andamento">Em andamento</SelectItem>
+                        <SelectItem value="efetivado">Efetivado</SelectItem>
+                        <SelectItem value="nao-efetivado">Nao efetivado</SelectItem>
+                        <SelectItem value="nao-finalizado">Nao finalizado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {motivoContato === "elogio" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="elogio-contato">Elogio</Label>
+                      <Textarea 
+                        id="elogio-contato" 
+                        placeholder="Descreva o elogio..."
+                        value={elogioContato}
+                        onChange={(e) => setElogioContato(e.target.value)}
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  )}
+                  {motivoContato === "reclamacao" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="reclamacao-contato">Reclamacao</Label>
+                      <Textarea 
+                        id="reclamacao-contato" 
+                        placeholder="Descreva a reclamacao..."
+                        value={reclamacaoContato}
+                        onChange={(e) => setReclamacaoContato(e.target.value)}
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+
+              {tipoContato === "receptivo" && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="motivo-contato-receptivo">Motivo do contato *</Label>
+                      <Select value={motivoContato} onValueChange={(value) => {
+                        setMotivoContato(value)
+                        setElogioContato("")
+                        setReclamacaoContato("")
+                      }} required>
+                        <SelectTrigger id="motivo-contato-receptivo" className="w-full">
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="doacao">Doacao</SelectItem>
+                          <SelectItem value="informacao">Informacao</SelectItem>
+                          <SelectItem value="elogio">Elogio</SelectItem>
+                          <SelectItem value="reclamacao">Reclamacao</SelectItem>
+                          <SelectItem value="outros">Outros</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="status-contato-receptivo">Status *</Label>
+                      <Select value={statusContato} onValueChange={setStatusContato} required>
+                        <SelectTrigger id="status-contato-receptivo" className="w-full">
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="em-andamento">Em andamento</SelectItem>
+                          <SelectItem value="efetivado">Efetivado</SelectItem>
+                          <SelectItem value="nao-efetivado">Nao efetivado</SelectItem>
+                          <SelectItem value="nao-finalizado">Nao finalizado</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {motivoContato === "elogio" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="elogio-contato-receptivo">Elogio</Label>
+                      <Textarea 
+                        id="elogio-contato-receptivo" 
+                        placeholder="Descreva o elogio..."
+                        value={elogioContato}
+                        onChange={(e) => setElogioContato(e.target.value)}
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  )}
+                  {motivoContato === "reclamacao" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="reclamacao-contato-receptivo">Reclamacao</Label>
+                      <Textarea 
+                        id="reclamacao-contato-receptivo" 
+                        placeholder="Descreva a reclamacao..."
+                        value={reclamacaoContato}
+                        onChange={(e) => setReclamacaoContato(e.target.value)}
+                        className="min-h-[80px]"
+                      />
+                    </div>
+                  )}
+                </>
+              )}
             </div>
             <DialogFooter className="gap-2">
               <Button type="button" variant="outline" onClick={() => setIsContactOpen(false)}>
                 Cancelar
               </Button>
-              <Button type="submit" className="gf-gradient text-white" disabled={!tipoContato}>
-                Continuar
+              <Button type="submit" className="gf-gradient text-white" disabled={!tipoContato || !canalContato || !statusContato}>
+                Salvar
               </Button>
             </DialogFooter>
           </form>
