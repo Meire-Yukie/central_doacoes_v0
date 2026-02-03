@@ -1068,11 +1068,15 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                           <SelectValue placeholder="Selecione" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="indicacao">Indicacao</SelectItem>
-                          <SelectItem value="campanha">Campanha</SelectItem>
-                          <SelectItem value="site">Site</SelectItem>
-                          <SelectItem value="redes-sociais">Redes Sociais</SelectItem>
-                          <SelectItem value="outros">Outros</SelectItem>
+                          <SelectItem value="Leads Planilha">Leads Planilha</SelectItem>
+                          <SelectItem value="Leads Rede de Mobilizacao">Leads Rede de Mobilizacao</SelectItem>
+                          <SelectItem value="Leads Rede Mobilizacao - Influenciadores">Leads Rede Mobilizacao - Influenciadores</SelectItem>
+                          <SelectItem value="Leads Salesforce">Leads Salesforce</SelectItem>
+                          <SelectItem value="Leads Doare">Leads Doare</SelectItem>
+                          <SelectItem value="Retorno de ligacao abandonada">Retorno de ligacao abandonada</SelectItem>
+                          <SelectItem value="Cliente loja">Cliente loja</SelectItem>
+                          <SelectItem value="Doador recorrente">Doador recorrente</SelectItem>
+                          <SelectItem value="Outros">Outros</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -1087,11 +1091,15 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                           <SelectValue placeholder="Selecione" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="doacao">Doacao</SelectItem>
-                          <SelectItem value="informacao">Informacao</SelectItem>
-                          <SelectItem value="elogio">Elogio</SelectItem>
-                          <SelectItem value="reclamacao">Reclamacao</SelectItem>
-                          <SelectItem value="outros">Outros</SelectItem>
+                          <SelectItem value="Doacao/Prospeccao de doacao">Doacao/Prospeccao de doacao</SelectItem>
+                          <SelectItem value="Reagendamento de coletas">Reagendamento de coletas</SelectItem>
+                          <SelectItem value="Edicao de itens">Edicao de itens</SelectItem>
+                          <SelectItem value="Cancelamento de coleta">Cancelamento de coleta</SelectItem>
+                          <SelectItem value="Elogio">Elogio</SelectItem>
+                          <SelectItem value="Indefinido (contato sem sucesso/nao finalizado)">Indefinido (contato sem sucesso/nao finalizado)</SelectItem>
+                          <SelectItem value="Informacao ou duvida">Informacao ou duvida</SelectItem>
+                          <SelectItem value="Reclamacao">Reclamacao</SelectItem>
+                          <SelectItem value="Solicitacoes nao relacionadas ao Bazar">Solicitacoes nao relacionadas ao Bazar</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -1110,7 +1118,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                       </SelectContent>
                     </Select>
                   </div>
-                  {motivoContato === "elogio" && (
+                  {motivoContato === "Elogio" && (
                     <div className="space-y-2">
                       <Label htmlFor="elogio-contato">Elogio</Label>
                       <Textarea 
@@ -1122,7 +1130,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                       />
                     </div>
                   )}
-                  {motivoContato === "reclamacao" && (
+                  {motivoContato === "Reclamacao" && (
                     <div className="space-y-2">
                       <Label htmlFor="reclamacao-contato">Reclamacao</Label>
                       <Textarea 
@@ -1151,11 +1159,15 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                           <SelectValue placeholder="Selecione" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="doacao">Doacao</SelectItem>
-                          <SelectItem value="informacao">Informacao</SelectItem>
-                          <SelectItem value="elogio">Elogio</SelectItem>
-                          <SelectItem value="reclamacao">Reclamacao</SelectItem>
-                          <SelectItem value="outros">Outros</SelectItem>
+                          <SelectItem value="Doacao/Prospeccao de doacao">Doacao/Prospeccao de doacao</SelectItem>
+                          <SelectItem value="Reagendamento de coletas">Reagendamento de coletas</SelectItem>
+                          <SelectItem value="Edicao de itens">Edicao de itens</SelectItem>
+                          <SelectItem value="Cancelamento de coleta">Cancelamento de coleta</SelectItem>
+                          <SelectItem value="Elogio">Elogio</SelectItem>
+                          <SelectItem value="Indefinido (contato sem sucesso/nao finalizado)">Indefinido (contato sem sucesso/nao finalizado)</SelectItem>
+                          <SelectItem value="Informacao ou duvida">Informacao ou duvida</SelectItem>
+                          <SelectItem value="Reclamacao">Reclamacao</SelectItem>
+                          <SelectItem value="Solicitacoes nao relacionadas ao Bazar">Solicitacoes nao relacionadas ao Bazar</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -1174,7 +1186,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                       </Select>
                     </div>
                   </div>
-                  {motivoContato === "elogio" && (
+                  {motivoContato === "Elogio" && (
                     <div className="space-y-2">
                       <Label htmlFor="elogio-contato-receptivo">Elogio</Label>
                       <Textarea 
@@ -1186,7 +1198,7 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                       />
                     </div>
                   )}
-                  {motivoContato === "reclamacao" && (
+                  {motivoContato === "Reclamacao" && (
                     <div className="space-y-2">
                       <Label htmlFor="reclamacao-contato-receptivo">Reclamacao</Label>
                       <Textarea 
