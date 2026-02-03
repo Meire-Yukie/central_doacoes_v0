@@ -51,6 +51,7 @@ export interface Doacao {
     periodo: "Manhã" | "Tarde"
   }
   observacoes?: string
+  atendente?: string
 }
 
 export interface Coleta {
@@ -68,10 +69,10 @@ export interface Coleta {
     uf: string
     cep: string
   }
-  volume: "Pequeno" | "Médio" | "Grande" | "Muito grande"
-  veiculo: "Carro" | "Utilitário" | "Van"
+  volume: "Pequeno" | "Medio" | "Grande" | "Muito grande"
+  veiculo: "Carro" | "Utilitario" | "Van"
   dataAgendada: string
-  periodo: "Manhã" | "Tarde"
+  periodo: "Manha" | "Tarde"
   status: "Pendente" | "Em rota" | "Coletada" | "Atrasada" | "Cancelada"
   ordemRota?: number
   itens: string

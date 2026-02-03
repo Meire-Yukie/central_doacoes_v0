@@ -15,6 +15,17 @@ type StatusType =
   | "Bom"
   | "Não confirmado"
   | "Precisa triagem"
+  | "Agendamento Pendente - Doacao de Moveis"
+  | "Agendamento Pendente - Porte Alterado"
+  | "Agendamento Pendente - Quantidade de Itens Atipica"
+  | "Coleta Concluida"
+  | "Coleta Nao Realizada"
+  | "Coleta Pendente - Nao Realizada"
+  | "Coleta Pendente - Parcial"
+  | "Reagendamento em Aberto"
+  | "Coleta Agendada"
+  | "Coleta Reagendada"
+  | "Coleta Completa"
 
 interface StatusBadgeProps {
   status: StatusType
@@ -36,6 +47,17 @@ const statusStyles: Record<StatusType, string> = {
   Bom: "bg-success/15 text-success border-success/30",
   "Não confirmado": "bg-warning/15 text-warning-foreground border-warning/30",
   "Precisa triagem": "bg-info/15 text-info border-info/30",
+  "Agendamento Pendente - Doacao de Moveis": "bg-muted text-muted-foreground border-border",
+  "Agendamento Pendente - Porte Alterado": "bg-muted text-muted-foreground border-border",
+  "Agendamento Pendente - Quantidade de Itens Atipica": "bg-muted text-muted-foreground border-border",
+  "Coleta Concluida": "bg-muted text-muted-foreground border-border",
+  "Coleta Nao Realizada": "bg-muted text-muted-foreground border-border",
+  "Coleta Pendente - Nao Realizada": "bg-muted text-muted-foreground border-border",
+  "Coleta Pendente - Parcial": "bg-muted text-muted-foreground border-border",
+  "Reagendamento em Aberto": "bg-muted text-muted-foreground border-border",
+  "Coleta Agendada": "bg-muted text-muted-foreground border-border",
+  "Coleta Reagendada": "bg-muted text-muted-foreground border-border",
+  "Coleta Completa": "bg-muted text-muted-foreground border-border",
 }
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {

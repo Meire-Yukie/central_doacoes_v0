@@ -1,9 +1,9 @@
 "use client"
 
 import { cn } from "@/lib/utils"
-import { Users, Package, Calendar, Truck, ClipboardCheck } from "lucide-react"
+import { Users, Package, Calendar, Truck, ClipboardCheck, MessageSquare } from "lucide-react"
 
-export type TabType = "doadores" | "doacoes" | "calendario" | "acompanhamento" | "baixa"
+export type TabType = "doadores" | "doacoes" | "calendario" | "acompanhamento" | "baixa" | "contatos"
 
 interface TabNavigationProps {
   activeTab: TabType
@@ -16,6 +16,7 @@ const tabs = [
   { id: "calendario" as const, label: "Calendário", icon: Calendar },
   { id: "acompanhamento" as const, label: "Acompanhamento", icon: Truck },
   { id: "baixa" as const, label: "Baixa de Coletas", icon: ClipboardCheck },
+  { id: "contatos" as const, label: "Contatos", icon: MessageSquare },
 ]
 
 export function TabNavigation({ activeTab, onTabChange }: TabNavigationProps) {
