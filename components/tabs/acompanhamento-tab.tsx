@@ -93,10 +93,7 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
   const [reagendamentoManual, setReagendamentoManual] = useState(false)
   
   // Endereco Modal States
-  const [agendarViewMode, setAgendarViewMode] = useState<"agendar" | "enderecos">("agendar")
-  const [isNewAddressOpen, setIsNewAddressOpen] = useState(false)
-  const [isEditAddressOpen, setIsEditAddressOpen] = useState(false)
-  const [isDeleteAddressOpen, setIsDeleteAddressOpen] = useState(false)
+  const [agendarViewMode, setAgendarViewMode] = useState<"agendar" | "enderecos" | "novo-endereco" | "editar-endereco">("agendar")
   const [selectedEndereco, setSelectedEndereco] = useState<{
     id: string
     tipo: string
@@ -129,6 +126,18 @@ export function AcompanhamentoTab({ searchQuery }: AcompanhamentoTabProps) {
     ],
     "DOA002": [
       { id: "END003", tipo: "Casa", cep: "22041-080", rua: "Av. Atlantica", numero: "2000", bairro: "Copacabana", cidade: "Rio de Janeiro", uf: "RJ", principal: true },
+      { id: "END004", tipo: "Trabalho", cep: "22021-001", rua: "Rua Barata Ribeiro", numero: "350", complemento: "Sala 201", bairro: "Copacabana", cidade: "Rio de Janeiro", uf: "RJ", principal: false },
+    ],
+    "DOA003": [
+      { id: "END005", tipo: "Estabelecimento comercial", cep: "04543-011", rua: "Av. Engenheiro Luis Carlos Berrini", numero: "1500", complemento: "Andar 12", bairro: "Cidade Moncoes", cidade: "Sao Paulo", uf: "SP", principal: true },
+    ],
+    "DOA004": [
+      { id: "END006", tipo: "Casa", cep: "30130-000", rua: "Av. Afonso Pena", numero: "1200", bairro: "Centro", cidade: "Belo Horizonte", uf: "MG", principal: true },
+      { id: "END007", tipo: "Casa", cep: "30140-071", rua: "Rua da Bahia", numero: "800", complemento: "Apto 502", bairro: "Lourdes", cidade: "Belo Horizonte", uf: "MG", principal: false },
+    ],
+    "DOA005": [
+      { id: "END008", tipo: "Estabelecimento comercial", cep: "01311-100", rua: "Rua da Consolacao", numero: "2300", bairro: "Consolacao", cidade: "Sao Paulo", uf: "SP", principal: true },
+      { id: "END009", tipo: "Casa", cep: "05424-010", rua: "Rua dos Pinheiros", numero: "450", complemento: "Casa 2", bairro: "Pinheiros", cidade: "Sao Paulo", uf: "SP", principal: false },
     ],
   }
 
@@ -355,26 +364,27 @@ const handleSaveAgendarColeta = () => {
 
   const handleVoltarAgendar = () => {
     setAgendarViewMode("agendar")
+    setSelectedEndereco(null)
+  }
+
+  const handleVoltarEnderecos = () => {
+    setAgendarViewMode("enderecos")
+    setSelectedEndereco(null)
   }
 
   const handleNewAddressAgendar = () => {
     setSelectedEndereco(null)
-    setIsNewAddressOpen(true)
+    setAgendarViewMode("novo-endereco")
   }
 
   const handleEditAddressAgendar = (endereco: typeof selectedEndereco) => {
     setSelectedEndereco(endereco)
-    setIsEditAddressOpen(true)
-  }
-
-  const handleDeleteAddressAgendar = (endereco: typeof selectedEndereco) => {
-    setSelectedEndereco(endereco)
-    setIsDeleteAddressOpen(true)
+    setAgendarViewMode("editar-endereco")
   }
 
   const handleSaveNewAddressAgendar = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsNewAddressOpen(false)
+    setAgendarViewMode("enderecos")
     toast({
       title: "Endereco adicionado",
       description: "O novo endereco foi cadastrado com sucesso.",
@@ -383,7 +393,7 @@ const handleSaveAgendarColeta = () => {
 
   const handleSaveEditAddressAgendar = (e: React.FormEvent) => {
     e.preventDefault()
-    setIsEditAddressOpen(false)
+    setAgendarViewMode("enderecos")
     setSelectedEndereco(null)
     toast({
       title: "Endereco atualizado",
@@ -391,9 +401,7 @@ const handleSaveAgendarColeta = () => {
     })
   }
 
-  const handleConfirmDeleteAddressAgendar = () => {
-    setIsDeleteAddressOpen(false)
-    setSelectedEndereco(null)
+  const handleDeleteAddressAgendar = (endereco: typeof selectedEndereco) => {
     toast({
       title: "Endereco excluido",
       description: "O endereco foi excluido com sucesso.",
@@ -1298,7 +1306,7 @@ const handleSaveAgendarColeta = () => {
               </div>
 
               {/* Nova Data de Coleta */}
-              <div className="space-y-2 w-full">
+              <div className="space-y-1 w-full">
                 <Label htmlFor="agendar-nova-data">Nova Data de Coleta *</Label>
                 <Input 
                   id="agendar-nova-data"
@@ -1308,7 +1316,7 @@ const handleSaveAgendarColeta = () => {
                   onChange={(e) => setAgendarNovaDataColeta(e.target.value)}
                   min={reagendamentoManual ? undefined : new Date().toISOString().split('T')[0]}
                 />
-                <div className="flex items-center space-x-2 mt-2">
+                <div className="flex items-center space-x-2 pt-1">
                   <input 
                     type="checkbox"
                     id="reagendamento-manual" 
@@ -1351,7 +1359,9 @@ const handleSaveAgendarColeta = () => {
               </Button>
             </DialogFooter>
             </>
-          ) : (
+          )}
+
+          {agendarViewMode === "enderecos" && (
             <>
               <DialogHeader>
                 <DialogTitle>Enderecos do Doador</DialogTitle>
@@ -1425,223 +1435,183 @@ const handleSaveAgendarColeta = () => {
               </DialogFooter>
             </>
           )}
-        </DialogContent>
-      </Dialog>
 
-      {/* New Address Dialog - Agendar */}
-      <Dialog open={isNewAddressOpen} onOpenChange={setIsNewAddressOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Novo Endereco</DialogTitle>
-            <DialogDescription>
-              Cadastre um novo endereco para {coletaToAgendar?.doadorNome}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSaveNewAddressAgendar}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="new-tipo-agendar">Tipo *</Label>
-                  <Select defaultValue="Casa">
-                    <SelectTrigger id="new-tipo-agendar">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Casa">Casa</SelectItem>
-                      <SelectItem value="Apartamento">Apartamento</SelectItem>
-                      <SelectItem value="Estabelecimento comercial">Estabelecimento comercial</SelectItem>
-                      <SelectItem value="Outro">Outro</SelectItem>
-                    </SelectContent>
-                  </Select>
+          {agendarViewMode === "novo-endereco" && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Novo Endereco</DialogTitle>
+                <DialogDescription>
+                  Cadastre um novo endereco para {coletaToAgendar?.doadorNome}
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSaveNewAddressAgendar}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-tipo-agendar">Tipo *</Label>
+                      <Select defaultValue="Casa">
+                        <SelectTrigger id="new-tipo-agendar">
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Casa">Casa</SelectItem>
+                          <SelectItem value="Apartamento">Apartamento</SelectItem>
+                          <SelectItem value="Estabelecimento comercial">Estabelecimento comercial</SelectItem>
+                          <SelectItem value="Outro">Outro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="new-cep-agendar">CEP *</Label>
+                      <Input id="new-cep-agendar" placeholder="00000-000" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 gap-4">
+                    <div className="col-span-3 space-y-2">
+                      <Label htmlFor="new-rua-agendar">Rua *</Label>
+                      <Input id="new-rua-agendar" placeholder="Nome da rua" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="new-numero-agendar">Numero *</Label>
+                      <Input id="new-numero-agendar" placeholder="N" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="new-complemento-agendar">Complemento</Label>
+                    <Input id="new-complemento-agendar" placeholder="Apto, Bloco, etc." />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="new-bairro-agendar">Bairro *</Label>
+                      <Input id="new-bairro-agendar" placeholder="Bairro" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="new-cidade-agendar">Cidade *</Label>
+                      <Input id="new-cidade-agendar" placeholder="Cidade" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="new-uf-agendar">UF *</Label>
+                      <Select defaultValue="SP">
+                        <SelectTrigger id="new-uf-agendar">
+                          <SelectValue placeholder="UF" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SP">SP</SelectItem>
+                          <SelectItem value="RJ">RJ</SelectItem>
+                          <SelectItem value="MG">MG</SelectItem>
+                          <SelectItem value="ES">ES</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="new-principal-agendar" className="rounded border-gray-300" />
+                    <Label htmlFor="new-principal-agendar" className="text-sm font-normal">
+                      Definir como endereco principal
+                    </Label>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-cep-agendar">CEP *</Label>
-                  <Input id="new-cep-agendar" placeholder="00000-000" />
-                </div>
-              </div>
-              <div className="grid grid-cols-4 gap-4">
-                <div className="col-span-3 space-y-2">
-                  <Label htmlFor="new-rua-agendar">Rua *</Label>
-                  <Input id="new-rua-agendar" placeholder="Nome da rua" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-numero-agendar">Numero *</Label>
-                  <Input id="new-numero-agendar" placeholder="N" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="new-complemento-agendar">Complemento</Label>
-                <Input id="new-complemento-agendar" placeholder="Apto, Bloco, etc." />
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="new-bairro-agendar">Bairro *</Label>
-                  <Input id="new-bairro-agendar" placeholder="Bairro" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-cidade-agendar">Cidade *</Label>
-                  <Input id="new-cidade-agendar" placeholder="Cidade" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="new-uf-agendar">UF *</Label>
-                  <Select defaultValue="SP">
-                    <SelectTrigger id="new-uf-agendar">
-                      <SelectValue placeholder="UF" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="SP">SP</SelectItem>
-                      <SelectItem value="RJ">RJ</SelectItem>
-                      <SelectItem value="MG">MG</SelectItem>
-                      <SelectItem value="ES">ES</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input type="checkbox" id="new-principal-agendar" className="rounded border-gray-300" />
-                <Label htmlFor="new-principal-agendar" className="text-sm font-normal">
-                  Definir como endereco principal
-                </Label>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsNewAddressOpen(false)}>
-                Cancelar
-              </Button>
-              <Button type="submit" className="gf-gradient text-white">
-                Salvar
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit Address Dialog - Agendar */}
-      <Dialog open={isEditAddressOpen} onOpenChange={setIsEditAddressOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Editar Endereco</DialogTitle>
-            <DialogDescription>
-              Edite o endereco selecionado
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSaveEditAddressAgendar}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-tipo-agendar">Tipo *</Label>
-                  <Select defaultValue={selectedEndereco?.tipo || "Casa"}>
-                    <SelectTrigger id="edit-tipo-agendar">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Casa">Casa</SelectItem>
-                      <SelectItem value="Apartamento">Apartamento</SelectItem>
-                      <SelectItem value="Estabelecimento comercial">Estabelecimento comercial</SelectItem>
-                      <SelectItem value="Outro">Outro</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-cep-agendar">CEP *</Label>
-                  <Input id="edit-cep-agendar" defaultValue={selectedEndereco?.cep} placeholder="00000-000" />
-                </div>
-              </div>
-              <div className="grid grid-cols-4 gap-4">
-                <div className="col-span-3 space-y-2">
-                  <Label htmlFor="edit-rua-agendar">Rua *</Label>
-                  <Input id="edit-rua-agendar" defaultValue={selectedEndereco?.rua} placeholder="Nome da rua" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-numero-agendar">Numero *</Label>
-                  <Input id="edit-numero-agendar" defaultValue={selectedEndereco?.numero} placeholder="N" />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-complemento-agendar">Complemento</Label>
-                <Input id="edit-complemento-agendar" defaultValue={selectedEndereco?.complemento} placeholder="Apto, Bloco, etc." />
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-bairro-agendar">Bairro *</Label>
-                  <Input id="edit-bairro-agendar" defaultValue={selectedEndereco?.bairro} placeholder="Bairro" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-cidade-agendar">Cidade *</Label>
-                  <Input id="edit-cidade-agendar" defaultValue={selectedEndereco?.cidade} placeholder="Cidade" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="edit-uf-agendar">UF *</Label>
-                  <Select defaultValue={selectedEndereco?.uf}>
-                    <SelectTrigger id="edit-uf-agendar">
-                      <SelectValue placeholder="UF" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="SP">SP</SelectItem>
-                      <SelectItem value="RJ">RJ</SelectItem>
-                      <SelectItem value="MG">MG</SelectItem>
-                      <SelectItem value="ES">ES</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <input type="checkbox" id="edit-principal-agendar" defaultChecked={selectedEndereco?.principal} className="rounded border-gray-300" />
-                <Label htmlFor="edit-principal-agendar" className="text-sm font-normal">
-                  Definir como endereco principal
-                </Label>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsEditAddressOpen(false)}>
-                Cancelar
-              </Button>
-              <Button type="submit" className="gf-gradient text-white">
-                Salvar
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Address Confirmation Dialog - Agendar */}
-      <Dialog open={isDeleteAddressOpen} onOpenChange={setIsDeleteAddressOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Excluir endereco?</DialogTitle>
-            <DialogDescription>
-              Tem certeza que deseja excluir este endereco? Esta acao nao pode ser desfeita.
-            </DialogDescription>
-          </DialogHeader>
-          {selectedEndereco && (
-            <div className="rounded-lg border p-4 space-y-1 bg-muted/50">
-              <p className="font-medium text-sm">{selectedEndereco.tipo}</p>
-              <p className="text-sm text-muted-foreground">
-                {selectedEndereco.rua}, {selectedEndereco.numero}
-                {selectedEndereco.complemento && ` - ${selectedEndereco.complemento}`}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {selectedEndereco.bairro} - {selectedEndereco.cidade}/{selectedEndereco.uf}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                CEP: {selectedEndereco.cep}
-              </p>
-            </div>
+                <DialogFooter className="gap-2">
+                  <Button type="button" variant="outline" onClick={handleVoltarEnderecos}>
+                    Voltar
+                  </Button>
+                  <Button type="submit" className="gf-gradient text-white">
+                    Salvar
+                  </Button>
+                </DialogFooter>
+              </form>
+            </>
           )}
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setIsDeleteAddressOpen(false)}>
-              Cancelar
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleConfirmDeleteAddressAgendar}
-            >
-              Excluir
-            </Button>
-          </DialogFooter>
+
+          {agendarViewMode === "editar-endereco" && (
+            <>
+              <DialogHeader>
+                <DialogTitle>Editar Endereco</DialogTitle>
+                <DialogDescription>
+                  Edite o endereco selecionado
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSaveEditAddressAgendar}>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-tipo-agendar">Tipo *</Label>
+                      <Select defaultValue={selectedEndereco?.tipo || "Casa"}>
+                        <SelectTrigger id="edit-tipo-agendar">
+                          <SelectValue placeholder="Selecione" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Casa">Casa</SelectItem>
+                          <SelectItem value="Apartamento">Apartamento</SelectItem>
+                          <SelectItem value="Estabelecimento comercial">Estabelecimento comercial</SelectItem>
+                          <SelectItem value="Outro">Outro</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-cep-agendar">CEP *</Label>
+                      <Input id="edit-cep-agendar" defaultValue={selectedEndereco?.cep} placeholder="00000-000" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-4 gap-4">
+                    <div className="col-span-3 space-y-2">
+                      <Label htmlFor="edit-rua-agendar">Rua *</Label>
+                      <Input id="edit-rua-agendar" defaultValue={selectedEndereco?.rua} placeholder="Nome da rua" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-numero-agendar">Numero *</Label>
+                      <Input id="edit-numero-agendar" defaultValue={selectedEndereco?.numero} placeholder="N" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-complemento-agendar">Complemento</Label>
+                    <Input id="edit-complemento-agendar" defaultValue={selectedEndereco?.complemento} placeholder="Apto, Bloco, etc." />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-bairro-agendar">Bairro *</Label>
+                      <Input id="edit-bairro-agendar" defaultValue={selectedEndereco?.bairro} placeholder="Bairro" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-cidade-agendar">Cidade *</Label>
+                      <Input id="edit-cidade-agendar" defaultValue={selectedEndereco?.cidade} placeholder="Cidade" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-uf-agendar">UF *</Label>
+                      <Select defaultValue={selectedEndereco?.uf}>
+                        <SelectTrigger id="edit-uf-agendar">
+                          <SelectValue placeholder="UF" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="SP">SP</SelectItem>
+                          <SelectItem value="RJ">RJ</SelectItem>
+                          <SelectItem value="MG">MG</SelectItem>
+                          <SelectItem value="ES">ES</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <input type="checkbox" id="edit-principal-agendar" defaultChecked={selectedEndereco?.principal} className="rounded border-gray-300" />
+                    <Label htmlFor="edit-principal-agendar" className="text-sm font-normal">
+                      Definir como endereco principal
+                    </Label>
+                  </div>
+                </div>
+                <DialogFooter className="gap-2">
+                  <Button type="button" variant="outline" onClick={handleVoltarEnderecos}>
+                    Voltar
+                  </Button>
+                  <Button type="submit" className="gf-gradient text-white">
+                    Salvar
+                  </Button>
+                </DialogFooter>
+              </form>
+            </>
+          )}
         </DialogContent>
       </Dialog>
-      
+
       {/* Details Modal */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
