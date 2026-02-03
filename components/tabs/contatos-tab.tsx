@@ -180,10 +180,40 @@ const handleLimparFiltros = () => {
   }
 
   const handleRegistrar = () => {
-    if (!tipoContato || !canal) {
+    // Validacao dos campos obrigatorios
+    if (!tipoContato || !canal || !motivoContato) {
       toast({
         title: "Campos obrigatorios",
-        description: "Por favor, preencha o Tipo de Contato e o Canal.",
+        description: "Por favor, preencha todos os campos obrigatorios.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validacao adicional para tipo Ativo
+    if (tipoContato === "Ativo" && !fonteContato) {
+      toast({
+        title: "Campos obrigatorios",
+        description: "Por favor, preencha a Fonte de Contato.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    // Validacao para campos de elogio/reclamacao
+    if (motivoContato === "Elogio" && !elogioTexto) {
+      toast({
+        title: "Campos obrigatorios",
+        description: "Por favor, descreva o elogio.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (motivoContato === "Reclamacao" && !reclamacaoTexto) {
+      toast({
+        title: "Campos obrigatorios",
+        description: "Por favor, descreva a reclamacao.",
         variant: "destructive",
       })
       return
@@ -276,7 +306,7 @@ const handleLimparFiltros = () => {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label>Tipo de Contato</Label>
+                <Label>Tipo de Contato *</Label>
                 <Select value={tipoContato} onValueChange={setTipoContato}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione" />
@@ -288,7 +318,7 @@ const handleLimparFiltros = () => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Canal</Label>
+                <Label>Canal *</Label>
                 <Select value={canal} onValueChange={setCanal}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Selecione" />
@@ -317,7 +347,7 @@ const handleLimparFiltros = () => {
             {tipoContato === "Ativo" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="space-y-2">
-                  <Label>Fonte de Contato</Label>
+                  <Label>Fonte de Contato *</Label>
                   <Select value={fonteContato} onValueChange={setFonteContato}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione" />
@@ -330,7 +360,7 @@ const handleLimparFiltros = () => {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Motivo do Contato</Label>
+                  <Label>Motivo do Contato *</Label>
                   <Select value={motivoContato} onValueChange={(value) => {
                     setMotivoContato(value)
                     // Reset elogio/reclamacao when changing motivo
@@ -353,7 +383,7 @@ const handleLimparFiltros = () => {
             {/* Campo Elogio - condicional ao Motivo do Contato */}
             {motivoContato === "Elogio" && (
               <div className="space-y-2 mt-4">
-                <Label>Elogio</Label>
+                <Label>Elogio *</Label>
                 <Textarea
                   placeholder="Descreva o elogio..."
                   value={elogioTexto}
@@ -366,7 +396,7 @@ const handleLimparFiltros = () => {
             {/* Campo Reclamacao - condicional ao Motivo do Contato */}
             {motivoContato === "Reclamacao" && (
               <div className="space-y-2 mt-4">
-                <Label>Reclamacao</Label>
+                <Label>Reclamacao *</Label>
                 <Textarea
                   placeholder="Descreva a reclamacao..."
                   value={reclamacaoTexto}
@@ -379,7 +409,7 @@ const handleLimparFiltros = () => {
             {tipoContato === "Receptivo" && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                 <div className="space-y-2">
-                  <Label>Motivo do Contato</Label>
+                  <Label>Motivo do Contato *</Label>
                   <Select value={motivoContato} onValueChange={(value) => {
                     setMotivoContato(value)
                     // Reset elogio/reclamacao when changing motivo

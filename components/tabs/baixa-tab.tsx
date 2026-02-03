@@ -501,9 +501,22 @@ export function BaixaTab({ searchQuery }: BaixaTabProps) {
               />
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setIsDetalhesBaixaOpen(false)}>
               Fechar
+            </Button>
+            <Button 
+              className="gf-gradient text-white"
+              disabled={!detalheObservacoes || detalheObservacoes.trim() === ""}
+              onClick={() => {
+                toast({
+                  title: "Observacoes salvas",
+                  description: "As observacoes foram salvas com sucesso.",
+                })
+                setIsDetalhesBaixaOpen(false)
+              }}
+            >
+              Salvar
             </Button>
           </DialogFooter>
         </DialogContent>
