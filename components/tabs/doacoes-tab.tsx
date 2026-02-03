@@ -121,6 +121,8 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false)
   const [doacaoToCancel, setDoacaoToCancel] = useState<Doacao | null>(null)
+  const [cancelPreDialogOpen, setCancelPreDialogOpen] = useState(false)
+  const [preCadastradaToCancel, setPreCadastradaToCancel] = useState<typeof mockPreCadastradas[0] | null>(null)
   const { toast } = useToast()
 
   // Edit Items Modal State
@@ -237,11 +239,26 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
   }
 
   const handleConfirmCancel = () => {
-    setCancelDialogOpen(false)
-    setDoacaoToCancel(null)
+  setCancelDialogOpen(false)
+  setDoacaoToCancel(null)
+  toast({
+  title: "Doação cancelada",
+  description: "A doação foi cancelada com sucesso.",
+  variant: "destructive",
+  })
+  }
+
+  const handleCancelPreClick = (item: typeof mockPreCadastradas[0]) => {
+    setPreCadastradaToCancel(item)
+    setCancelPreDialogOpen(true)
+  }
+
+  const handleConfirmCancelPre = () => {
+    setCancelPreDialogOpen(false)
+    setPreCadastradaToCancel(null)
     toast({
-      title: "Doação cancelada",
-      description: "A doação foi cancelada com sucesso.",
+      title: "Doacao cancelada",
+      description: `A doacao ${preCadastradaToCancel?.id} foi cancelada com sucesso.`,
       variant: "destructive",
     })
   }
@@ -1094,13 +1111,7 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
                                 </DropdownMenuItem>
                                 <DropdownMenuItem 
                                   className="text-destructive"
-                                  onClick={() => {
-                                    toast({
-                                      title: "Doacao cancelada",
-                                      description: `A doacao ${item.id} foi cancelada com sucesso.`,
-                                      variant: "destructive",
-                                    })
-                                  }}
+                                  onClick={() => handleCancelPreClick(item)}
                                 >
                                   <X className="h-4 w-4" />
                                   Cancelar Doacao
@@ -1920,6 +1931,28 @@ export function DoacoesTab({ searchQuery }: DoacoesTabProps) {
             <AlertDialogCancel>Não, manter</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmCancel}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Sim, cancelar doação
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Cancel Pre-Cadastrada Confirmation Dialog */}
+      <AlertDialog open={cancelPreDialogOpen} onOpenChange={setCancelPreDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancelar doação?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja cancelar a doação {preCadastradaToCancel?.id}? Esta ação não
+              pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Não, manter</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmCancelPre}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Sim, cancelar doação
