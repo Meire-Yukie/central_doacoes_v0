@@ -1419,6 +1419,22 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                   {selectedDoacao}
                 </DialogDescription>
               </DialogHeader>
+              <div className="flex justify-end -mt-2 mb-2">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => {
+                    toast({
+                      title: "Download iniciado",
+                      description: "Os dados da doacao estao sendo baixados.",
+                    })
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Baixar Dados
+                </Button>
+              </div>
               {(() => {
                 const doacao = selectedDoador && mockDoacoesPorDoador[selectedDoador.id]?.find(d => d.id === selectedDoacao)
                 if (!doacao) return null
@@ -1562,18 +1578,6 @@ const handleOpenDetalhesDoacao = (doacaoId: string) => {
                 </Button>
                 <Button variant="outline" onClick={() => setIsDoacoesOpen(false)}>
                   Fechar
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    toast({
-                      title: "Download iniciado",
-                      description: "Os dados do doador estao sendo baixados.",
-                    })
-                  }}
-                >
-                  <Download className="h-4 w-4" />
-                  Baixar Dados
                 </Button>
               </DialogFooter>
             </>
